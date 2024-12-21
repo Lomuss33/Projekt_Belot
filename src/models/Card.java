@@ -16,24 +16,24 @@ public class Card {
     private final Rank rank;
     private int value;
 
-    // Constructor
+    // Constructor // e.g. 9♥ (Value: 14) => Card card = new Card(Suit.HEARTS, Rank.NINE)
     public Card(Suit suit, Rank rank) {
         this.suit = suit;
         this.rank = rank;
-        this.value = 0; // Value will be dynamically set based on trump or non-trump
+        this.value = 0; // Value based on trump or non-trump
     }
 
-    // Getter for Suit
+    // Getter Suit
     public Suit getSuit() {
         return suit;
     }
 
-    // Getter for Rank
+    // Getter Rank
     public Rank getRank() {
         return rank;
     }
 
-    // Getter for Value
+    // Getter Value
     public int getValue() {
         return value;
     }
