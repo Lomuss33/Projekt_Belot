@@ -28,6 +28,22 @@ Belot is a popular trick-taking card game played primarily in Croatia and surrou
    /o [filename.java]
    ```
 
+
+## How to Run the Belot Project in VS Code
+
+1. Open the **Run and Debug Panel** (`Ctrl+Shift+D` or `Cmd+Shift+D` on Mac).
+2. Select a configuration:
+   - **Main**: Runs the `controllers.Main` class.
+   - **Current File**: Runs the open Java file.
+3. Click the green play button or press `F5` to run.
+4. View the output in the **Debug Console**.
+
+To test, add this to `Main.java`:
+```java
+Card card = new Card(Suit.HEARTS, Rank.ACE);
+card.calculateValue(Suit.HEARTS);
+System.out.println(card);
+```
 ## Server Management
 
 If you need to restart the server, follow these steps:
