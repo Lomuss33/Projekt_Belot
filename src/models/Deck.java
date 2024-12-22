@@ -49,6 +49,7 @@ public class Deck {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("\n" + "Deck:\n");
         for (Card card : cards) {
             sb.append(card).append("\n");
         }

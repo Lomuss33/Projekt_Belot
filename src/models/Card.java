@@ -9,12 +9,12 @@ public class Card {
 
     // Enum for the Rank of the card
     public enum Rank {
-        SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE
+        SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE 
     }
 
-    private final Suit suit;
-    private final Rank rank;
-    private int value;
+    private final Suit suit; // Suit of the card
+    private final Rank rank; // Rank of the card
+    private int value; // Value of the card
 
     // Constructor // e.g. 9♥ (Value: 14) => Card card = new Card(Suit.HEARTS, Rank.NINE)
     public Card(Suit suit, Rank rank) {

@@ -17,14 +17,24 @@ public class Hand {
         cards.addAll(newCards);
     }
 
+    // Get the current all cards in the hand
+    public List<Card> showCards() {
+        return cards;
+    }
+
+    // Get a single card by index
+    public Card getCard(int index) {
+        return cards.get(index);
+    }
+
+    // Remove a single card from the hand by index
+    public void removeCard(int index) {
+        cards.remove(index);
+    }
+
     // Save the current hand as a snapshot of the round
     public List<Card> saveHandRound() {
         return new ArrayList<>(cards); // Return a copy of current hand
-    }
-
-    // Get the current hand
-    public List<Card> getCards() {
-        return cards;
     }
 
     // Display the hand as a string
