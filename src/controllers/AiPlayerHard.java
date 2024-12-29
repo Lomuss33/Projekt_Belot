@@ -1,7 +1,17 @@
+// ░░░░░░░░░░░░░░░░░
+// ░░░░▄▄████▄▄░░░░░
+// ░░░██████████░░░░
+// ░░░██▄▄██▄▄██░░░░
+// ░░░░▄▀▄▀▀▄▀▄░░░░░
+// ░░░▀░░░░░░░░▀░░░░
+// ░░░░░░░░░░░░░░░░░
+//
+// NORMAL AI PLAYER
+//
+
 package controllers;
 
 import java.util.*;
-
 import models.Card;
 import models.Player;
 

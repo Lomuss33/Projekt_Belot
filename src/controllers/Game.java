@@ -1,8 +1,18 @@
+//  ________________
+// |   |,"    `.|   |
+// |   /        \   |
+// |O _\   />   /_  |   ___ __
+// |_(_)'.____.'(_)_|  (")__(")
+// [___|[=]__[=]|___]  //    \\
+//
+// GAME
+//
+
 package controllers;
 
+import java.util.*;
 import models.*;
 import services.Scoring;
-import java.util.*;
 
 public class Game {
 
