@@ -34,6 +34,7 @@ public class Deck {
 
     // Shuffle to randomize card order
     public void shuffle() {
+    public final void shuffle() {
         Collections.shuffle(cards);
     }
 
