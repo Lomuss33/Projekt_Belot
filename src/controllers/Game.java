@@ -18,11 +18,19 @@ import java.util.*;
 
 public class Game {
 
+    // In a new file or within the Game class
+    public enum Difficulty {
+        EASY,
+        NORMAL,
+        HARD,
+        TEST
+    }
+
     private static final int MAX_POINTS = 1001; // Win treshold
 
+    private Difficulty difficulty; // Selected difficulty level
     public Deck deck; // Deck of cards
     public List<Player> players; // List of players
-    public Scoring scoring; // Scoring service
     public Card.Suit trumpSuit; // Trump suit
     public Stack<GameState> gameStates; // Stack to store game states for undo
 
@@ -30,32 +38,57 @@ public class Game {
     public Game() {
         deck = new Deck();
         players = new ArrayList<>();
-        scoring = new Scoring();
         gameStates = new Stack<>();
+        difficulty = Difficulty.NORMAL; // Default difficulty
         initializePlayers();
     }
 
     public void startGame() {
         // Ensure deck is shuffled before dealing
         deck.shuffle();
-    
         // Deal 5 cards to each player
-        deck.dealHands(players, 5);
-    
+        deck.dealHands(players, 2);
+        // Difficulty level
+        System.out.println("Game started with difficulty: " + difficulty);
         // Display each player's hand (optional, for testing)
         for (Player player : players) {
-            System.out.println(player.getName() + "'s hand: ");
             player.displayHand();
         }
+    }
+
+    // Method to choose difficulty
+    public void chooseDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
+        players.clear(); // Reset players based on difficulty
+        initializePlayers();
     }
 
     // NEEDS AUTOMATION
     // Initialize 3 AI players and 1 human player
     private void initializePlayers() {
-        players.add(new HumanPlayer("You")); // Add human player
-        players.add(new AiPlayerEasy("AI 1")); // Add AI players...
-        players.add(new AiPlayerNormal("AI 2"));
-        players.add(new AiPlayerHard("AI 3"));
+        players.add(new HumanPlayer("YOU")); // Add human player
+        switch (difficulty) {
+            case EASY:
+                players.add(new AiPlayerEasy("Bot 1"));  // Add AI players...
+                players.add(new AiPlayerEasy("Bot 2"));
+                players.add(new AiPlayerEasy("Bot 3"));
+                break;
+            case NORMAL:
+                players.add(new AiPlayerNormal("Bot 1"));
+                players.add(new AiPlayerNormal("Bot 2"));
+                players.add(new AiPlayerNormal("Bot 3"));
+                break;
+            case HARD:
+                players.add(new AiPlayerHard("Bot 1"));
+                players.add(new AiPlayerHard("Bot 2"));
+                players.add(new AiPlayerHard("Bot 3"));
+                break;
+            case TEST:
+                players.add(new AiPlayerEasy("Bot 1"));
+                players.add(new AiPlayerNormal("Bot 2"));
+                players.add(new AiPlayerHard("Bot 3"));
+                break;
+        }
     }
 
     // Save the current state of the game

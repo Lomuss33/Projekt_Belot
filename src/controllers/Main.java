@@ -10,6 +10,8 @@
 package controllers;
 
 import java.util.List;
+
+import controllers.Game.Difficulty;
 import models.*;
 
 public class Main {
@@ -48,6 +50,8 @@ public class Main {
         // System.out.println(game.players.get(0).getHand());
 
         Game game = new Game();
+        game.chooseDifficulty(Difficulty.EASY);
         game.startGame();
+        
     }  
 }
