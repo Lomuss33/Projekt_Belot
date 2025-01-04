@@ -35,6 +35,20 @@ public class Game {
         initializePlayers();
     }
 
+    public void startGame() {
+        // Ensure deck is shuffled before dealing
+        deck.shuffle();
+    
+        // Deal 5 cards to each player
+        deck.dealHands(players, 5);
+    
+        // Display each player's hand (optional, for testing)
+        for (Player player : players) {
+            System.out.println(player.getName() + "'s hand: ");
+            player.displayHand();
+        }
+    }
+
     // NEEDS AUTOMATION
     // Initialize 3 AI players and 1 human player
     private void initializePlayers() {

@@ -51,16 +51,15 @@ public class Card {
     // Set the value of the card based on whether it's a trump card
     public void calculateValue(Suit trumpSuit) {
         boolean isTrump = this.suit == trumpSuit;
-
         switch (this.rank) {
-            case SEVEN -> value = 0;
-            case EIGHT -> value = 0;
-            case NINE -> value = isTrump ? 14 : 0;
-            case TEN -> value = 10;
-            case JACK -> value = isTrump ? 20 : 2;
-            case QUEEN -> value = 3;
-            case KING -> value = 4;
-            case ACE -> value = 11;
+            case SEVEN: value = 0; break;
+            case EIGHT: value = 0; break;
+            case NINE: value = isTrump ? 14 : 0; break;
+            case TEN: value = 10; break;
+            case JACK: value = isTrump ? 20 : 2; break;
+            case QUEEN: value = 3; break;
+            case KING: value = 4; break;
+            case ACE: value = 11; break;
         }
     }
 

@@ -19,17 +19,22 @@ import java.util.List;
 
 public class Deck {
 
-    private List<Card> cards;
+    private List<Card> cards; // List of cards in the deck
 
     // Constructor for deck with all cards
     public Deck() {
+        initializeDeck(); // Use helper method to initialize cards
+        shuffle(); // Randomize the deck
+    }
+
+    // Private helper to initialize all cards in the deck
+    private void initializeDeck() {
         cards = new ArrayList<>();
         for (Card.Suit suit : Card.Suit.values()) {
             for (Card.Rank rank : Card.Rank.values()) {
                 cards.add(new Card(suit, rank));
             }
         }
-        shuffle();
     }
 
     // Shuffle to randomize card order
@@ -37,35 +42,38 @@ public class Deck {
         Collections.shuffle(cards);
     }
 
-    // Deal specified count of cards and remove them from the deck
-    public List<Card> dealCards(int count) {
+    // Return specified count of cards and remove them from the deck
+    private List<Card> dealCards(int count) {
+        // Check if there are enough cards to deal
         if (count > cards.size()) {
             throw new IllegalArgumentException("Not enough cards left to deal.");
         }
-        List<Card> dealtCards = new ArrayList<>(cards.subList(0, count));
-        cards = new ArrayList<>(cards.subList(count, cards.size()));
-        return dealtCards;
+        List<Card> dealtCards = new ArrayList<>(cards.subList(0, count)); // Define dealt cards
+        cards = new ArrayList<>(cards.subList(count, cards.size())); // Remove dealt cards
+        return dealtCards; // Return dealt cards
+    }
+
+    // Deal the cards to the players hands
+    public void dealHands(List<Player> players, int cardsPerPlayer) {
+        for (Player player : players) {
+            player.getHand().addCards(dealCards(cardsPerPlayer)); // Add dealt cards to player's hand
+        }
     }
 
     // Reset the deck to its full initial state
     public void reset() {
-        cards.clear();
-        for (Card.Suit suit : Card.Suit.values()) {
-            for (Card.Rank rank : Card.Rank.values()) {
-                cards.add(new Card(suit, rank));
-            }
-        }
-        shuffle();
+        initializeDeck(); // Use helper method to initialize cards
+        shuffle(); // Randomize the deck
     }
 
     // Set the state of the deck (undo functionality)
-    public void setCards(List<Card> cards) {
-        this.cards = new ArrayList<>(cards);
+    public void setCards(List<Card> newCards) {
+        this.cards = new ArrayList<>(newCards); // Set the deck to the new state
     }
 
     // Get the current state of the deck
     public List<Card> getCards() {
-        return new ArrayList<>(cards);
+        return new ArrayList<>(cards);  // Return a copy for immutability
     }
 
     // For debugging - to display the deck contents
