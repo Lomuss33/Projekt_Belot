@@ -27,14 +27,6 @@ public class AiPlayerNormal extends Player {
     }
 
     @Override
-    public Card playCard(int index) {
-        Card playedCard = hand.getCard(index);
-        hand.removeCard(index);
-        return playedCard;
-    }
-
-
-    @Override
     public List<Card> callZvanje(List<Integer> selectedIndices) {
         return new ArrayList<>(); // Basic Zvanje logic for Normal AI
     }

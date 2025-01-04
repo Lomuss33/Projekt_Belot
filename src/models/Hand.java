@@ -28,13 +28,17 @@ public class Hand {
         cards.addAll(newCards);
     }
 
+    public void addCard(Card newCard) {
+        cards.add(newCard);
+    }
+
     // Get the current all cards in the hand
-    public List<Card> showCards() {
-        return cards;
+    public List<Card> getCards() {
+        return new ArrayList<>(cards); // Return a copy of current hand
     }
 
     // Get a single card by index
-    public Card getCard(int index) {
+    public final Card getCard(int index) {
         return cards.get(index);
     }
 
@@ -43,17 +47,16 @@ public class Hand {
         cards.remove(index);
     }
 
-    // Save the current hand as a snapshot of the round
-    public List<Card> saveHandRound() {
-        return new ArrayList<>(cards); // Return a copy of current hand
+    public void setCards(List<Card> newCards) {
+        cards = new ArrayList<>(newCards);
     }
 
     // Display the hand as a string
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("Hand: ");
+        StringBuilder sb = new StringBuilder("Hand: \n");
         for (Card card : cards) {
-            sb.append(card).append(", ");
+            sb.append(card).append("\n");
         }
         return sb.toString();
     }

@@ -33,7 +33,6 @@ public class Deck {
     }
 
     // Shuffle to randomize card order
-    public void shuffle() {
     public final void shuffle() {
         Collections.shuffle(cards);
     }
@@ -59,11 +58,20 @@ public class Deck {
         shuffle();
     }
 
+    // Set the state of the deck (undo functionality)
+    public void setCards(List<Card> cards) {
+        this.cards = new ArrayList<>(cards);
+    }
+
+    // Get the current state of the deck
+    public List<Card> getCards() {
+        return new ArrayList<>(cards);
+    }
+
     // For debugging - to display the deck contents
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n" + "Deck:\n");
+        StringBuilder sb = new StringBuilder("Deck: \n");
         for (Card card : cards) {
             sb.append(card).append("\n");
         }

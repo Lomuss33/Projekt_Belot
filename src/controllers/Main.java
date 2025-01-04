@@ -15,26 +15,41 @@ import models.*;
 public class Main {
     public static void main(String[] args) {
         // Create a new deck
-        Deck deck = new Deck();
-        System.out.println("Initial Deck:");
-        System.out.println(deck);
+        // Deck deck = new Deck();
+        // deck.shuffle();
+        // System.out.println("Shuffled Deck");
+        // System.out.println(deck);
 
-        // Test shuffle
-        deck.shuffle();
-        System.out.println("Shuffled Deck:");
-        System.out.println(deck);
+        // // Test dealing cards
+        // List<Card> dealtCards = deck.dealCards(8);
+        // System.out.println("Dealt Cards");
+        // for (Card card : dealtCards) {
+        //     System.out.println(card);
+        // }
 
-        // Test dealing cards
-        List<Card> dealtCards = deck.dealCards(15);
-        System.out.println("Dealt Cards:");
-        for (Card card : dealtCards) {
-            System.out.println(card);
-        }
-        System.out.println("Remaining cards in deck: " + deck);
+        // Hand hand = new Hand();
+        // hand.addCards(dealtCards);
+        // System.out.println(hand);
 
-        // Test reset
-        deck.reset();
-        System.out.println("Deck after reset:");
-        System.out.println(deck);
-    }
+        Game game = new Game();
+
+
+        game.players.get(0).getHand().addCard(new Card(Card.Suit.HEARTS, Card.Rank.ACE));
+        game.players.get(0).getHand().addCard(new Card(Card.Suit.HEARTS, Card.Rank.KING));
+        game.players.get(0).getHand().addCard(new Card(Card.Suit.HEARTS, Card.Rank.QUEEN));
+        game.players.get(0).getHand().addCard(new Card(Card.Suit.HEARTS, Card.Rank.JACK));
+        game.players.get(0).getHand().addCard(new Card(Card.Suit.HEARTS, Card.Rank.TEN));
+
+        // Simulate moves
+        System.out.println(game.players.get(0).getHand());
+        game.makeMove(0, 2);
+        System.out.println(game.players.get(0).getHand());
+        game.makeMove(0, 1); 
+        System.out.println(game.players.get(0).getHand());
+        // Undo last move
+        game.undo();
+        System.out.println(game.players.get(0).getHand());
+        game.undo();
+        System.out.println(game.players.get(0).getHand());
+    }  
 }
