@@ -38,4 +38,22 @@ public class HumanPlayer extends Player {
         return selectedCards;
     }
 
+    // NEEDS TO BE IMPLEMENTED CORRECTLY
+    // Choose trump suit
+    @Override
+    public Card.Suit chooseTrump() {
+        return Card.Suit.HEARTS; // Implement actual trump suit selection logic
+    }
+    // Choose suit based on input string
+    public Card.Suit chooseSuit(String suit) {
+        return switch (suit.toUpperCase()) {
+            case "HEARTS" -> Card.Suit.HEARTS;
+            case "DIAMONDS" -> Card.Suit.DIAMONDS;
+            case "CLUBS" -> Card.Suit.CLUBS;
+            case "SPADES" -> Card.Suit.SPADES;
+            case "SKIP" -> null; // or handle skip case appropriately
+            default -> throw new IllegalArgumentException("Invalid suit: " + suit);
+        };
+    }
+
 }

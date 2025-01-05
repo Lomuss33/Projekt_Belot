@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Team {
-    private String name; // Team name
-    private List<Player> players; // List of players in the team
+    private final String name; // Team name
+    private final List<Player> players; // List of players in the team
     private int score; // Total score for the team
     private int wins; // Total wins for the team
 

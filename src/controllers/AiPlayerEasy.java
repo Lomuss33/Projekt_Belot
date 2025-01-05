@@ -33,5 +33,11 @@ public class AiPlayerEasy extends Player {
     public List<Card> callZvanje(List<Integer> selectedIndices) {
         return new ArrayList<>(); // Basic Zvanje logic for Normal AI
     }
+
+    // Choose trump suit
+    @Override
+    public Card.Suit chooseTrump() {
+        return null; // Implement actual trump suit selection logic
+    }
     
 }

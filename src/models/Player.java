@@ -40,6 +40,10 @@ public abstract class Player {
         return null;
     }
 
+    // Abstract method to choose trump
+    public abstract Card.Suit chooseTrump();
+
+    // Abstract method to call zvanje
     public abstract List<Card> callZvanje(List<Integer> selectedIndices);
     
     // public abstract void callDama(); ?

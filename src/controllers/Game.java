@@ -17,7 +17,7 @@ import services.*;
 public class Game {
 
     private Difficulty difficulty; // Selected difficulty level
-    private Team team1, team2; // Teams
+    private final Team team1, team2; // Teams
     private int team1Score = 0, team2Score = 0; // Scores
     private ZvanjeService zvanjeService;
     public Deck deck; // Deck of cards
@@ -78,27 +78,24 @@ public class Game {
     }
 
     public void startGame() {
-        // Ensure deck is shuffled before dealing
         deck.shuffle();
-        // Deal 5 cards to each player
+        deck.dealHands(players, 2); // Deal 6 cards in 3 rounds
         deck.dealHands(players, 2);
         deck.dealHands(players, 2);
-        deck.dealHands(players, 2);
-        // Difficulty level
-        System.out.println("Game started with difficulty: " + difficulty);
-        // Display each player's hand (optional, for testing)
-        for (Player player : players) {
-            player.displayHand();
-        }
+        // Display hands (optional)
+        players.forEach(Player::displayHand);
 
-        // Call Zvanje
-        for (Player player : players) {
-            int zvanjePoints = calculateZvanjePoints(player, trumpSuit);
-            Team playerTeam = getPlayerTeam(player); // Get the player's team
-            if (playerTeam != null) {
-                playerTeam.addScore(zvanjePoints); // Add points to the team's score
-            }
-        }
+        // Select Trump Suit and Update Card Values
+        trumpSuit = chooseTrumpSuit();
+        System.out.println("Trump Suit chosen: " + trumpSuit);
+        updateCardValues(trumpSuit);
+    
+        // Determine and Announce Zvanje
+        Team winningTeam = determineAndAnnounceZvanje();
+        System.out.println(winningTeam.getName() + " wins Zvanje!");
+
+        // Display hands (optional)
+        players.forEach(Player::displayHand);
     }
 
     // Get the index of the starting player
@@ -162,7 +159,78 @@ public class Game {
         System.out.println(player.getName() + " announced: " + zvanjeList);
         System.out.println(player.getName() + " scored " + totalPoints + " points for Zvanje.");
         return totalPoints;
-    }    
+    }  
+    
+    private Card.Suit chooseTrumpSuit() {
+        int currentIndex = (dealerIndex + 1) % 4; // Player next to the dealer
+        int skips = 0;
+        Card.Suit chosenSuit = null;
+
+        for (int i = 0; i < 4; i++) {
+            Player currentPlayer = players.get(currentIndex);
+
+            // Ask the current player to choose trump suit
+            chosenSuit = currentPlayer.chooseTrump();
+
+            if (chosenSuit != null) {
+                System.out.println(currentPlayer.getName() + " chose " + chosenSuit);
+                deck.dealCards(currentPlayer, 2);
+                break;
+            } else {
+                skips++;
+                System.out.println(currentPlayer.getName() + " skipped.");
+            }
+
+            // If all players skip, the last player is forced to choose
+            if (i == 3 && skips == 3) {
+                    System.out.println(currentPlayer + " MUST choose a trump suit:");
+                    while (chosenSuit == null) {
+                        chosenSuit = currentPlayer.chooseTrump();
+                    }
+            }
+            currentIndex = (currentIndex + 1) % 4; // Move to the next player
+            deck.dealCards(currentPlayer, 2);
+        }
+        return chosenSuit;
+    }
+
+    // Determine the winning team and points for Zvanje
+    private Team determineAndAnnounceZvanje() {
+        // Delegate the Zvanje logic to ZvanjeService
+        Map<String, Object> zvanjeResult = zvanjeService.determineZvanje(players, team1, team2, trumpSuit);
+    
+        // Extract the winning team and points from the result
+        Team winningTeam = (Team) zvanjeResult.get("winningTeam");
+        int points = (int) zvanjeResult.get("points");
+    
+        // Update scores
+        if (winningTeam == team1) {
+            team1Score += points;
+        } else {
+            team2Score += points;
+        }
+    
+        // Announce results
+        System.out.println(winningTeam.getName() + " awarded " + points + " points for Zvanje.");
+        return winningTeam;
+    }
+
+    // Method to update values for all cards in the deck and players' hands
+    public void updateCardValues(Card.Suit trumpSuit) {
+        // Update values for all cards in the deck
+        for (Card card : deck.getCards()) {
+            card.calculateValue(trumpSuit);
+        }
+
+        // Update values for all cards in players' hands
+        for (Player player : players) {
+            for (Card card : player.getHand().getCards()) {
+                card.calculateValue(trumpSuit);
+            }
+        }
+
+        System.out.println("Card values updated for trump suit: " + trumpSuit);
+    }
 
     // Save the current state of the game
     private void saveGameState() {

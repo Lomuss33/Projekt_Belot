@@ -42,21 +42,24 @@ public class Deck {
         Collections.shuffle(cards);
     }
 
-    // Return specified count of cards and remove them from the deck
-    private List<Card> dealCards(int count) {
+    // Deal specified count of cards directly to a player
+    public void dealCards(Player player, int count) {
         // Check if there are enough cards to deal
         if (count > cards.size()) {
             throw new IllegalArgumentException("Not enough cards left to deal.");
         }
-        List<Card> dealtCards = new ArrayList<>(cards.subList(0, count)); // Define dealt cards
-        cards = new ArrayList<>(cards.subList(count, cards.size())); // Remove dealt cards
-        return dealtCards; // Return dealt cards
+        // Get the specified number of cards from the deck
+        List<Card> dealtCards = new ArrayList<>(cards.subList(0, count));
+        cards = new ArrayList<>(cards.subList(count, cards.size())); // Remove dealt cards from the deck
+
+        // Add the dealt cards to the player's hand
+        player.getHand().addCards(dealtCards);
     }
 
-    // Deal the cards to the players hands
+    // Deal cards to all players
     public void dealHands(List<Player> players, int cardsPerPlayer) {
         for (Player player : players) {
-            player.getHand().addCards(dealCards(cardsPerPlayer)); // Add dealt cards to player's hand
+            dealCards(player, cardsPerPlayer); // Directly deal cards to the player
         }
     }
 

@@ -30,5 +30,11 @@ public class AiPlayerHard extends Player {
     public List<Card> callZvanje(List<Integer> selectedIndices) {
         return new ArrayList<>(); // Basic Zvanje logic for Normal AI
     }
+
+    // Choose trump suit
+    @Override
+    public Card.Suit chooseTrump() {
+        return Card.Suit.HEARTS; // Implement actual trump suit selection logic
+    }
     
 }
