@@ -18,7 +18,7 @@ public abstract class Player {
     
     protected String name;
     protected Hand hand;
-
+    protected Team team;
 
     public Player(String name) {
         this.name = name;
