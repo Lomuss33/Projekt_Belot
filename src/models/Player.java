@@ -25,7 +25,19 @@ public abstract class Player {
         this.hand = new Hand();
     }
 
-    // TODO: check before playing for playable cards and store them
+    // Abstract method to choose trump
+    public abstract Card.Suit chooseTrump();
+
+    // Abstract method to call zvanje
+    public abstract List<Card> callZvanje(List<Integer> selectedIndices);
+    
+    // Abstract method to call dama
+    public abstract void callDama();
+
+    // Abstract method to choose a card to be played
+    public abstract Card chooseCard();
+
+    // Abstract method to check if a card is playable
     public abstract boolean isCardPlayable(Card card);
 
     public final Card playCard(int index) {
@@ -39,14 +51,6 @@ public abstract class Player {
         }
         return null;
     }
-
-    // Abstract method to choose trump
-    public abstract Card.Suit chooseTrump();
-
-    // Abstract method to call zvanje
-    public abstract List<Card> callZvanje(List<Integer> selectedIndices);
-    
-    // public abstract void callDama(); ?
 
     // Get the name of the player
     public String getName() {

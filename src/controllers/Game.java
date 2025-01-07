@@ -39,6 +39,81 @@ public class Game {
         initializePlayers(); // Initialize players
     }
 
+    public void startGame() {
+        deck.shuffle();
+        // Deal 6 cards in 3 rounds
+        deck.dealHands(players, 2);
+        deck.dealHands(players, 2);
+        deck.dealHands(players, 2);
+        // Display hands (optional)
+        players.forEach(Player::displayHand);
+        // Select Trump Suit and Update Card Values
+        trumpSuit = chooseTrumpSuit();
+        System.out.println("Trump Suit chosen: " + trumpSuit);
+        updateCardValues(trumpSuit);
+        // Determine and Announce Zvanje
+        Team zvanjeWonTeam = determineAndAnnounceZvanje();
+        System.out.println(zvanjeWonTeam.getName() + " wins Zvanje!");
+        // Display hands (optional)
+        players.forEach(Player::displayHand);
+        // COMBINE THE ABOVE INTO A METHOD as startOfGame()
+        //
+
+        // Start the first round
+        startRound();
+    }
+
+    // NEEDS TO BE IMPLEMENTED
+    // Start a new round
+    public void startRound() {
+        System.out.println("New round started.");
+        System.out.println(players.get(dealerIndex).getName() + " starts this round.");
+        
+        // Get playable cards
+        // Check what Cards are playable - isCardPlayable()
+        // Choose a card to play, check if Dama/King is played, callDama() if adut
+        // Play the card
+        // Next players repeat
+        // After 4 cards are played, determine the winner
+        // Update the scores, check if the game is over (automatically or by player choice)
+        // Move to the next dealer
+
+        List<Card> onFloorCards = new ArrayList<>();
+    
+        for(int turn = 0; turn < 4; turn++) {
+            Player currentPlayer = players.get((getStartingPlayerIndex() + turn) % 4);
+
+            List<Card> playableCards = getPlayableCards(currentPlayer);
+            Card playedCard = currentPlayer.playCard(determineCardIndex(playableCards));
+
+            if (playedCard.getSuit() == trumpSuit && (playedCard.getRank() == Card.Rank.KING || playedCard.getRank() == Card.Rank.QUEEN)) {
+                callDama(currentPlayer, playedCard);
+            }
+            // Player chooses a card to play
+            Card playedCard = currentPlayer.playCard(determineCardIndex(playableCards));
+            onFloorCards.add(playedCard);
+
+            // If King or Queen of trump is played, handle "Bela"
+
+        }
+
+        // Display team scores
+        System.out.println(team1.getName() + " - Score: " + team1.getScore() + ", Wins: " + team1.getWins());
+        System.out.println(team2.getName() + " - Score: " + team2.getScore() + ", Wins: " + team2.getWins());
+        nextDealer(); // Move to the next dealer
+    }
+
+    // Determine the index of the card to play
+    public List<Card> getPlayableCards(Player player) {
+        List<Card> playableCards = new ArrayList<>();
+        for (Card card : player.getHand().getCards()) {
+            if (player.isCardPlayable(card)) {
+                playableCards.add(card);
+            }
+        }
+        return playableCards;
+    }
+
     // Method to choose difficulty
     public void chooseDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
@@ -77,27 +152,6 @@ public class Game {
         team2.addPlayer(players.get(3));
     }
 
-    public void startGame() {
-        deck.shuffle();
-        deck.dealHands(players, 2); // Deal 6 cards in 3 rounds
-        deck.dealHands(players, 2);
-        deck.dealHands(players, 2);
-        // Display hands (optional)
-        players.forEach(Player::displayHand);
-
-        // Select Trump Suit and Update Card Values
-        trumpSuit = chooseTrumpSuit();
-        System.out.println("Trump Suit chosen: " + trumpSuit);
-        updateCardValues(trumpSuit);
-    
-        // Determine and Announce Zvanje
-        Team winningTeam = determineAndAnnounceZvanje();
-        System.out.println(winningTeam.getName() + " wins Zvanje!");
-
-        // Display hands (optional)
-        players.forEach(Player::displayHand);
-    }
-
     // Get the index of the starting player
     public int getStartingPlayerIndex() {
         return (dealerIndex + 1) % 4;
@@ -106,18 +160,6 @@ public class Game {
     // Move to the next dealer
     public void nextDealer() {
         dealerIndex = (dealerIndex + 1) % 4;
-    }
-
-    // NEEDS TO BE IMPLEMENTED
-    // Start a new round
-    public void startRound() {
-        nextDealer(); // Move to the next dealer
-        System.out.println("New round started.");
-        System.out.println(players.get(dealerIndex).getName() + " starts this round.");
-    
-        // Display team scores
-        System.out.println(team1.getName() + " - Score: " + team1.getScore() + ", Wins: " + team1.getWins());
-        System.out.println(team2.getName() + " - Score: " + team2.getScore() + ", Wins: " + team2.getWins());
     }
 
     // Get the team of a player

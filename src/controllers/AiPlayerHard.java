@@ -21,6 +21,26 @@ public class AiPlayerHard extends Player {
         super(name);
     }
 
+    // IMPLEMENTATION NEEDED
+    // Choose a card to play
+    @Override
+    public Card chooseCard() {
+        return hand.getCard(0); // Implement actual card selection logic
+    }
+
+    // IMPLEMENTATION NEEDED
+    // Find Dama in hand
+    @Override
+    public void callDama() {
+        for(Card card : hand.getCards()) {
+            if(card.getRank() == Card.Rank.QUEEN && card.getSuit() == Card.Suit.CLUBS) {
+                // Call Dama
+            }
+        }
+    }
+
+    // IMPLEMENTATION NEEDED
+    // Check if card is playable
     @Override
     public boolean isCardPlayable(Card card) {
         return true; // Implement actual rule-checking logic

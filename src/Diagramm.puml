@@ -1,0 +1,188 @@
+@startuml
+left to right direction
+' Classes and relationships for the system
+
+class Game {
+    ' Attributes
+    + Difficulty difficulty : Game difficulty level
+    + Deck deck : The deck of cards used in the game
+    + List<Player> players : List of players in the game
+    + Team team1 : Home team
+    + Team team2 : Away team
+    + Stack<GameState> gameStates : History of game states for undo functionality
+    + Card.Suit trumpSuit : Current trump suit for the game
+    + int dealerIndex : Index of the dealer
+
+    ---
+    ' Constructor
+    + Game() : Initializes a new game
+
+    ---
+    ' Void Methods
+    + void chooseDifficulty(Difficulty difficulty) : Choose game difficulty
+    + void startGame() : Start the game
+    + void nextDealer() : Moves to the next dealer
+    + void makeMove(int playerIndex, int cardIndex) : Make a move in the game
+    + void undo() : Undo the last move
+    + void updateCardValues(Card.Suit trumpSuit) : Updates card values based on trump
+    + void saveGameState() : Saves the current game state
+
+    ---
+    ' Non-void Methods
+    + int getStartingPlayerIndex() : Returns the starting player index
+    + int calculateZvanjePoints(Player player, Card.Suit trumpSuit) : Calculates points for Zvanje
+    + Card.Suit chooseTrumpSuit() : Choose the trump suit for the game
+    + Team determineAndAnnounceZvanje() : Determines the winning team based on Zvanje
+}
+
+class Team {
+    ' Attributes
+    + String name : The name of the team
+    + List<Player> players : List of players in the team
+    + int score : Current score of the team
+    + int wins : Total wins by the team
+
+    ---
+    ' Constructor
+    + Team(String name) : Initializes a team with a name
+
+    ---
+    ' Void Methods
+    + void addPlayer(Player player) : Adds a player to the team
+    + void addScore(int points) : Updates the team score
+    + void addWin() : Increments the win count
+
+    ---
+    ' Non-void Methods
+    + int getScore() : Returns the team score
+    + int getWins() : Returns the number of wins
+}
+
+class Player {
+    ' Attributes
+    + String name : The name of the player
+    + Hand hand : The player's hand of cards
+
+    ---
+    ' Constructor
+    + Player(String name) : Initializes a player with a name
+
+    ---
+    ' Void Methods
+    + void displayHand() : Displays the player's hand
+
+    ---
+    ' Non-void Methods
+    + abstract boolean isCardPlayable(Card card) : Checks if a card can be played
+    + abstract Card.Suit chooseTrump() : Choose a trump suit
+    + abstract List<Card> callZvanje(List<Integer> selectedIndices) : Call a Zvanje
+    + Card playCard(int index) : Plays a card from the hand
+    + Hand getHand() : Returns the player's hand
+}
+
+class Deck {
+    ' Attributes
+    + List<Card> cards : The list of cards in the deck
+
+    ---
+    ' Constructor
+    + Deck() : Initializes a new deck of cards
+
+    ---
+    ' Void Methods
+    + void shuffle() : Shuffles the deck
+    + void dealCards(Player player, int count) : Deals cards to a player
+    + void dealHands(List<Player> players, int cardsPerPlayer) : Deals cards to all players
+    + void reset() : Resets the deck to its initial state
+    + void setCards(List<Card> newCards) : Sets the deck's state
+
+    ---
+    ' Non-void Methods
+    + List<Card> getCards() : Gets the current state of the deck
+}
+
+class Card {
+    ' Attributes
+    + Suit suit : The suit of the card (HEARTS, DIAMONDS, CLUBS, SPADES)
+    + Rank rank : The rank of the card (e.g., ACE, KING, etc.)
+    + int value : The value of the card based on the game rules
+
+    ---
+    ' Constructor
+    + Card(Suit suit, Rank rank) : Initializes a card with a suit and rank
+
+    ---
+    ' Void Methods
+    + void calculateValue(Suit trumpSuit) : Calculates the card's value based on trump
+
+    ---
+    ' Non-void Methods
+    + Suit getSuit() : Returns the suit of the card
+    + Rank getRank() : Returns the rank of the card
+    + int getValue() : Returns the value of the card
+}
+
+class Hand {
+    ' Attributes
+    + List<Card> cards : The list of cards in the player's hand
+
+    ---
+    ' Constructor
+    + Hand() : Initializes an empty hand
+
+    ---
+    ' Void Methods
+    + void addCards(List<Card> newCards) : Adds cards to the hand
+    + void removeCard(int index) : Removes a card from the hand
+
+    ---
+    ' Non-void Methods
+    + Card getCard(int index) : Returns a card at a specific index
+    + List<Card> getCards() : Returns all cards in the hand
+}
+
+class GameState {
+    ' Attributes
+    + List<Card> deckState : The current state of the deck
+    + List<List<Card>> handsState : The current state of players' hands
+
+    ---
+    ' Constructor
+    + GameState(List<Card> deckState, List<List<Card>> handsState) : Initializes a game state with the deck and hands
+
+    ---
+    ' Non-void Methods
+    + List<Card> getDeckState() : Returns the deck state
+    + List<List<Card>> getHandsState() : Returns the hands state
+}
+
+class ZvanjeService {
+    ' Attributes
+    + enum ZvanjeType { FOUR_JACKS, FOUR_NINES, FOUR_OTHERS, SEQUENCE_OF_3, SEQUENCE_OF_4, SEQUENCE_OF_5_OR_MORE, BELOT, BELA }
+
+    ---
+    ' Non-void Methods
+    + List<ZvanjeType> detectZvanje(Player player, Card.Suit trumpSuit) : Detects Zvanje combinations for a player
+    + Map<String, Object> determineZvanje(List<Player> players, Team team1, Team team2, Card.Suit trumpSuit) : Determines Zvanje points and winning team
+}
+
+class CardRankComparator {
+    ---
+    ' Non-void Methods
+    + int compare(Card card1, Card card2) : Compares two cards by rank
+    + Map<Card.Suit, List<Card>> groupAndSortBySuit(List<Card> cards) : Groups and sorts cards by suit
+}
+
+' Relationships
+Game "1" -- "1..2" Team : manages
+Game "1" -- "1" Deck : uses
+Game "1" -- "1..*" Player : involves
+Game "1" -- "1..*" GameState : stores
+Player "1" -- "1" Hand : owns
+Deck "1" -- "0..*" Card : contains
+Hand "1" -- "0..*" Card : contains
+Team "1" -- "0..*" Player : consists of
+ZvanjeService "1" -- "0..*" Player : analyzes
+CardRankComparator "1" -- "0..*" Card : compares
+
+@enduml
