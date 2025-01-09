@@ -41,7 +41,7 @@ public class ZvanjeService {
         detectFourOfAKind(cards, zvanjeList);
     
         // Detect Sequences
-        Map<Card.Suit, List<Card>> groupedBySuit = CardRankComparator.groupAndSortBySuit(cards);
+        Map<Card.Suit, List<Card>> groupedBySuit = CardService.groupAndSortBySuit(cards);
         for (List<Card> suitCards : groupedBySuit.values()) {
             detectSequences(suitCards, zvanjeList);
         }
