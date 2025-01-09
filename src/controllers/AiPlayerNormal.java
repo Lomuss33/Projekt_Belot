@@ -12,13 +12,12 @@
 package controllers;
 
 import java.util.*;
-import models.Card;
-import models.Player;
+import models.*;
 
 public class AiPlayerNormal extends Player {
 
-    public AiPlayerNormal(String name) {
-        super(name);
+    public AiPlayerNormal(String name, Team team) {
+        super(name, team);
     }
 
     // IMPLEMENTATION NEEDED

@@ -12,14 +12,13 @@
 package controllers;
 
 import java.util.*;
-import models.Card;
-import models.Player;
+import models.*;
 
 public class AiPlayerEasy extends Player {
 
     // Constructor
-    public AiPlayerEasy(String name) {
-        super(name);
+    public AiPlayerEasy(String name, Team team) {
+        super(name, team);
     }
 
     // IMPLEMENTATION NEEDED

@@ -20,8 +20,9 @@ public abstract class Player {
     protected Hand hand;
     protected Team team;
 
-    public Player(String name) {
+    public Player(String name, Team team) {
         this.name = name;
+        this.team = team;
         this.hand = new Hand();
     }
 
@@ -54,6 +55,11 @@ public abstract class Player {
     // Get the hand of the player
     public Hand getHand() {
         return hand;
+    }
+
+    // Set the team of the player
+    public Team getTeam() {
+        return team;
     }
 
     // Display the hand of the player

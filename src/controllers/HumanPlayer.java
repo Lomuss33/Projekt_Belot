@@ -19,8 +19,8 @@ import models.*;
 
 public class HumanPlayer extends Player {
 
-    public HumanPlayer(String name, int team) {
-        super(name);
+    public HumanPlayer(String name, Team team) {
+        super(name, team);
     }
 
     // IMPLEMENTATION NEEDED

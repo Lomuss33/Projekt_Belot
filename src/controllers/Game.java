@@ -6,28 +6,31 @@ import services.*;
 
 public class Game {
 
-    private Difficulty difficulty;
+    private final Difficulty difficulty;
     private final Team team1, team2;
     private final List<Player> players;
     
-    private final CardService cardService;
     private final ZvanjeService zvanjeService;
     private final GameStateManager gameStateManager;
-    private final GameInitializer gameInitializer;
 
-    public Game() {
-        /* ------------------------- this.deck = new Deck();  EVERY ROUND A NEW DECK ------------------------ */ 
+    /* ----------------------------- Initilize game ----------------------------- */
+    public Game(Difficulty difficulty) {
+        
+        this.zvanjeService = new ZvanjeService();
+        this.gameStateManager = new GameStateManager();
+
+        /////
+
+        this.difficulty = difficulty;
         this.players = new ArrayList<>();
         this.team1 = new Team("HOME");
         this.team2 = new Team("AWAY");
-        this.cardService = new CardService();
-        this.zvanjeService = new ZvanjeService();
-        this.gameStateManager = new GameStateManager();
-        this.gameInitializer = new GameInitializer();
-        /* -------------------------- this.dealerIndex = 0; EVERY ROUND A NEW QUESTION OF DEALER ------------------------- */
-        this.difficulty = Difficulty.TEST;
-        gameInitializer.initializePlayers(difficulty, players, team1, team2);
+
+        GameInitializer.initializePlayers(difficulty, team1, team2);
     }
+
+/////////////////////////  SLEEP IN PROGRESS  /////////////////////////
+
 
     public void startGame() {
         gameInitializer.dealInitialCards(deck, players);
