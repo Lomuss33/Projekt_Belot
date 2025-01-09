@@ -22,6 +22,6 @@ public class CardRankComparator implements Comparator<Card> {
                                 Collectors.toList(),
                                 list -> list.stream()
                                         .sorted(Comparator.comparingInt(c -> c.getRank().ordinal()))
-                                        .toList())));
+                                        .collect(Collectors.toList()))));
     }
 }

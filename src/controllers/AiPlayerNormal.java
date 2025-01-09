@@ -24,8 +24,12 @@ public class AiPlayerNormal extends Player {
     // IMPLEMENTATION NEEDED
     // Choose a card to play
     @Override
-    public Card chooseCard() {
-        return hand.getCard(0); // Implement actual card selection logic
+    public int chooseCardToPlay(List<Integer> playableIndexes) {
+        if (playableIndexes.isEmpty()) {
+            throw new IllegalArgumentException("No playable cards available!");
+        }
+        Random random = new Random();
+        return playableIndexes.get(random.nextInt(playableIndexes.size()));
     }
 
     // IMPLEMENTATION NEEDED
@@ -37,13 +41,6 @@ public class AiPlayerNormal extends Player {
                 // Call Dama
             }
         }
-    }
-
-    // IMPLEMENTATION NEEDED
-    // Check if card is playable
-    @Override
-    public boolean isCardPlayable(Card card) {
-        return true; // Implement actual rule-checking logic
     }
 
     @Override

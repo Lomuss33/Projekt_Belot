@@ -24,10 +24,14 @@ public class HumanPlayer extends Player {
     }
 
     // IMPLEMENTATION NEEDED
-    // Choose a card to play
+    // Choose a card index to play
     @Override
-    public Card chooseCard() {
-        return hand.getCard(0); // Implement actual card selection logic
+    public int chooseCardToPlay(List<Integer> playableIndexes) {
+        if (playableIndexes.isEmpty()) {
+            throw new IllegalArgumentException("No playable cards available!");
+        }
+        Random random = new Random();
+        return playableIndexes.get(random.nextInt(playableIndexes.size()));
     }
 
     // IMPLEMENTATION NEEDED
@@ -39,13 +43,6 @@ public class HumanPlayer extends Player {
                 // Call Dama
             }
         }
-    }
-
-    // IMPLEMENTATION NEEDED
-    // Check if card is playable
-    @Override
-    public boolean isCardPlayable(Card card) {
-        return true; // Implement actual rule-checking logic
     }
 
     // Get selected cards from index to go check Zvanje
@@ -66,14 +63,20 @@ public class HumanPlayer extends Player {
     }
     // Choose suit based on input string
     public Card.Suit chooseSuit(String suit) {
-        return switch (suit.toUpperCase()) {
-            case "HEARTS" -> Card.Suit.HEARTS;
-            case "DIAMONDS" -> Card.Suit.DIAMONDS;
-            case "CLUBS" -> Card.Suit.CLUBS;
-            case "SPADES" -> Card.Suit.SPADES;
-            case "SKIP" -> null; // or handle skip case appropriately
-            default -> throw new IllegalArgumentException("Invalid suit: " + suit);
-        };
+        switch (suit.toUpperCase()) {
+            case "HEARTS":
+                return Card.Suit.HEARTS;
+            case "DIAMONDS":
+                return Card.Suit.DIAMONDS;
+            case "CLUBS":
+                return Card.Suit.CLUBS;
+            case "SPADES":
+                return Card.Suit.SPADES;
+            case "SKIP":
+                return null; // or handle skip case appropriately
+            default:
+                throw new IllegalArgumentException("Invalid suit: " + suit);
+        }
     }
 
 }

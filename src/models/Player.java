@@ -35,21 +35,15 @@ public abstract class Player {
     public abstract void callDama();
 
     // Abstract method to choose a card to be played
-    public abstract Card chooseCard();
-
-    // Abstract method to check if a card is playable
-    public abstract boolean isCardPlayable(Card card);
+    public abstract int chooseCardToPlay(List<Integer> playableIndices);
 
     public final Card playCard(int index) {
         if (index < 0 || index >= hand.getCards().size()) {
             throw new IllegalArgumentException("Invalid card index.");
         }
         Card card = hand.getCard(index);
-        if (isCardPlayable(card)) {
-            hand.removeCard(index);
-            return card;
-        }
-        return null;
+        hand.removeCard(index);
+        return card;
     }
 
     // Get the name of the player

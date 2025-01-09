@@ -55,11 +55,18 @@ public class ZvanjeService {
                 .collect(Collectors.groupingBy(Card::getRank));
         rankGroups.forEach((rank, groupedCards) -> {
             if (groupedCards.size() == 4) {
-                ZvanjeType zvanje = switch (rank) {
-                    case JACK -> ZvanjeType.FOUR_JACKS;
-                    case NINE -> ZvanjeType.FOUR_NINES;
-                    default -> ZvanjeType.FOUR_OTHERS;
-                };
+                ZvanjeType zvanje;
+                switch (rank) {
+                    case JACK:
+                        zvanje = ZvanjeType.FOUR_JACKS;
+                        break;
+                    case NINE:
+                        zvanje = ZvanjeType.FOUR_NINES;
+                        break;
+                    default:
+                        zvanje = ZvanjeType.FOUR_OTHERS;
+                        break;
+                }
                 zvanjeList.add(zvanje);
             }
         });
@@ -80,16 +87,27 @@ public class ZvanjeService {
 
     private void evaluateSequence(List<Card> sequence, List<ZvanjeType> zvanjeList) {
         if (sequence.size() >= 3) {
-            ZvanjeType zvanje = switch (sequence.size()) {
-                case 8 -> {
+            ZvanjeType zvanje = null;
+            switch (sequence.size()) {
+                case 8:
                     zvanjeList.clear(); // Prioritize BELOT
-                    yield ZvanjeType.BELOT;
-                }
-                case 5, 6, 7 -> ZvanjeType.SEQUENCE_OF_5_OR_MORE;
-                case 4 -> ZvanjeType.SEQUENCE_OF_4;
-                case 3 -> ZvanjeType.SEQUENCE_OF_3;
-                default -> null;
-            };
+                    zvanje = ZvanjeType.BELOT;
+                    break;
+                case 5:
+                case 6:
+                case 7:
+                    zvanje = ZvanjeType.SEQUENCE_OF_5_OR_MORE;
+                    break;
+                case 4:
+                    zvanje = ZvanjeType.SEQUENCE_OF_4;
+                    break;
+                case 3:
+                    zvanje = ZvanjeType.SEQUENCE_OF_3;
+                    break;
+                default:
+                    zvanje = null;
+                    break;
+            }
             if (zvanje != null) zvanjeList.add(zvanje);
         }
     }

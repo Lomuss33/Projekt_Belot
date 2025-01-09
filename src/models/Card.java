@@ -33,19 +33,33 @@ public class Card {
         this.value = 0; // Value based on trump or non-trump
     }
 
-    // Getter Suit
-    public Suit getSuit() {
-        return suit;
-    }
-
-    // Getter Rank
-    public Rank getRank() {
-        return rank;
-    }
-
-    // Getter Value
-    public int getValue() {
-        return value;
+    public int getStrength(Card.Suit trumpSuit, Card.Suit leadSuit) {
+        if (this.getSuit() == trumpSuit) {
+            // Strength for Trump Cards
+            switch (this.getRank()) {
+                case JACK: return 16; // Strongest
+                case NINE: return 15;
+                case ACE: return 14;
+                case KING: return 13;
+                case QUEEN: return 12;
+                case TEN: return 11;
+                case EIGHT: return 10;
+                case SEVEN: return 9; // Weakest
+            }
+        } else if (this.getSuit() == leadSuit) {
+            // Strength for Non-Trump Cards
+            switch (this.getRank()) {
+                case ACE: return 8; // Strongest
+                case KING: return 7;
+                case QUEEN: return 6;
+                case JACK: return 5;
+                case TEN: return 4;
+                case NINE: return 3;
+                case EIGHT: return 2;
+                case SEVEN: return 1; // Weakest
+            }
+        }
+        return 0; // If the card is not of trump or lead suit
     }
 
     // Set the value of the card based on whether it's a trump card
@@ -61,6 +75,21 @@ public class Card {
             case KING: value = 4; break;
             case ACE: value = 11; break;
         }
+    }
+
+    // Getter Suit
+    public Suit getSuit() {
+        return suit;
+    }
+
+    // Getter Rank
+    public Rank getRank() {
+        return rank;
+    }
+
+    // Getter Value
+    public int getValue() {
+        return value;
     }
 
     // ToString method for debugging

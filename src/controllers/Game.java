@@ -11,6 +11,9 @@
 package controllers;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import models.*;
 import services.*;
 
@@ -25,6 +28,7 @@ public class Game {
     public Card.Suit trumpSuit; // Trump suit
     public Stack<GameState> gameStates; // Stack to store game states for undo
     public int dealerIndex; // Index of the dealer
+    public List<Card> onFloorCards; // Cards on the floor
 
     // Constructor initializes the game
     public Game() {
@@ -45,30 +49,30 @@ public class Game {
         deck.dealHands(players, 2);
         deck.dealHands(players, 2);
         deck.dealHands(players, 2);
-        // Display hands (optional)
-        players.forEach(Player::displayHand);
+
         // Select Trump Suit and Update Card Values
         trumpSuit = chooseTrumpSuit();
         System.out.println("Trump Suit chosen: " + trumpSuit);
         updateCardValues(trumpSuit);
         // Determine and Announce Zvanje
         Team zvanjeWonTeam = determineAndAnnounceZvanje();
-        System.out.println(zvanjeWonTeam.getName() + " wins Zvanje!");
+        if (zvanjeWonTeam != null) {
+            System.out.println(zvanjeWonTeam.getName() + " wins Zvanje!");
+        }else {
+            System.out.println("No team wins Zvanje.");
+        }
         // Display hands (optional)
         players.forEach(Player::displayHand);
         // COMBINE THE ABOVE INTO A METHOD as startOfGame()
-        //
 
-        // Start the first round
-        startRound();
+        // Start the rounds
+        for (int i = 0; i < 8; i++) {
+            startRound();
+        }        
+        players.forEach(Player::displayHand);
     }
 
     // NEEDS TO BE IMPLEMENTED
-    // Start a new round
-    public void startRound() {
-        System.out.println("New round started.");
-        System.out.println(players.get(dealerIndex).getName() + " starts this round.");
-        
         // Get playable cards
         // Check what Cards are playable - isCardPlayable()
         // Choose a card to play, check if Dama/King is played, callDama() if adut
@@ -77,25 +81,29 @@ public class Game {
         // After 4 cards are played, determine the winner
         // Update the scores, check if the game is over (automatically or by player choice)
         // Move to the next dealer
-
-        List<Card> onFloorCards = new ArrayList<>();
+    // Start a new round
+    public void startRound() {
+        System.out.println("New round started.");
+        System.out.println(players.get(dealerIndex).getName() + " starts this round.");
+        
+        onFloorCards = new ArrayList<>();
     
         for(int turn = 0; turn < 4; turn++) {
-            Player currentPlayer = players.get((getStartingPlayerIndex() + turn) % 4);
+            Player currentPlayer = players.get((getStartingPlayerIndex() + turn) % 4); // Get the current player
 
-            List<Card> playableCards = getPlayableCards(currentPlayer);
-            Card playedCard = currentPlayer.playCard(determineCardIndex(playableCards));
+            List<Integer> playableIndexes = getPlayableCardIndexes(currentPlayer.getHand().getCards(), onFloorCards, trumpSuit); // Get playable cards
+            int chosenCardIndex = currentPlayer.chooseCardToPlay(playableIndexes);
 
-            if (playedCard.getSuit() == trumpSuit && (playedCard.getRank() == Card.Rank.KING || playedCard.getRank() == Card.Rank.QUEEN)) {
-                callDama(currentPlayer, playedCard);
-            }
-            // Player chooses a card to play
-            Card playedCard = currentPlayer.playCard(determineCardIndex(playableCards));
+            Card playedCard = currentPlayer.playCard(chosenCardIndex);
             onFloorCards.add(playedCard);
 
+            // checkDama(); // Check if Dama is played
             // If King or Queen of trump is played, handle "Bela"
-
         }
+        // Determine the lead suit
+        Card.Suit leadSuit = onFloorCards.get(0).getSuit();
+        // Determine the winner of the round
+        determineTurnWinner(onFloorCards, trumpSuit, leadSuit);
 
         // Display team scores
         System.out.println(team1.getName() + " - Score: " + team1.getScore() + ", Wins: " + team1.getWins());
@@ -103,16 +111,67 @@ public class Game {
         nextDealer(); // Move to the next dealer
     }
 
-    // Determine the index of the card to play
-    public List<Card> getPlayableCards(Player player) {
-        List<Card> playableCards = new ArrayList<>();
-        for (Card card : player.getHand().getCards()) {
-            if (player.isCardPlayable(card)) {
-                playableCards.add(card);
+    // Get the indexes of playable cards 
+    public List<Integer> getPlayableCardIndexes(List<Card> handCards, List<Card> onFloorCards, Card.Suit trumpSuit) {
+        List<Integer> playableIndexes = new ArrayList<>();
+        // If no cards are played yet, all cards are playable
+        if (onFloorCards.isEmpty()) {
+            return getAllCardIndices(handCards.size());
+        }
+
+        // Determine the lead suit
+        Card.Suit leadSuit = onFloorCards.get(0).getSuit();
+        // Find the the strongest card on the floor 
+        Card strongestCard = getStrongestCard(onFloorCards, trumpSuit, leadSuit);
+        // Determine the strength of the strongest card
+        int strongestStrength = strongestCard.getStrength(trumpSuit, leadSuit);
+
+        // Find all stronger cards in hand
+        for(int i=0; i < handCards.size(); i++) {
+            Card card = handCards.get(i);
+            if(card.getStrength(trumpSuit, leadSuit) > strongestStrength) {
+                playableIndexes.add(i);
             }
         }
-        return playableCards;
+        // If no stronger card exists, all cards are playable
+        if (playableIndexes.isEmpty()) {
+            return getAllCardIndices(handCards.size());
+        }
+        return playableIndexes;
     }
+    
+
+    private void determineTurnWinner(List<Card> onFloorCards, Card.Suit trumpSuit, Card.Suit leadSuit) {
+        // Assuming CardRankComparator or similar logic determines the strongest card
+        Card strongestCard = getStrongestCard(onFloorCards, trumpSuit, leadSuit);
+
+        // Determine which player played the strongest card
+        int winningPlayerIndex = -1; // Initialize with an invalid index
+        for (int i = 0; i < onFloorCards.size(); i++) {
+            if (onFloorCards.get(i) == strongestCard) {
+                winningPlayerIndex = (getStartingPlayerIndex() + i) % 4;
+                break;
+            }
+        }
+        if (winningPlayerIndex == -1) {
+            System.out.println("Error: Could not find the player who played the strongest card.");
+            return;
+        }
+        Player winningPlayer = players.get(winningPlayerIndex);
+        Team winningTeam = getPlayerTeam(winningPlayer);
+
+        int totalPoints = onFloorCards.stream().mapToInt(Card::getValue).sum();
+    
+        // Assign points or other actions
+        System.out.println(winningPlayer.getName() + " wins the round with " + strongestCard);
+    
+        // Award points to the winning team
+        winningTeam.addScore(totalPoints);
+
+        // Announce the winner and points
+        System.out.println(winningPlayer.getName() + " wins the round with " + strongestCard);
+        System.out.println(winningTeam.getName() + " awarded " + totalPoints + " points.");
+    }   
 
     // Method to choose difficulty
     public void chooseDifficulty(Difficulty difficulty) {
@@ -291,5 +350,17 @@ public class Game {
         HARD,
         TEST
     }
+
+    public static List<Integer> getAllCardIndices(int handSize) {
+        return IntStream.range(0, handSize)
+                        .boxed()
+                        .collect(Collectors.toList());
+    }    
+
+    public static Card getStrongestCard(List<Card> cards, Card.Suit trumpSuit, Card.Suit leadSuit) {
+        return cards.stream()
+                    .max(Comparator.comparingInt(c -> c.getStrength(trumpSuit, leadSuit)))
+                    .orElseThrow(() -> new IllegalArgumentException("Card list is empty"));
+    }    
     
 }
