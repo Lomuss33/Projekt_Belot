@@ -3,6 +3,8 @@ package controllers;
 import java.util.*;
 import models.*;
 import services.*;
+import services.ZvanjeService.ZvanjeResult;
+import services.ZvanjeService.ZvanjeType;
 
 public class Game {
 
@@ -32,17 +34,17 @@ public class Game {
         // Deal cards to players
         deck.dealHands(players, 6);
         System.out.println("Game started!");
-        System.out.println("Choosing trump suit, " + players.get(dealerIndex).getName() + " is the dealer.");
+        System.err.println(players.get(dealerIndex).getName() + " is the dealer.");
+        System.out.println("Choosing trump suit!");
 
         // Choose trump suit, give last 2 cards and update all card values
         trumpSuit = chooseTrumpSuit(dealerIndex);
+        sortAllPlayersHands(players);
         updateCardValues(trumpSuit);
-        System.out.println("Trump suit: " + trumpSuit);
 
         // Determine, announce and award Zvanje
         System.out.println("ZVANJE:");
-        Team zvanjeWinningTeam = determineAndAnnounceZvanje();
-        System.out.println("Zvanje winning team: " + zvanjeWinningTeam.getName());
+        reportZvanje(trumpSuit, dealerIndex);
 
         for (int i = 0; i < 4; i++) {
             System.out.println("Round " + (i + 1));
@@ -66,52 +68,63 @@ public class Game {
         System.out.println("Final scores: " + team1.getName() + " - " + team1.getScore() + ", " + team2.getName() + " - " + team2.getScore());
     }
 
-    // Determine and announce Zvanje results
-    private Team determineAndAnnounceZvanje() {
+    private ZvanjeResult reportZvanje(Card.Suit trumpSuit, int dealerIndex) {
         ZvanjeService zvanjeService = new ZvanjeService();
-        Map<Player, List<ZvanjeService.ZvanjeResult>> playerZvannjes = new HashMap<>();
-
-        // Detect Zvanje for all players
+        List<ZvanjeResult> zvanjeResults = new ArrayList<>();
+    
+        // Detect Zvanje for all players and print their cards
         for (Player player : players) {
-            List<ZvanjeService.ZvanjeResult> results = zvanjeService.detectZvanje(player, trumpSuit);
-            playerZvannjes.put(player, results);
-            // Log detected Zvanje for each player
-            System.out.println(player.getName() + " Zvanje: " + results.stream()
-                .map(res -> res.getZvanjeType() + " (" + res.getCards() + ")")
-                .toList());
+            ZvanjeResult result = zvanjeService.detectPlayerZvanje(player, trumpSuit);
+            zvanjeResults.add(result);
+    
+            // Print player's cards
+            System.out.println();
+            System.out.println(player.getName() + "'s cards: " + player.getHand().toString());
+            System.out.println(player.getName() + "'s ZvanjeTypes: " + result.getZvanjeTypes());
         }
-
-        // Determine the winning team based on Zvanje
-        Team team1 = players.get(0).getTeam(); // Assumes the first player is part of team1
-        Team team2 = players.get(2).getTeam(); // Assumes the third player is part of team2
-
-        Team winningTeam = zvanjeService.determineWinningTeam(trumpSuit, players, team1, team2);
-
-        // Calculate and add Zvanje points to the winning team
-        int totalPoints = playerZvannjes.entrySet().stream()
-            .filter(entry -> winningTeam.getPlayers().contains(entry.getKey()))
-            .flatMap(entry -> entry.getValue().stream())
-            .mapToInt(res -> res.getZvanjeType().getPoints())
-            .sum();
+    
+        // Filter out players with no Zvanje
+        ZvanjeResult winningZvanjeResult = zvanjeResults.stream()
+                .filter(result -> result.getBiggestZvanje() != null) // Skip players without Zvanje
+                .max(Comparator.comparing(result -> result.getBiggestZvanje().getPoints()))
+                .orElse(null);
+    
+        if (winningZvanjeResult == null) {
+            System.out.println("No Zvanje detected for any player.");
+            return null;
+        }
+    
+        Player winningPlayer = winningZvanjeResult.getPlayer();
+        Team winningTeam = winningPlayer.getTeam();
+    
+        // Calculate total points for the winning team
+        int totalPoints = calculateTotalZvanjePoints(winningTeam, zvanjeResults);
         winningTeam.addScore(totalPoints);
-
-        // Announce Zvanje winner
-        System.out.println("Zvanje Winner: " + winningTeam.getName());
+    
+        // Print results
+        System.out.println("Player with the highest Zvanje: " + winningPlayer.getName());
+        System.out.println("Winning Team: " + winningTeam.getName());
         System.out.println("Total Zvanje Points: " + totalPoints);
-
-        // Reveal cards contributing to the Zvanje
-        System.out.println("Revealed Cards:");
-        playerZvannjes.entrySet().stream()
-            .filter(entry -> winningTeam.getPlayers().contains(entry.getKey()))
-            .forEach(entry -> {
-                System.out.println(entry.getKey().getName() + "'s Zvanje cards: " +
-                        entry.getValue().stream()
-                        .flatMap(res -> res.getCards().stream())
-                        .distinct()
-                        .toList());
-            });
-
-        return winningTeam;
+    
+        // Print ZvanjeTypes for the winning team
+        System.out.println("ZvanjeTypes for the winning team:");
+                zvanjeResults.stream()
+                        .filter(result -> result.getPlayer().getTeam() == winningTeam)
+                        .flatMap(result -> result.getZvanjeTypes().stream())
+                        .forEach(System.out::println);
+    
+        return winningZvanjeResult;
+    }
+    
+    
+    // Method to calculate total Zvanje points for a given team
+    private int calculateTotalZvanjePoints(Team team, List<ZvanjeResult> zvanjeResults) {
+        // Filter ZvanjeResults for the given team and sum up the points
+        return zvanjeResults.stream()
+                .filter(result -> result.getPlayer().getTeam() == team)
+                .flatMap(result -> result.getZvanjeTypes().stream())
+                .mapToInt(ZvanjeType::getPoints)
+                .sum();
     }
 
     // Method to update values for all cards in the deck and players' hands
@@ -135,6 +148,7 @@ public class Game {
 
         for (int i = 0; i < 4; i++) {
             Player currentPlayer = players.get(currentIndex);
+            System.out.println(currentPlayer.getName() + "'s turn to choose trump suit.");
 
             // Ask the current player to choose trump suit
             chosenSuit = currentPlayer.chooseTrump();
@@ -156,14 +170,17 @@ public class Game {
                     }
             }
             currentIndex = (currentIndex + 1) % 4; // Move to the next player
-            deck.dealCards(currentPlayer, 2);
+            deck.dealCards(currentPlayer, 2);  // Deal last 2 cards to the current player
         }
         return chosenSuit;
     }
 
-
-
-
+    // Sort all players' hands by suit and rank
+    public static void sortAllPlayersHands(List<Player> players) {
+        for (Player player : players) {
+            player.getHand().sortCards(); // Sort each player's hand in place
+        }
+    }
 
 
 

@@ -51,6 +51,7 @@ public class Round {
             // Play the chosen card
             Card playedCard = currentPlayer.playCard(chosenCardIndex);
             onFloorCards.add(playedCard);
+            System.out.println(onFloorCards.size() + " cards on the floor: " + onFloorCards);
 
             // checkDama(); // Check if Dama is played
             // If King or Queen of trump is played, handle "Bela"

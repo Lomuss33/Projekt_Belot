@@ -16,8 +16,12 @@ public class RoundUtils {
             return CardUtils.getAllCardIndices(handCards.size());
         }
     
-        // Determine the lead suit and the strongest card on the floor
-        Card.Suit leadSuit = onFloorCards.get(0).getSuit();
+        // Determine the lead suit: trump suit if present on the floor, otherwise the suit of the first card
+        Card.Suit leadSuit = onFloorCards.stream()
+                                         .anyMatch(card -> card.getSuit() == trumpSuit) 
+                                         ? trumpSuit 
+                                         : onFloorCards.get(0).getSuit();
+
         Card strongestCard = findStrongestCard(onFloorCards, trumpSuit, leadSuit);
         int strongestStrength = strongestCard.getStrength(trumpSuit, leadSuit);
     

@@ -13,6 +13,7 @@ package models;
 
 import java.util.ArrayList;
 import java.util.List;
+import services.CardUtils;
 
 public class Hand {
 
@@ -49,6 +50,11 @@ public class Hand {
 
     public void setCards(List<Card> newCards) {
         cards = new ArrayList<>(newCards);
+    }
+
+        // New method to sort the internal cards
+    public void sortCards() {
+        CardUtils.sortBySuitAndRank(cards);
     }
 
     // Display the hand as a string
