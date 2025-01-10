@@ -31,7 +31,7 @@ public class HumanPlayer extends Player {
             throw new IllegalArgumentException("No playable cards available!");
         }
         Random random = new Random();
-        return playableIndexes.get(random.nextInt(playableIndexes.size()));
+        return playableIndexes.get(random.nextInt(playableIndexes.size()-1));
     }
 
     // IMPLEMENTATION NEEDED

@@ -42,10 +42,11 @@ public class GameInitializer {
                 players.add(new AiPlayerHard("Bot 3", team2));
                 break;
         }
-
         // Add players to their respective teams
         players.forEach(player -> player.getTeam().addPlayer(player));
 
         return players;
     }
+
+    
 }
