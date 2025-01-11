@@ -57,6 +57,11 @@ public class Hand {
         CardUtils.sortBySuitAndRank(cards);
     }
 
+    // Check if the hand is empty / used for testing
+    public boolean isEmpty() {
+        return cards.isEmpty();
+    }
+
     // Display the hand as a string
     @Override
     public String toString() {

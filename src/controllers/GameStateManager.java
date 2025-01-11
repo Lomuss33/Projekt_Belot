@@ -21,7 +21,7 @@ public class GameStateManager {
     //     }
     //     gameStates.push(new GameState(deckState, handsState));
     // }
-    public void saveGameState(Deck deck, List<Player> players) {
+    public void saveGameState(Game game) {
         List<Card> deckState = new ArrayList<>(deck.getCards());
         List<List<Card>> handsState = players.stream()
                 .map(player -> new ArrayList<>(player.getHand().getCards()))

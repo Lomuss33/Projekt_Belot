@@ -22,5 +22,4 @@ public class CardUtils {
                 .thenComparing(card -> card.getRank().ordinal())); // Sort by rank (secondary)
     }
 
-    
 }

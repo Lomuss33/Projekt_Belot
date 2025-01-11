@@ -24,29 +24,39 @@ public class Match {
             System.out.println("! Starting a new game...");
             
             Game game = new Game(difficulty, team1, team2, dealerIndex);
-            Team winner = game.startGame();
 
-            if (winner != null) {
-                System.out.println("Winner of this game: " + winner.getName());
+            // Asserts to check the initial state of the game
+            assert team1.getSmalls() == 0 : "Team small score should be 0 at the start of the match";    
+            assert team1.getBigs() == 0 : "Team big score should be 0 at the start of the match";
+            for (Player player : team1.getPlayers()) {
+                assert player.getHand().isEmpty() : "Player hand should be empty at the start of the match";
+            }
+            for (Player player : team2.getPlayers()) {
+                assert player.getHand().isEmpty() : "Player hand should be empty at the start of the match";
             }
 
+            // Start the game
+            Team winner = game.startGame();
+
+            // Check if game ended and has a winner
+            if (winner != null) {
+                System.out.println("Winner of this game: " + winner.getName());
+                endMatch();
+                break;
+            }
             // Rotate the dealer
             rotateDealer();
-
-            // Check if the match is over
-            finished = isOver();
-
             // Pause between games (optional)
             Thread.sleep(3000);
         }
 
-        // Announce the final result
+        // Announce the final result (optional)
         announceMatchResults();
     }
 
-    public boolean isOver() {
+    public boolean endMatch() {
         // The match is over if either team reaches or exceeds the winning score
-        return team1.getScore() >= WINNING_SCORE || team2.getScore() >= WINNING_SCORE;
+        return team1.getBigs() >= WINNING_SCORE || team2.getBigs() >= WINNING_SCORE;
     }
 
     private void rotateDealer() {
@@ -56,16 +66,15 @@ public class Match {
     private void announceMatchResults() {
         System.out.println("! Match Over!");
         System.out.println("! Match Over!");
-        if (team1.getScore() >= WINNING_SCORE) {
-            System.out.println("Winner: " + team1.getName() + " with " + team1.getScore() + " points!");
-        } else if (team2.getScore() >= WINNING_SCORE) {
-            System.out.println("Winner: " + team2.getName() + " with " + team2.getScore() + " points!");
+        if (team1.getBigs() >= WINNING_SCORE) {
+            System.out.println("Winner: " + team1.getName() + " with " + team1.getBigs() + " points!");
+        } else if (team2.getBigs() >= WINNING_SCORE) {
+            System.out.println("Winner: " + team2.getName() + " with " + team2.getBigs() + " points!");
         } else {
             System.out.println("! No team reached the winning score. Match is a draw.");
         }
-
         System.out.println("! Final Scores:");
-        System.out.println(team1.getName() + ": " + team1.getScore());
-        System.out.println(team2.getName() + ": " + team2.getScore());
+        System.out.println(team1.getName() + ": " + team1.getBigs());
+        System.out.println(team2.getName() + ": " + team2.getBigs());
     }
 }

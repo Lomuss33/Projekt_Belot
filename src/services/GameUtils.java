@@ -50,18 +50,19 @@ public class GameUtils {
     }
 
     public static Team winnerAchieved(Team team1, Team team2, ZvanjeResult zvanjeWin) {
-        if (calculateTotalScore(team1, zvanjeWin) >= 1001) {
+        if (calculateTotalScore(team1, zvanjeWin) >= 101) {
             return team1;
-        } else if (calculateTotalScore(team2, zvanjeWin) >= 1001) {
+        } else if (calculateTotalScore(team2, zvanjeWin) >= 101) {
             return team2;
         }
+
+        /* ------------------------------------ TESTING: should be 1001 ----------------------------------- */
         return null;
     }
     
     public static int calculateTotalScore(Team team, ZvanjeResult zvanjeWin) {
-        int cardPoints = team.getWonCards().stream().mapToInt(Card::getValue).sum();
         int zvanjePoints = (zvanjeWin != null && zvanjeWin.getWinningTeam() == team) ? zvanjeWin.getTotalPoints() : 0;
-        return cardPoints + team.getScore() + zvanjePoints;
+        return team.getBigs() + zvanjePoints + team.getSmalls();
     }    
 
     public static int calculateWinThreshold(ZvanjeResult zvanjeWin) {

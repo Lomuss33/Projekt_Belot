@@ -7,13 +7,23 @@ public class Team {
     private final String name;
     private final List<Player> players;
     private List<Card> wonCards;
-    private int score; // current score in game
+    private int bigs; // big score / current score in game
+    public int smalls; // small score / points won in the current round
 
     public Team(String name) {
         this.name = name;
         this.players = new ArrayList<>();
         this.wonCards = new ArrayList<>();
-        this.score = 0;
+        this.bigs = 0; // Initialize big score
+        this.smalls = 0; // Initialize small score
+    }
+
+    // Add the cards won in the current round to the team's won cards
+    public void addWonCardsAndPoints(List<Card> cards) {
+        wonCards.addAll(cards);
+        for (Card card : cards) {
+            smalls += card.getValue(); // Add card values to smalls
+        }
     }
 
     public void addPlayer(Player player) {
@@ -28,10 +38,6 @@ public class Team {
         return wonCards;
     }
 
-    public void addWonCard(List<Card> cards) {
-        wonCards.addAll(cards);
-    }
-
     public void resetWonCards() {
         wonCards = new ArrayList<>();
     }
@@ -40,21 +46,33 @@ public class Team {
         return name;
     }
 
-    public void resetScore() {
-        this.score = 0;
+    // Update the bigs score
+    public void addBigs(int points) {
+        this.bigs += points;
     }
 
-    // Update the team's score
-    public void addScore(int points) {
-        this.score += points;
+    public void setBigs(int points) {
+        this.bigs = points;
     }
 
-    public void setScore(int points) {
-        this.score = points;
+    public int getBigs() {
+        return bigs;
     }
 
-    public int getScore() {
-        return score;
+    public void addSmalls(int points) {
+        this.smalls += points;
     }
 
+    public void setSmalls(int points) {
+        this.smalls = points;
+    }
+
+    // Reset the smalls score
+    public void resetSmalls() {
+        this.smalls = 0;
+    }
+
+    public int getSmalls() {
+        return smalls;
+    }
 }
