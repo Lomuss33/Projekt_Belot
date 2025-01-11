@@ -41,8 +41,7 @@ public class Match {
             // Check if game ended and has a winner
             if (winner != null) {
                 System.out.println("Winner of this game: " + winner.getName());
-                endMatch();
-                break;
+                finished = true;
             }
             // Rotate the dealer
             rotateDealer();
