@@ -6,12 +6,13 @@ import java.util.List;
 public class Team {
     private final String name;
     private final List<Player> players;
-    private int score;
-    private int wins; // Total wins for the team
+    private List<Card> wonCards;
+    private int score; // current score in game
 
     public Team(String name) {
         this.name = name;
         this.players = new ArrayList<>();
+        this.wonCards = new ArrayList<>();
         this.score = 0;
     }
 
@@ -23,30 +24,37 @@ public class Team {
         return players;
     }
 
+    public List<Card> getWonCards() {
+        return wonCards;
+    }
+
+    public void addWonCard(List<Card> cards) {
+        wonCards.addAll(cards);
+    }
+
+    public void resetWonCards() {
+        wonCards = new ArrayList<>();
+    }
+
     public String getName() {
         return name;
     }
 
+    public void resetScore() {
+        this.score = 0;
+    }
+
     // Update the team's score
     public void addScore(int points) {
-        score += points;
-        // Check if the team has won a big point
-        if (score >= 1001) {
-            addWin();
-        }
+        this.score += points;
+    }
+
+    public void setScore(int points) {
+        this.score = points;
     }
 
     public int getScore() {
         return score;
     }
 
-    // Get total wins
-    public int getWins() {
-        return wins;
-    }
-
-    // Update the team's wins
-    public void addWin() {
-        this.wins++;
-    }
 }

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Deck {
+public final class Deck {
 
     private List<Card> cards; // List of cards in the deck
 
@@ -28,13 +28,14 @@ public class Deck {
     }
 
     // Private helper to initialize all cards in the deck
-    private void initializeDeck() {
+    public void initializeDeck() {
         cards = new ArrayList<>();
         for (Card.Suit suit : Card.Suit.values()) {
             for (Card.Rank rank : Card.Rank.values()) {
                 cards.add(new Card(suit, rank));
             }
         }
+        shuffle(); // Shuffle to randomize card order
     }
 
     // Shuffle to randomize card order
@@ -43,23 +44,19 @@ public class Deck {
     }
 
     // Deal specified count of cards directly to a player
-    public void dealCards(Player player, int count) {
-        // Check if there are enough cards to deal
-        if (count > cards.size()) {
-            throw new IllegalArgumentException("Not enough cards left to deal.");
+    public void dealHand(Player player, int count) {
+        for (int i = 0; i < count; i++) {
+            if (cards.isEmpty()) {
+                throw new IllegalArgumentException("Not enough cards left to deal.");
+            }
+            player.getHand().addCard(cards.remove(0));
         }
-        // Get the specified number of cards from the deck
-        List<Card> dealtCards = new ArrayList<>(cards.subList(0, count));
-        cards = new ArrayList<>(cards.subList(count, cards.size())); // Remove dealt cards from the deck
-
-        // Add the dealt cards to the player's hand
-        player.getHand().addCards(dealtCards);
     }
 
     // Deal cards to all players
-    public void dealHands(List<Player> players, int cardsPerPlayer) {
+    public void dealAllHands(List<Player> players, int cardsPerPlayer) {
         for (Player player : players) {
-            dealCards(player, cardsPerPlayer); // Directly deal cards to the player
+            dealHand(player, cardsPerPlayer); // Directly deal cards to the player
         }
     }
 

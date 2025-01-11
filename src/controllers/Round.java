@@ -6,40 +6,33 @@ import models.Card.Suit;
 import services.RoundUtils;
 
 public class Round {
-    private List<Player> players;
-    private Deck deck;
+    private final List<Player> players;
     private List<Card> onFloorCards;
     private Suit trumpSuit;
-    private int dealerIndex;
+    private final int startingPlayerIndex;
+    private Player roundWinner;
 
-    public Round(List<Player> players) {
+    public Round(List<Player> players, int startingPlayerIndex) {
         this.players = players;
-        this.dealerIndex = 3;
-        this.deck = new Deck();
+        this.startingPlayerIndex = startingPlayerIndex;
         this.onFloorCards = new ArrayList<>();
     }
-    // Start a new round
-    public void start() {
-        System.out.println("New round started.");
 
+    // Play 4 turns, determine the round winner, and return the index of the next starting player
+    public int start() {
         // Reset floor cards for the new round
         onFloorCards = new ArrayList<>();
-
         // Play turns for all players
-        System.out.println(players.get(dealerIndex).getName() + " starts this round.");
-        playTurns();
-
+        System.out.println(players.get(startingPlayerIndex).getName() + " starts this round.");
+        playTurns(startingPlayerIndex);
         // Determine and award the round winner
-        awardRoundWinner();
-
-        // Move to the next dealer
-        nextDealer();
+        return players.indexOf(awardAndReturnWinner(startingPlayerIndex));
     }
 
     // Play each turn in the round 
-    private void playTurns() {
+    private void playTurns(int startingPlayerIndex) {
         for (int turn = 0; turn < players.size(); turn++) {
-            Player currentPlayer = players.get((getStartingPlayerIndex() + turn) % players.size());
+            Player currentPlayer = players.get((startingPlayerIndex + turn) % 4);
             System.out.println(currentPlayer.getName() + "'s turn.");
 
             // Get playable card indexes and let the player choose one
@@ -51,45 +44,24 @@ public class Round {
             // Play the chosen card
             Card playedCard = currentPlayer.playCard(chosenCardIndex);
             onFloorCards.add(playedCard);
-            System.out.println(onFloorCards.size() + " cards on the floor: " + onFloorCards);
-
-            // checkDama(); // Check if Dama is played
-            // If King or Queen of trump is played, handle "Bela"
+            System.out.println("! Floor: " + onFloorCards.size() + " cards on the floor: " + onFloorCards);
         }
     }
 
-    // Determine and award points to the round winner
-    private void awardRoundWinner() {
-        if (onFloorCards.isEmpty()) {
-            System.out.println("Error: No cards played this round.");
-            return;
-        }
-
+    // Determine and award points to the round winner and get starter for the next round
+    private Player awardAndReturnWinner(int startingPlayerIndex) {
+        // Find the strongest card on the floor
         Suit leadSuit = onFloorCards.get(0).getSuit();
         Card strongestCard = RoundUtils.findStrongestCard(onFloorCards, trumpSuit, leadSuit);
 
         // Find the player who played the strongest card
-        int winningPlayerIndex = (getStartingPlayerIndex() +
-                onFloorCards.indexOf(strongestCard)) % players.size();
+        int winningPlayerIndex = (startingPlayerIndex +
+                onFloorCards.indexOf(strongestCard)) % 4;
         Player winningPlayer = players.get(winningPlayerIndex);
         Team winningTeam = winningPlayer.getTeam();
 
-        // Calculate and award points
-        int totalPoints = onFloorCards.stream().mapToInt(Card::getValue).sum();
-        winningTeam.addScore(totalPoints);
+        winningTeam.addWonCard(onFloorCards);
 
-        // Announce the winner
-        System.out.println(winningPlayer.getName() + " wins the round with " + strongestCard);
-        System.out.println(winningTeam.getName() + " awarded " + totalPoints + " points.");
-    }
-
-    // Get the index of the starting player
-    private int getStartingPlayerIndex() {
-        return (dealerIndex + 1) % players.size();
-    }
-
-    // Move to the next dealer
-    private void nextDealer() {
-        dealerIndex = (dealerIndex + 1) % players.size();
+        return winningPlayer;
     }
 }

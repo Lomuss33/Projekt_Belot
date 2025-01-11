@@ -2,8 +2,7 @@ package services;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import models.Card;
-import models.Player;
+import models.*;;
 
 public class ZvanjeService {
 
@@ -26,8 +25,8 @@ public class ZvanjeService {
 
         private final List<ZvanjeType> zvanjeTypes;
         private final ZvanjeType biggestZvanje;
-        private final int totalPoints;
         private final Player player;
+        private int totalPoints;
     
         public ZvanjeResult(Player player, List<ZvanjeType> zvanjeTypes) {
             this(player, zvanjeTypes, 0, null);
@@ -52,9 +51,17 @@ public class ZvanjeService {
         public int getTotalPoints() {
             return totalPoints;
         }
+
+        public void setPoints(int points) {
+            this.totalPoints = points;
+        }
     
         public Player getPlayer() {
             return player;
+        }
+
+        public Team getWinningTeam() {
+            return player.getTeam();
         }
     }
     
@@ -88,54 +95,6 @@ public class ZvanjeService {
     
         return new ZvanjeResult(player, detectedZvanjeTypes, totalPoints, biggestZvanje);
     }
-    
-    
-    //     List<Card> cards = player.getHand().getCards();
-    //     List<ZvanjeType> detectedZvanjeTypes = new ArrayList<>();
-    
-    //     // Detect four-of-a-kind Zvanje
-    //     detectFourOfAKind(groupByRank(cards), detectedZvanjeTypes);
-    
-    //     // Detect sequences
-    //     groupBySuit(cards).values().forEach(suitCards -> detectSequences(suitCards, detectedZvanjeTypes));
-    
-    //     // Detect special combinations like BELA
-    //     detectBela(cards, trumpSuit, detectedZvanjeTypes);
-    
-    //     return new ZvanjeResult(player, detectedZvanjeTypes);
-    // }
-
-    // private void reportZvanje(List<Player> players, Card.Suit trumpSuit, int dealerIndex) {
-    //     ZvanjeService zvanjeService = new ZvanjeService();
-    //     List<ZvanjeResult> zvanjeResults = new ArrayList<>();
-
-    //     // Detect Zvanje for all players
-    //     for (Player player : players) {
-    //         ZvanjeResult result = zvanjeService.detectZvanje(player, trumpSuit);
-    //         zvanjeResults.add(result);
-    //     }
-
-    //     // Determine player with the biggest Zvanje
-    //     ZvanjeResult winningZvanjeResult = zvanjeResults.stream()
-    //             .max(Comparator.comparing(result -> result.getBiggestZvanje().getPoints()))
-    //             .orElse(null);
-
-    //     Team winningTeam = winningZvanjeResult.getPlayer().getTeam();
-
-    //     // Sum and add points for the winning team
-    //     int totalPoints = zvanjeResults.stream()
-    //             .filter(result -> result.getPlayer().getTeam() == winningTeam)
-    //             .flatMap(result -> result.getZvanjeTypes().stream())
-    //             .mapToInt(ZvanjeType::getPoints)
-    //             .sum();
-    //     winningTeam.addScore(totalPoints);
-
-    //     // Announce and reveal Zvanje
-    //     System.out.println("Winning Team: " + winningTeam.getName());
-    //     System.out.println("Total Zvanje Points: " + totalPoints);
-    // }
-
-    
 
     // Group cards by rank
     private Map<Card.Rank, List<Card>> groupByRank(List<Card> cards) {
@@ -155,28 +114,16 @@ public class ZvanjeService {
                 ZvanjeType zvanje = switch (rank) {
                     case JACK -> ZvanjeType.FOUR_JACKS;
                     case NINE -> ZvanjeType.FOUR_NINES;
+                    case EIGHT, SEVEN -> null; // Skip these cases
                     default -> ZvanjeType.FOUR_OTHERS;
                 };
-                zvanjeTypes.add(zvanje);
+                if (zvanje != null) {
+                    zvanjeTypes.add(zvanje);
+                }
             }
         });
     }
     
-    // // Detect four-of-a-kind Zvanje
-    // private void detectFourOfAKind(Map<Card.Rank, List<Card>> rankGroups, List<ZvanjeType> zvanjeTypes) {
-    //     rankGroups.forEach((rank, groupedCards) -> {
-    //         if (groupedCards.size() == 4) {
-    //             ZvanjeType zvanje = switch (rank) {
-    //                 case JACK -> ZvanjeType.FOUR_JACKS;
-    //                 case NINE -> ZvanjeType.FOUR_NINES;
-    //                 default -> ZvanjeType.FOUR_OTHERS;
-    //             };
-    //             zvanjeTypes.add(zvanje);
-    //         }
-    //     });
-    // }
-    
-
 
     private void detectSequences(List<Card> suitCards, List<ZvanjeType> zvanjeTypes) {
         suitCards.sort(Comparator.comparingInt(card -> card.getRank().ordinal()));

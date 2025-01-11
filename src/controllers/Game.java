@@ -8,82 +8,152 @@ import services.ZvanjeService.ZvanjeType;
 
 public class Game {
 
-    private final Difficulty difficulty;
     private final Team team1, team2;
     private final List<Player> players;
+    private ZvanjeResult zvanjeWin;
+    private int winTreshold;
     private final Deck deck;
     private Card.Suit trumpSuit;
-    private int dealerIndex = 3;
+    private int dealerIndex;
 
     public enum Difficulty {
         EASY, NORMAL, HARD, TEST
     }
 
-    public Game(Difficulty difficulty) {
-        this.difficulty = difficulty;
+    public Game(Difficulty difficulty, Team team1, Team team2, int dealerIndex) {
+        this.team1 = team1;
+        this.team2 = team2;
         this.deck = new Deck();
-        this.team1 = new Team("HOME");
-        this.team2 = new Team("AWAY");
-        this.players = GameInitializer.initializePlayers(difficulty, team1, team2);
+        this.zvanjeWin = null;
+        this.players = GameUtils.initializePlayers(difficulty, team1, team2);
+        this.dealerIndex = dealerIndex;
     }
  
     /* ------------------------------- start game ------------------------------- */
-    public void startGame() {
+    public Team startGame() {
         // Shuffle the deck in front of players
-        deck.shuffle();
+        deck.initializeDeck();
+    
         // Deal cards to players
-        deck.dealHands(players, 6);
+        deck.dealAllHands(players, 6);
         System.out.println("Game started!");
         System.err.println(players.get(dealerIndex).getName() + " is the dealer.");
         System.out.println("Choosing trump suit!");
-
-        // Choose trump suit, give last 2 cards and update all card values
+    
+        // Choose trump suit, give last 2 cards, and update all card values
         trumpSuit = chooseTrumpSuit(dealerIndex);
         sortAllPlayersHands(players);
         updateCardValues(trumpSuit);
+        deck.dealAllHands(players, 2); // Deal last 2 cards to players
 
-        // Determine, announce and award Zvanje
+        // Determine, announce, and award Zvanje
         System.out.println("ZVANJE:");
-        reportZvanje(trumpSuit, dealerIndex);
+        zvanjeWin = reportZvanje(trumpSuit, dealerIndex);
+    
+        // Calculate the winning threshold
+        winTreshold = GameUtils.calculateWinThreshold(zvanjeWin);
 
-        for (int i = 0; i < 4; i++) {
-            System.out.println("Round " + (i + 1));
-            playRound();
+        // Play rounds and check for a winner
+        Team winner = playRound();
+
+        // Check for a winner after rounds
+        awardGameVictory();
+
+        if (winner != null) {
+            finishGame(winner);
+            return winner;
         }
-
-        endGame();
+    
+        // Check the final game state after rounds
+        winner = endGame();
+        if (winner != null) {
+            finishGame(winner);
+        }
+                
+        return winner;
     }
+    
     /* ------------------------------- start game ------------------------------- */
 
-    // Play a round of the game
-    private void playRound() {
-        Round round = new Round(players);
-        round.start();
+    // Play 8 rounds and check for a winner after each round
+    private Team playRound() {
+        int startingPlayerIndex = (dealerIndex + 1) % 4; // Player next to the dealer
+        for (int i = 0; i < 8; i++) {
+            System.out.println("Round " + (i + 1));
+            Round round = new Round(players, startingPlayerIndex);
+            int winnerIndex = round.start();
+
+            // Check for a winner after each round
+            Team winner = GameUtils.winnerAchieved(team1, team2, zvanjeWin);
+            if (winner != null) {
+                return winner;
+            }
+
+            // The winner of the current round starts the next round
+            startingPlayerIndex = winnerIndex;
+        }
+        return null; // No winner during rounds
     }
 
-    // End the game and announce the winner
-    private void endGame() {
-        Team winner = team1.getScore() > team2.getScore() ? team1 : team2;
+    public void awardGameVictory() {
+        // Check if the dealer's team has crossed the win threshold
+        Team dealerTeam = players.get(dealerIndex).getTeam();
+        Team otherTeam = (dealerTeam == team1) ? team2 : team1;
+
+        int dealerTeamPoints = GameUtils.calculateTotalScore(dealerTeam, zvanjeWin);
+        int otherTeamPoints = GameUtils.calculateTotalScore(otherTeam, zvanjeWin);
+
+        // Check if the dealer's team has crossed the win threshold
+        if (dealerTeamPoints >= winTreshold) {
+            dealerTeam.addScore(dealerTeamPoints);
+            System.out.println("Congratulations to the dealer's team!");
+        } else {
+            // Award points to the other team
+            otherTeam.addScore(otherTeamPoints);
+            System.out.println("Congratulations to the other team!");
+        }
+    }
+    
+
+    private void finishGame(Team winner) {
         System.out.println("Game over! Winner: " + winner.getName());
         System.out.println("Final scores: " + team1.getName() + " - " + team1.getScore() + ", " + team2.getName() + " - " + team2.getScore());
+        // Add any cleanup or end-game logic here
     }
+
+    // End the game and announce the winnerk0
+    private Team endGame() {
+        Team winner = GameUtils.winnerAchieved(team1, team2, zvanjeWin);
+        if (winner != null) {
+            System.out.println("Game over! Winner: " + winner.getName());
+            System.out.println("Final scores: " + team1.getName() + " - " + team1.getScore() + ", " + team2.getName() + " - " + team2.getScore());
+        } else {
+            System.out.println("Game continues. Current scores: " + team1.getName() + " - " + team1.getScore() + ", " + team2.getName() + " - " + team2.getScore());
+        }
+        return winner;
+    }
+    
 
     private ZvanjeResult reportZvanje(Card.Suit trumpSuit, int dealerIndex) {
         ZvanjeService zvanjeService = new ZvanjeService();
         List<ZvanjeResult> zvanjeResults = new ArrayList<>();
     
-        // Detect Zvanje for all players and print their cards
-        for (Player player : players) {
+        int numPlayers = players.size();
+        for (int i = 0; i < numPlayers; i++) {
+            // Calculate the current player's index, starting from dealerIndex and wrapping around
+            int currentIndex = (dealerIndex + i + 1) % numPlayers;
+            Player player = players.get(currentIndex);
+
             ZvanjeResult result = zvanjeService.detectPlayerZvanje(player, trumpSuit);
             zvanjeResults.add(result);
-    
+
             // Print player's cards
             System.out.println();
-            System.out.println(player.getName() + "'s cards: " + player.getHand().toString());
             System.out.println(player.getName() + "'s ZvanjeTypes: " + result.getZvanjeTypes());
+            System.out.println(player.getName() + "'s cards: " + player.getHand().getCards());
         }
     
-        // Filter out players with no Zvanje
+        // Find the player with the highest Zvanje
         ZvanjeResult winningZvanjeResult = zvanjeResults.stream()
                 .filter(result -> result.getBiggestZvanje() != null) // Skip players without Zvanje
                 .max(Comparator.comparing(result -> result.getBiggestZvanje().getPoints()))
@@ -97,15 +167,15 @@ public class Game {
         Player winningPlayer = winningZvanjeResult.getPlayer();
         Team winningTeam = winningPlayer.getTeam();
     
-        // Calculate total points for the winning team
+        // Calculate total points for the winning player's team
         int totalPoints = calculateTotalZvanjePoints(winningTeam, zvanjeResults);
-        winningTeam.addScore(totalPoints);
-    
+
+        winningZvanjeResult.setPoints(totalPoints);
+
         // Print results
         System.out.println("Player with the highest Zvanje: " + winningPlayer.getName());
         System.out.println("Winning Team: " + winningTeam.getName());
         System.out.println("Total Zvanje Points: " + totalPoints);
-    
         // Print ZvanjeTypes for the winning team
         System.out.println("ZvanjeTypes for the winning team:");
                 zvanjeResults.stream()
@@ -115,7 +185,6 @@ public class Game {
     
         return winningZvanjeResult;
     }
-    
     
     // Method to calculate total Zvanje points for a given team
     private int calculateTotalZvanjePoints(Team team, List<ZvanjeResult> zvanjeResults) {
@@ -155,7 +224,6 @@ public class Game {
 
             if (chosenSuit != null) {
                 System.out.println(currentPlayer.getName() + " chose " + chosenSuit);
-                deck.dealCards(currentPlayer, 2);
                 break;
             } else {
                 skips++;
@@ -170,7 +238,6 @@ public class Game {
                     }
             }
             currentIndex = (currentIndex + 1) % 4; // Move to the next player
-            deck.dealCards(currentPlayer, 2);  // Deal last 2 cards to the current player
         }
         return chosenSuit;
     }
@@ -181,21 +248,6 @@ public class Game {
             player.getHand().sortCards(); // Sort each player's hand in place
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

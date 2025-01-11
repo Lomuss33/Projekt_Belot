@@ -9,15 +9,15 @@
                                      
 package controllers;
 
-import controllers.Game.Difficulty;
-
 /* ------------------------------------ x ----------------------------------- */
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
-        Game game = new Game(Difficulty.EASY);
-        game.startGame();
+        Match match = new Match(Game.Difficulty.EASY);
+        match.startMatch();
         
     }  
+
+
 }
 /* ------------------------------------ x ----------------------------------- */

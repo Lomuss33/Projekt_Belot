@@ -52,4 +52,5 @@ public class RoundUtils {
                     .max(Comparator.comparingInt(c -> c.getStrength(trumpSuit, leadSuit)))
                     .orElseThrow(() -> new IllegalArgumentException("Card list is empty"));
     }
+
 }
