@@ -1,22 +1,23 @@
 // ░░░░░░░░░░░░░░░░░
-// ░░░░▄▄████▄▄░░░░░
-// ░░░██████████░░░░
-// ░░░██▄▄██▄▄██░░░░
-// ░░░░▄▀▄▀▀▄▀▄░░░░░
-// ░░░▀░░░░░░░░▀░░░░
+// ░░░░░░▄██▄░░░░░░░
+// ░░░░▄██████▄░░░░░
+// ░░░███▄██▄███░░░░
+// ░░░░░▄▀▄▄▀▄░░░░░░
+// ░░░░▀░▀░░▀░▀░░░░░
 // ░░░░░░░░░░░░░░░░░
 //
-// NORMAL AI PLAYER
+// EASY AI PLAYER
 //
 
-package controllers;
+package ai;
 
 import java.util.*;
 import models.*;
 
-public class AiPlayerHard extends Player {
+public class AiPlayerEasy extends Player {
 
-    public AiPlayerHard(String name, Team team) {
+    // Constructor
+    public AiPlayerEasy(String name, Team team) {
         super(name, team);
     }
 
@@ -41,7 +42,8 @@ public class AiPlayerHard extends Player {
             }
         }
     }
-
+    
+    // Get selected cards from index to go check Zvanje
     @Override
     public List<Card> callZvanje(List<Integer> selectedIndices) {
         return new ArrayList<>(); // Basic Zvanje logic for Normal AI
@@ -50,7 +52,7 @@ public class AiPlayerHard extends Player {
     // Choose trump suit
     @Override
     public Card.Suit chooseTrump() {
-        return Card.Suit.HEARTS; // Implement actual trump suit selection logic
+        return null; // Implement actual trump suit selection logic
     }
     
 }

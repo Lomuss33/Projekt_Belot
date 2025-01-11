@@ -1,16 +1,18 @@
 package services;
 
-import controllers.AiPlayerEasy;
-import controllers.AiPlayerHard;
-import controllers.AiPlayerNormal;
+import ai.AiPlayerEasy;
+import ai.AiPlayerHard;
+import ai.AiPlayerNormal;
+import ai.HumanPlayer;
 import controllers.Game.Difficulty;
-import controllers.HumanPlayer;
 import java.util.ArrayList;
 import java.util.List;
 import models.*;
 import services.ZvanjeService.ZvanjeResult;
 
 public class GameUtils {
+
+    private static final int WINNING_SCORE = 101; // The score required to win the match
 
     // Initialize players and assign them to the given teams
     public static List<Player> initializePlayers(Difficulty difficulty, Team team1, Team team2) {
@@ -50,9 +52,9 @@ public class GameUtils {
     }
 
     public static Team winnerAchieved(Team team1, Team team2, ZvanjeResult zvanjeWin) {
-        if (calculateTotalScore(team1, zvanjeWin) >= 101) {
+        if (calculateTotalScore(team1, zvanjeWin) >= WINNING_SCORE) {
             return team1;
-        } else if (calculateTotalScore(team2, zvanjeWin) >= 101) {
+        } else if (calculateTotalScore(team2, zvanjeWin) >= WINNING_SCORE) {
             return team2;
         }
 

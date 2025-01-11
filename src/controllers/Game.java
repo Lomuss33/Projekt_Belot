@@ -31,6 +31,7 @@ public class Game {
  
     /* ------------------------------- start game ------------------------------- */
     public Team startGame() {
+        System.out.println("startGame()");
         // Shuffle the deck in front of players
         deck.initializeDeck();
 
@@ -84,7 +85,8 @@ public class Game {
         if (winner != null) {
             finishGame(winner);
         }
-                
+        System.out.println("startGame() LEAVE");
+
         return winner;
     }
     

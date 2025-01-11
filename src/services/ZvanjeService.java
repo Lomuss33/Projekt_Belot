@@ -39,7 +39,6 @@ public class ZvanjeService {
             this.biggestZvanje = biggestZvanje;
         }
         
-    
         public List<ZvanjeType> getZvanjeTypes() {
             return zvanjeTypes;
         }
@@ -64,7 +63,6 @@ public class ZvanjeService {
             return player.getTeam();
         }
     }
-    
 
     // Detect all Zvanje types for a player
     public ZvanjeResult detectPlayerZvanje(Player player, Card.Suit trumpSuit) {
@@ -164,66 +162,4 @@ public class ZvanjeService {
             zvanjeTypes.add(ZvanjeType.BELA);
         }
     }
-
-    // // Detect sequences of cards
-    // private void detectSequences(List<Card> suitCards, List<ZvanjeResult> zvanjeResults) {
-    //     suitCards.sort(Comparator.comparingInt(card -> card.getRank().ordinal()));
-    
-    //     List<Card> currentSequence = new ArrayList<>();
-    //     for (Card card : suitCards) {
-    //         if (!currentSequence.isEmpty() &&
-    //                 card.getRank().ordinal() != currentSequence.get(currentSequence.size() - 1).getRank().ordinal() + 1) {
-    //             evaluateSequence(currentSequence, zvanjeResults, suitCards);
-    //             currentSequence.clear();
-    //         }
-    //         currentSequence.add(card);
-    //     }
-    //     evaluateSequence(currentSequence, zvanjeResults, suitCards);
-    // }
-    
-    // private void evaluateSequence(List<Card> sequence, List<ZvanjeResult> zvanjeResults, List<Card> suitCards) {
-    //     int size = sequence.size();
-    //     if (size >= 3) {
-    //         ZvanjeType zvanjeType = switch (size) {
-    //             case 8 -> ZvanjeType.BELOT;
-    //             case 5, 6, 7 -> ZvanjeType.SEQUENCE_OF_5_OR_MORE;
-    //             case 4 -> ZvanjeType.SEQUENCE_OF_4;
-    //             case 3 -> ZvanjeType.SEQUENCE_OF_3;
-    //             default -> null;
-    //         };
-    
-    //         if (zvanjeType != null) {
-    //             Player player = findPlayerForCards(sequence); // Implement this helper if needed
-    //             ZvanjeResult result = new ZvanjeResult(player, List.of(zvanjeType));
-    //             zvanjeResults.add(result);
-    //         }
-    //     }
-    // }
-    
-
-    // public Team determineWinningTeam(
-    //         Card.Suit trumpSuit,
-    //         List<Player> players,
-    //         Team team1,
-    //         Team team2
-    // ) {
-    //     Map<Player, List<ZvanjeResult>> playerZvannjes = players.stream()
-    //             .collect(Collectors.toMap(player -> player, player -> detectZvanje(player, trumpSuit)));
-
-    //     ZvanjeResult bestTeam1Zvanje = getBestZvanjeForTeam(team1, playerZvannjes);
-    //     ZvanjeResult bestTeam2Zvanje = getBestZvanjeForTeam(team2, playerZvannjes);
-
-    //     return (bestTeam1Zvanje != null &&
-    //             (bestTeam2Zvanje == null ||
-    //                     bestTeam1Zvanje.getZvanjeType().getPoints() > bestTeam2Zvanje.getZvanjeType().getPoints()))
-    //             ? team1
-    //             : team2;
-    // }
-
-    // private ZvanjeResult getBestZvanjeForTeam(Team team, Map<Player, List<ZvanjeResult>> playerZvannjes) {
-    //     return team.getPlayers().stream()
-    //             .flatMap(player -> playerZvannjes.getOrDefault(player, Collections.emptyList()).stream())
-    //             .max(Comparator.comparing(zvanje -> zvanje.getZvanjeType().getPoints()))
-    //             .orElse(null);
-    // }
 }

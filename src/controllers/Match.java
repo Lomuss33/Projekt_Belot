@@ -8,7 +8,8 @@ public class Match {
     private final Difficulty difficulty;
     private final Team team1, team2;
     private int dealerIndex;
-    private static final int WINNING_SCORE = 1001; // The score required to win the match
+    private static final int WINNING_SCORE = 101; // The score required to win the match
+    private Team winner; // Reference to the winning team
 
     public Match(Difficulty difficulty) {
         this.difficulty = difficulty;
@@ -36,21 +37,25 @@ public class Match {
             }
 
             // Start the game
-            Team winner = game.startGame();
+            winner = game.startGame();
+            System.out.println("startGame() SKIPPED");
 
             // Check if game ended and has a winner
-            if (winner != null) {
+            if (endMatch()) {
                 System.out.println("Winner of this game: " + winner.getName());
                 finished = true;
             }
             // Rotate the dealer
+            System.out.println("rotateDealer() STARTING NEW GAME MAYBE");
             rotateDealer();
             // Pause between games (optional)
             Thread.sleep(3000);
         }
-
         // Announce the final result (optional)
-        announceMatchResults();
+        System.out.println("Match is over! Final scores:");
+        System.out.println(team1.getName() + ": " + team1.getBigs());
+        System.out.println(team2.getName() + ": " + team2.getBigs());
+        System.out.println("Winner: " + winner.getName());
     }
 
     public boolean endMatch() {
@@ -60,20 +65,5 @@ public class Match {
 
     private void rotateDealer() {
         dealerIndex = (dealerIndex + 1) % 4; // Rotate dealer index among 4 players
-    }
-
-    private void announceMatchResults() {
-        System.out.println("! Match Over!");
-        System.out.println("! Match Over!");
-        if (team1.getBigs() >= WINNING_SCORE) {
-            System.out.println("Winner: " + team1.getName() + " with " + team1.getBigs() + " points!");
-        } else if (team2.getBigs() >= WINNING_SCORE) {
-            System.out.println("Winner: " + team2.getName() + " with " + team2.getBigs() + " points!");
-        } else {
-            System.out.println("! No team reached the winning score. Match is a draw.");
-        }
-        System.out.println("! Final Scores:");
-        System.out.println(team1.getName() + ": " + team1.getBigs());
-        System.out.println(team2.getName() + ": " + team2.getBigs());
     }
 }

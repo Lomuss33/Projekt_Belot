@@ -1,12 +1,12 @@
-package controllers;
+package services;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import controllers.Game;
 import models.*;
-import services.GameState;
 
 public class GameStateManager {
 

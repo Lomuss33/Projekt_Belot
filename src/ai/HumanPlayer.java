@@ -12,7 +12,7 @@
 // HUMAN PLAYER 
 //
 
-package controllers;
+package ai;
 
 import java.util.*;
 import models.*;
