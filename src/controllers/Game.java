@@ -20,18 +20,52 @@ public class Game {
         EASY, NORMAL, HARD, TEST
     }
 
-    public Game(Difficulty difficulty, Team team1, Team team2, int dealerIndex) {
+    public Game(List<Player> players, Team team1, Team team2, int dealerIndex) {
+        this.players = players;
         this.team1 = team1;
         this.team2 = team2;
         this.deck = new Deck();
         this.zvanjeWin = null;
-        this.players = GameUtils.initializePlayers(difficulty, team1, team2);
-        this.dealerIndex = dealerIndex;
+        this.dealerIndex = dealerIndex;        
     }
  
     /* ------------------------------- start game ------------------------------- */
     public Team startGame() {
-        System.out.println("startGame()");
+        System.out.println("Game started!");
+
+        // Initialize the game
+        initializeGame();
+    
+        // Play 1 deck of rounds and check for a winner
+        playRounds();
+
+        // Find game winner team
+        Team winner = lookForWinner();
+
+        // Award points to the winning team
+        awardGameVictory();
+
+        if (winner != null) {
+            System.out.println("Final scores: " + team1.getName() + " - " + team1.getBigs() + ", " + team2.getName() + " - " + team2.getBigs());
+            finishGame(winner);
+        }
+    
+        return winner;
+    }
+
+    public Team lookForWinner() {
+        // Check if a team has crossed the win threshold
+        Team winner = GameUtils.findGameWinner(team1, team2, zvanjeWin, winTreshold);
+        if (winner != null) {
+            System.out.println("Game over! Winner: " + winner.getName());
+        } else {
+            System.out.println("Game continues. Current scores: " + team1.getName() + " - " + team1.getBigs() + ", " + team2.getName() + " - " + team2.getBigs());
+        }
+        return winner;
+    }
+
+
+    public void initializeGame() {
         // Shuffle the deck in front of players
         deck.initializeDeck();
 
@@ -43,13 +77,12 @@ public class Game {
         if (deck.getCards().size() != 32) {
             throw new IllegalStateException("Deck size must be 32 cards.");
         }
-
-        // Deal cards to players
+        // Deal 6 cards to players to choose trump suit
         deck.dealAllHands(players, 6);
-        System.out.println("Game started!");
+
         System.err.println(players.get(dealerIndex).getName() + " is the dealer.");
     
-        // Choose trump suit, give last 2 cards, and update all card values
+        // Choose trump suit
         trumpSuit = chooseTrumpSuit(dealerIndex);
 
         // Assert that deck has 8 cards left after dealing all cards and that trump suit is chosen
@@ -65,49 +98,28 @@ public class Game {
         // Determine, announce, and award Zvanje
         System.out.println("ZVANJE:");
         zvanjeWin = reportZvanje(trumpSuit, dealerIndex);
-    
+
         // Calculate the winning threshold
         winTreshold = GameUtils.calculateWinThreshold(zvanjeWin);
 
-        // Play 1 deck of rounds and check for a winner
-        Team winner = playRound();
-
-        // Award points to the winning team
-        awardGameVictory();
-
-        if (winner != null) {
-            finishGame(winner);
-            return winner;
-        }
-    
-        // Check the final game state after rounds
-        winner = endGame();
-        if (winner != null) {
-            finishGame(winner);
-        }
-        System.out.println("startGame() LEAVE");
-
-        return winner;
     }
     
     /* ------------------------------- start game ------------------------------- */
 
     // Play 8 rounds and check for a winner after each round
-    private Team playRound() {
+    private void playRounds() {
+
+        // Assert that last player has 8 cards after dealing all cards
+        assert players.get((dealerIndex + 3) % 4).getHand().getCards().size() == 8 : "Players should have 8 cards.";
+
         int startingPlayerIndex = (dealerIndex + 1) % 4; // Player next to the dealer
         for (int i = 0; i < 8; i++) {
             System.out.println("Round " + (i + 1));
+            // Start a new round and get the winner's index for the next round
             Round round = new Round(players, startingPlayerIndex);
             int winnerIndex = round.start(i);
-            // Check for a winner after each round
-            Team winner = GameUtils.winnerAchieved(team1, team2, zvanjeWin);
-            if (winner != null) {
-                return winner;
-            }
-            // The winner of the current round starts the next round
             startingPlayerIndex = winnerIndex;
         }
-        return null; // No winner during rounds
     }
 
     public void awardGameVictory() {
@@ -115,8 +127,8 @@ public class Game {
         Team dealerTeam = players.get(dealerIndex).getTeam();
         Team otherTeam = (dealerTeam == team1) ? team2 : team1;
 
-        int dealerTeamPoints = GameUtils.calculateTotalScore(dealerTeam, zvanjeWin);
-        int otherTeamPoints = GameUtils.calculateTotalScore(otherTeam, zvanjeWin);
+        int dealerTeamPoints = GameUtils.calculateGamePoints(dealerTeam, zvanjeWin);
+        int otherTeamPoints = GameUtils.calculateGamePoints(otherTeam, zvanjeWin);
 
         // Check if the dealer's team has crossed the win threshold
         if (dealerTeamPoints >= winTreshold) {
@@ -131,23 +143,8 @@ public class Game {
     
 
     private void finishGame(Team winner) {
-        System.out.println("Game over! Winner: " + winner.getName());
-        System.out.println("Final scores: " + team1.getName() + " - " + team1.getBigs() + ", " + team2.getName() + " - " + team2.getBigs());
-        // Add any cleanup or end-game logic here
-    }
-
-    // End the game and announce the winnerk0
-    private Team endGame() {
-        Team winner = GameUtils.winnerAchieved(team1, team2, zvanjeWin);
-        if (winner != null) {
-            System.out.println("Game over! Winner: " + winner.getName());
-            System.out.println("Final scores: " + team1.getName() + " - " + team1.getBigs() + ", " + team2.getName() + " - " + team2.getBigs());
-        } else {
-            System.out.println("Game continues. Current scores: " + team1.getName() + " - " + team1.getBigs() + ", " + team2.getName() + " - " + team2.getBigs());
-        }
-        return winner;
-    }
-    
+        System.out.println("Game found winner! Winner: " + winner.getName());
+    }    
 
     private ZvanjeResult reportZvanje(Card.Suit trumpSuit, int dealerIndex) {
         ZvanjeService zvanjeService = new ZvanjeService();
