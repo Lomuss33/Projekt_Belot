@@ -1,14 +1,3 @@
-// ░░░░░░░░░░░░░░░░░
-// ░░░▄░▀▄░░░▄▀░▄░░░
-// ░░░█▄███████▄█░░░
-// ░░░███▄███▄███░░░
-// ░░░▀█████████▀░░░
-// ░░░░▄▀░░░░░▀▄░░░░
-// ░░░░░░░░░░░░░░░░░
-//
-// NORMAL AI PLAYER
-//
-
 package ai;
 
 import java.util.*;
@@ -20,8 +9,7 @@ public class AiPlayerNormal extends Player {
         super(name, team);
     }
 
-    // IMPLEMENTATION NEEDED
-    // Choose a card to play
+    // Randomly choose a card to play from playable cards
     @Override
     public int chooseCardToPlay(List<Integer> playableIndexes) {
         if (playableIndexes.isEmpty()) {
@@ -31,25 +19,50 @@ public class AiPlayerNormal extends Player {
         return playableIndexes.get(random.nextInt(playableIndexes.size()));
     }
 
-    // IMPLEMENTATION NEEDED
-    // Find Dama in hand
+    // Call Dama if the player has Queen and King of the trump suit
     @Override
     public void callDama() {
-        for(Card card : hand.getCards()) {
-            if(card.getRank() == Card.Rank.QUEEN && card.getSuit() == Card.Suit.CLUBS) {
-                // Call Dama
+        Map<Card.Suit, List<Card>> groupedBySuit = groupBySuit(hand.getCards());
+        for (Map.Entry<Card.Suit, List<Card>> entry : groupedBySuit.entrySet()) {
+            List<Card> cards = entry.getValue();
+            boolean hasQueen = cards.stream().anyMatch(card -> card.getRank() == Card.Rank.QUEEN);
+            boolean hasKing = cards.stream().anyMatch(card -> card.getRank() == Card.Rank.KING);
+
+            if (hasQueen && hasKing) {
+                System.out.println(name + " calls Dama in " + entry.getKey());
+                return;
             }
         }
     }
 
+    // Choose Zvanje cards
     @Override
     public List<Card> callZvanje(List<Integer> selectedIndices) {
-        return new ArrayList<>(); // Basic Zvanje logic for Normal AI
+        return new ArrayList<>(); // Keep this basic for easy AI
     }
 
-    // Choose trump suit
+    // Choose the trump suit based on the most valuable cards in hand
     @Override
     public Card.Suit chooseTrump() {
-        return Card.Suit.HEARTS; // Implement actual trump suit selection logic
+        Map<Card.Suit, Integer> suitValues = new HashMap<>();
+        for (Card card : hand.getCards()) {
+            suitValues.put(card.getSuit(), suitValues.getOrDefault(card.getSuit(), 0) + card.getValue());
+        }
+
+        // Find the suit with the highest value
+        return suitValues.entrySet().stream()
+            .max(Map.Entry.comparingByValue())
+            .map(Map.Entry::getKey)
+            .orElse(null);
+    }
+
+    // Group cards by suit
+    private Map<Card.Suit, List<Card>> groupBySuit(List<Card> cards) {
+        Map<Card.Suit, List<Card>> groupedBySuit = new HashMap<>();
+        for (Card card : cards) {
+            groupedBySuit.computeIfAbsent(card.getSuit(), k -> new ArrayList<>()).add(card);
+        }
+        return groupedBySuit;
     }
 }
+

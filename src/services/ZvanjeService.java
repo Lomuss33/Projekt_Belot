@@ -64,8 +64,35 @@ public class ZvanjeService {
         }
     }
 
+    public static ZvanjeResult biggestZvanje(List<ZvanjeResult> results, int dealerIndex) {
+        if (results == null || results.isEmpty()) {
+            return null; // No results
+        }
+        // Find the maximum Zvanje points
+        int maxPoints = results.stream()
+            .filter(result -> result.getBiggestZvanje() != null) // Ignore players with no Zvanje
+            .mapToInt(ZvanjeResult::getTotalPoints)
+            .max()
+            .orElse(0); // Default to 0 if no Zvanje is found
+    
+        // Filter results with the maximum points
+        List<ZvanjeResult> topResults = results.stream()
+            .filter(result -> result.getTotalPoints() == maxPoints)
+            .collect(Collectors.toList());
+    
+        if (topResults.size() == 1) {
+            return topResults.get(0); // Return the only top result
+        }
+    
+        // Resolve tie using the dealerIndex: Choose the result closest to dealerIndex (right-hand modulo 4)
+        return topResults.stream()
+            .min(Comparator.comparingInt(result -> (4 + result.getPlayer().getTeam().getPlayers().indexOf(result.getPlayer()) - dealerIndex) % 4))
+            .orElse(null);
+    }
+    
+
     // Detect all Zvanje types for a player
-    public ZvanjeResult detectPlayerZvanje(Player player, Card.Suit trumpSuit) {
+    public static ZvanjeResult detectPlayerZvanje(Player player, Card.Suit trumpSuit) {
         if (player == null || player.getHand() == null || player.getHand().getCards().isEmpty()) {
             return new ZvanjeResult(player, Collections.emptyList());
         }
@@ -95,18 +122,18 @@ public class ZvanjeService {
     }
 
     // Group cards by rank
-    private Map<Card.Rank, List<Card>> groupByRank(List<Card> cards) {
+    private static Map<Card.Rank, List<Card>> groupByRank(List<Card> cards) {
         return cards.stream().collect(Collectors.groupingBy(Card::getRank));
     }
 
     // Group cards by suit
-    private Map<Card.Suit, List<Card>> groupBySuit(List<Card> cards) {
+    private static Map<Card.Suit, List<Card>> groupBySuit(List<Card> cards) {
         return cards.stream().collect(Collectors.groupingBy(Card::getSuit));
     }
 
 
 
-    private void detectFourOfAKind(Map<Card.Rank, List<Card>> rankGroups, List<ZvanjeType> zvanjeTypes) {
+    private static void detectFourOfAKind(Map<Card.Rank, List<Card>> rankGroups, List<ZvanjeType> zvanjeTypes) {
         rankGroups.forEach((rank, groupedCards) -> {
             if (groupedCards.size() == 4) {
                 ZvanjeType zvanje = switch (rank) {
@@ -123,7 +150,7 @@ public class ZvanjeService {
     }
     
 
-    private void detectSequences(List<Card> suitCards, List<ZvanjeType> zvanjeTypes) {
+    private static void detectSequences(List<Card> suitCards, List<ZvanjeType> zvanjeTypes) {
         suitCards.sort(Comparator.comparingInt(card -> card.getRank().ordinal()));
 
         List<Card> currentSequence = new ArrayList<>();
@@ -138,7 +165,7 @@ public class ZvanjeService {
         evaluateSequence(currentSequence, zvanjeTypes);
     }
 
-    private void evaluateSequence(List<Card> sequence, List<ZvanjeType> zvanjeTypes) {
+    private static void evaluateSequence(List<Card> sequence, List<ZvanjeType> zvanjeTypes) {
         int size = sequence.size();
         if (size >= 3) {
             ZvanjeType zvanje = switch (size) {
@@ -153,7 +180,7 @@ public class ZvanjeService {
             }
         }
     }
-    private void detectBela(List<Card> cards, Card.Suit trumpSuit, List<ZvanjeType> zvanjeTypes) {
+    private static void detectBela(List<Card> cards, Card.Suit trumpSuit, List<ZvanjeType> zvanjeTypes) {
         List<Card> belaCards = cards.stream()
                 .filter(card -> card.getSuit() == trumpSuit &&
                         (card.getRank() == Card.Rank.KING || card.getRank() == Card.Rank.QUEEN))

@@ -1,3 +1,10 @@
+// ░░░░░░░▄█▄▄▄█▄
+// ▄▀░░░░▄▌─▄─▄─▐▄░░░░▀▄
+// █▄▄█░░▀▌─▀─▀─▐▀░░█▄▄█
+// ░▐▌░░░░▀▀███▀▀░░░░▐▌
+// ████░▄█████████▄░████
+
+
 package controllers;
 
 import java.util.*;
@@ -143,7 +150,8 @@ public class Game {
             // Award points to the other team
             otherTeam.addBigs(otherTeamPoints + dealerTeamPoints);
             System.out.println();
-            System.out.println("Dealer's team didnt pass! Other team: " + otherTeamPoints);
+            System.out.println("Dealer's team didnt pass! Dealer's team: " + dealerTeam.getBigs());
+            System.out.println("Other team GETS ALL: " + otherTeam.getBigs());
         }
     }
     
@@ -169,19 +177,20 @@ public class Game {
             System.out.println();
             player.displayHand();
         }
-    
+        ////////////////////////////////////////////////////
+        System.out.println();
         for (ZvanjeResult result : zvanjeResults) {
             System.out.println(result.getPlayer().getName() + "'s ZvanjeTypes: " + result.getZvanjeTypes());
         }
-
+        System.out.println();
         // Find the player with the highest Zvanje
-        ZvanjeResult winningZvanjeResult = zvanjeResults.stream()
-                .filter(result -> result.getBiggestZvanje() != null) // Skip players without Zvanje
-                .max(Comparator.comparing(result -> result.getBiggestZvanje().getPoints()))
-                .orElse(null);
+        ZvanjeResult winningZvanjeResult = ZvanjeService.biggestZvanje(zvanjeResults, dealerIndex);
     
+        // If no Zvanje is detected for any player, return null
         if (winningZvanjeResult == null) {
+
             System.out.println("No Zvanje detected for any player.");
+
             return null;
         }
     
@@ -190,8 +199,9 @@ public class Game {
     
         // Calculate total points for the winning player's team
         int totalPoints = calculateTotalZvanjePoints(winningTeam, zvanjeResults);
-
+        // Update the winning ZvanjeResult with the total points
         winningZvanjeResult.setPoints(totalPoints);
+
 
         // Print results
         System.out.println("Player with the highest Zvanje: " + winningPlayer.getName());

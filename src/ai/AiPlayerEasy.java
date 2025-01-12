@@ -8,7 +8,6 @@
 //
 // EASY AI PLAYER
 //
-
 package ai;
 
 import java.util.*;
@@ -16,43 +15,45 @@ import models.*;
 
 public class AiPlayerEasy extends Player {
 
-    // Constructor
     public AiPlayerEasy(String name, Team team) {
         super(name, team);
     }
 
-    // IMPLEMENTATION NEEDED
-    // Choose a card to play
+    // Randomly choose a card to play
     @Override
     public int chooseCardToPlay(List<Integer> playableIndexes) {
         if (playableIndexes.isEmpty()) {
             throw new IllegalArgumentException("No playable cards available!");
         }
         Random random = new Random();
-        return playableIndexes.get(random.nextInt(playableIndexes.size()));
+        return playableIndexes.get(random.nextInt(playableIndexes.size())); // Pick a random card
     }
 
-    // IMPLEMENTATION NEEDED
-    // Find Dama in hand
-    @Override
-    public void callDama() {
-        for(Card card : hand.getCards()) {
-            if(card.getRank() == Card.Rank.QUEEN && card.getSuit() == Card.Suit.CLUBS) {
-                // Call Dama
-            }
-        }
-    }
-    
-    // Get selected cards from index to go check Zvanje
-    @Override
-    public List<Card> callZvanje(List<Integer> selectedIndices) {
-        return new ArrayList<>(); // Basic Zvanje logic for Normal AI
-    }
-
-    // Choose trump suit
+    // Randomly choose a trump suit
     @Override
     public Card.Suit chooseTrump() {
-        return null; // Implement actual trump suit selection logic
+        Card.Suit[] suits = Card.Suit.values();
+        Random random = new Random();
+        Card.Suit chosenSuit = suits[random.nextInt(suits.length)];
+        System.out.println(name + " randomly chooses " + chosenSuit + " as trump suit.");
+        return chosenSuit;
     }
-    
+
+    // Randomly decide to call Dama (even if it doesn't make sense)
+    @Override
+    public void callDama() {
+        Random random = new Random();
+        if (random.nextBoolean()) {
+            System.out.println(name + " calls Dama randomly, even if it's not valid!");
+        } else {
+            System.out.println(name + " decides not to call Dama.");
+        }
+    }
+
+    // Return an empty list for Zvanje (no detection logic)
+    @Override
+    public List<Card> callZvanje(List<Integer> selectedIndices) {
+        System.out.println(name + " does not know how to detect Zvanje.");
+        return new ArrayList<>(); // Always returns an empty list
+    }
 }

@@ -57,6 +57,10 @@ public abstract class Player {
         return hand;
     }
 
+    public int getTeamIndex() {
+        return team.getPlayers().indexOf(this);
+    }
+
     // Set the team of the player
     public Team getTeam() {
         return team;

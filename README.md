@@ -1,72 +1,131 @@
-# Projekt_Belot
+# Card Game Project: Belot
 
-A Java implementation of the Croatian card game Belot (Bela) featuring a 2v2 scenario with 1 player and 3 AI opponents.
+A Java-based implementation of the classic Belot card game. This project features AI players with varying difficulty levels, undo functionality, Zvanje scoring, and more, all designed for a fun and strategic gameplay experience.
 
-## Overview
+---
 
-Belot is a popular trick-taking card game played primarily in Croatia and surrounding regions. This implementation allows you to play against AI opponents in a traditional 2v2 team setting.
+## Table of Contents
+- [Features](#features)
+- [How to Play](#how-to-play)
+- [Installation](#installation)
+- [Game Overview](#game-overview)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [License](#license)
 
-## Running the Project
+---
 
-1. Navigate to the project directory:
+## Features
+- **AI Players**: Choose from Easy, Normal, or Hard AI opponents.
+- **Zvanje Scoring**: Detect and score advanced combinations automatically.
+- **Undo Feature**: Revert your moves to fix mistakes or replay strategies.
+- **Dynamic Trump Selection**: Players dynamically choose the trump suit at the beginning of the game.
+- **Team-Based Gameplay**: Play in teams and compete to score 1001 points to win the match.
+- **Customizable Difficulty**: Set game difficulty levels for personalized challenges.
+
+---
+
+## How to Play
+1. Start the game by running the `Main` class.
+2. The game will initialize with:
+   - 1 Human Player.
+   - 3 AI Players (based on the selected difficulty).
+   - A shuffled deck of cards.
+3. **Game Phases**:
+   - **Card Dealing**: Players are dealt 6 cards in 3 rounds.
+   - **Trump Selection**: Players choose a trump suit or skip.
+   - **Gameplay**: Play cards in rounds, attempting to win tricks.
+   - **Scoring**: Earn points through tricks and Zvanje combinations.
+4. Play continues for 8 rounds or until a team scores 1001 points.
+5. The team with the highest score wins the match!
+
+---
+
+## Installation
+
+1. Clone this repository:
    ```bash
-   cd Projekt_Belot/src/main/java/com/projektbelot
+   git clone https://github.com/your-username/your-repo-name.git
    ```
-
-2. Start JShell with assertions and preview features enabled:
+2. Navigate to the project directory:
    ```bash
-   jshell -R-ea --enable-preview
+   cd your-repo-name
    ```
+3. Open the project in your favorite Java IDE (e.g., IntelliJ IDEA, Eclipse, VSCode).
+4. Compile and run the `Main` class.
 
-3. Load the main project file:
-   ```java
-   /o lvp.java
-   ```
+---
 
-4. Load additional server files as needed:
-   ```java
-   /o [filename.java]
-   ```
+## Game Overview
+### Core Classes
+- **Game**: Manages the overall game flow.
+- **RoundManager**: Handles logic for individual rounds.
+- **GameInitializer**: Sets up players, teams, and initial game state.
+- **ZvanjeService**: Detects and scores Zvanje combinations.
+- **CardService**: Manages card-related utilities like playable cards and trump values.
 
+### AI Levels
+- **Easy AI**: Basic random card selection.
+- **Normal AI**: Moderate logic for card and trump choices.
+- **Hard AI**: Advanced strategy for competitive gameplay.
 
-## How to Run the Belot Project in VS Code
+---
 
-1. Open the **Run and Debug Panel** (`Ctrl+Shift+D` or `Cmd+Shift+D` on Mac).
-2. Select a configuration:
-   - **Main**: Runs the `controllers.Main` class.
-   - **Current File**: Runs the open Java file.
-3. Click the green play button or press `F5` to run.
-4. View the output in the **Debug Console**.
-
-To test, add this to `Main.java`:
-```java
-Card card = new Card(Suit.HEARTS, Rank.ACE);
-card.calculateValue(Suit.HEARTS);
-System.out.println(card);
+## Project Structure
+```plaintext
+├── src
+│   ├── controllers
+│   │   ├── Game.java
+│   │   ├── Main.java
+│   │   ├── Match.java
+│   │   ├── RoundManager.java
+│   ├── models
+│   │   ├── Card.java
+│   │   ├── Deck.java
+│   │   ├── Hand.java
+│   │   ├── Player.java
+│   │   ├── Team.java
+│   ├── services
+│   │   ├── CardService.java
+│   │   ├── GameInitializer.java
+│   │   ├── GameStateManager.java
+│   │   ├── ScoringService.java
+│   │   ├── ZvanjeService.java
+│
+├── README.md
+├── LICENSE
 ```
-## Server Management
 
-If you need to restart the server, follow these steps:
-
-1. Find the server process:
-   ```bash
-   netstat -ano | findstr :50001
-   ```
-
-2. Locate the Process ID (PID) from the output:
-   ```
-   TCP    127.0.0.1:50001        0.0.0.0:0              LISTENING         22716
-   ```
-
-3. Kill the process using the identified PID:
-   ```bash
-   taskkill /PID [PID_NUMBER] /F
-   ```
+---
 
 ## Contributing
+Contributions are welcome! To contribute:
 
-Feel free to submit issues and enhancement requests!
+1. Fork this repository.
+2. Create a new branch:
+   ```bash
+   git checkout -b feature-name
+   ```
+3. Commit your changes:
+   ```bash
+   git commit -m "Add new feature"
+   ```
+4. Push your branch:
+   ```bash
+   git push origin feature-name
+   ```
+5. Open a Pull Request on GitHub.
+
+---
 
 ## License
+This project is licensed under the [MIT License](LICENSE).
 
-[Add your license information here]
+---
+
+## Acknowledgments
+Special thanks to everyone who contributed to the development of this project and the open-source community for inspiring ideas.
+
+---
+
+Enjoy playing Belot! 😊

@@ -1,173 +1,108 @@
 @startuml
 left to right direction
 
-class Game {
+class Match {
     ' Attributes
-    + Difficulty difficulty : Game difficulty level
-    + Deck deck : The deck of cards used in the game
-    + List<Player> players : List of players in the game
-    + Card.Suit trumpSuit : Current trump suit for the game
-    + Stack<GameState> gameStates : Stack to store game states for undo
+    + Team team1 : The first team
+    + Team team2 : The second team
+    + List<Player> players : The list of players in the match
     + int dealerIndex : Index of the dealer
-    + Team team1 : Home team
-    + Team team2 : Away team
-    + ZvanjeService zvanjeService : Service for detecting Zvanje
+    + static int WINNING_SCORE : The score needed to win the match
+    + Team winner : The winning team
 
     ---
     ' Constructor
-    + Game() : Initializes a new game
+    + Match(Difficulty difficulty) : Initializes a new match
+
+    ---
+    ' Void Methods
+    + void startMatch() : Starts the match
+    + void rotateDealer() : Rotates the dealer
+    + void handleMatchEnd(Team winner) : Handles post-match actions
+
+    ---
+    ' Non-void Methods
+    + Team matchWinner() : Determines the winning team of the match
+}
+
+class Game {
+    ' Attributes
+    + Team team1 : The first team
+    + Team team2 : The second team
+    + List<Player> players : The list of players
+    + ZvanjeResult zvanjeWin : Winning Zvanje result
+    + int winThreshold : The points needed to win
+    + Deck deck : The deck used in the game
+    + Card.Suit trumpSuit : The trump suit for the game
+    + int dealerIndex : Index of the dealer
+
+    ---
+    ' Constructor
+    + Game(List<Player>, Team, Team, int) : Initializes a new game
 
     ---
     ' Void Methods
     + void startGame() : Starts the game
-    + void startRound() : Starts a round
-    + void initializePlayers() : Initializes human and AI players
-    + void makeMove(int playerIndex, int cardIndex) : Makes a move in the game
-    + void undo() : Undo the last move
+    + void initializeGame() : Initializes the game state
+    + void playRounds() : Plays rounds in the game
+    + void awardGameVictory() : Awards points to the winning team
     + void updateCardValues(Card.Suit trumpSuit) : Updates card values based on trump
-    + void chooseDifficulty(Difficulty difficulty) : Sets the game difficulty
-    + void nextDealer() : Moves to the next dealer
-    + void saveGameState() : Saves the current game state
+    + static void sortAllPlayersHands(List<Player>) : Sorts all players' hands
 
     ---
     ' Non-void Methods
-    + int getStartingPlayerIndex() : Returns the starting player index
-    + int calculateZvanjePoints(Player player, Card.Suit trumpSuit) : Calculates Zvanje points
-    + Card.Suit chooseTrumpSuit() : Chooses the trump suit
-    + List<Integer> getPlayableCardIndexes(List<Card>, List<Card>, Card.Suit) : Gets playable card indexes
-    + Team determineAndAnnounceZvanje() : Determines and announces Zvanje winner
-    + Team getPlayerTeam(Player player) : Gets the player's team
-    + static Card getStrongestCard(List<Card>, Card.Suit, Card.Suit) : Gets the strongest card
-    + static List<Integer> getAllCardIndices(int) : Gets all card indices
+    + Team lookForWinner() : Determines the winning team of the game
+    + Card.Suit chooseTrumpSuit(int) : Allows players to choose the trump suit
+    + ZvanjeResult reportZvanje(Card.Suit, int) : Reports Zvanje results
+    + int calculateTotalZvanjePoints(Team, List<ZvanjeResult>) : Calculates Zvanje points for a team
 }
 
-class Team {
+class Round {
     ' Attributes
-    + String name : Team name
-    + List<Player> players : List of players in the team
-    + int score : Total score for the team
-    + int wins : Total wins for the team
+    + List<Player> players : The list of players
+    + Card.Suit trumpSuit : The trump suit for the game
+    + int startingPlayerIndex : The index of the starting player
+    + List<Card> onFloorCards : Cards played on the floor in the round
 
     ---
     ' Constructor
-    + Team(String name) : Initializes a team with a name
+    + Round(List<Player>, int, Card.Suit) : Initializes a new round
 
     ---
     ' Void Methods
-    + void addPlayer(Player player) : Adds a player to the team
-    + void addScore(int points) : Updates the team score
-    + void addWin() : Increments the team's win count
+    + void playTurns(int) : Plays the turns for the round
 
     ---
     ' Non-void Methods
-    + int getScore() : Returns the team score
-    + int getWins() : Returns the team's win count
-}
-
-class Player {
-    ' Attributes
-    + String name : Player's name
-    + Hand hand : Player's hand of cards
-
-    ---
-    ' Constructor
-    + Player(String name) : Initializes a player
-
-    ---
-    ' Abstract Methods
-    + abstract int chooseCardToPlay(List<Integer>) : Chooses a card to play
-    + abstract Card.Suit chooseTrump() : Chooses a trump suit
-    + abstract List<Card> callZvanje(List<Integer>) : Calls a Zvanje
-    + abstract void callDama() : Calls "Dama"
-
-    ---
-    ' Non-void Methods
-    + Card playCard(int index) : Plays a card from the hand
-    + String getName() : Returns the player's name
-    + Hand getHand() : Returns the player's hand
-
-    ---
-    ' Void Methods
-    + void displayHand() : Displays the player's hand
-}
-
-class AiPlayerEasy {
-    ---
-    ' Constructor
-    + AiPlayerEasy(String name) : Initializes an easy AI player
-
-    ---
-    ' Override Methods
-    + int chooseCardToPlay(List<Integer>) : Randomly selects a playable card
-    + Card.Suit chooseTrump() : Randomly chooses a trump suit
-    + List<Card> callZvanje(List<Integer>) : Calls Zvanje (basic logic)
-    + void callDama() : Calls Dama if possible
-}
-
-class AiPlayerNormal {
-    ---
-    ' Constructor
-    + AiPlayerNormal(String name) : Initializes a normal AI player
-
-    ---
-    ' Override Methods
-    + int chooseCardToPlay(List<Integer>) : Selects a playable card with moderate strategy
-    + Card.Suit chooseTrump() : Selects a trump suit
-    + List<Card> callZvanje(List<Integer>) : Calls Zvanje (improved logic)
-    + void callDama() : Calls Dama if possible
-}
-
-class AiPlayerHard {
-    ---
-    ' Constructor
-    + AiPlayerHard(String name) : Initializes a hard AI player
-
-    ---
-    ' Override Methods
-    + int chooseCardToPlay(List<Integer>) : Selects a card with advanced strategy
-    + Card.Suit chooseTrump() : Selects a trump suit
-    + List<Card> callZvanje(List<Integer>) : Calls Zvanje (complex logic)
-    + void callDama() : Calls Dama if possible
-}
-
-class HumanPlayer {
-    ---
-    ' Constructor
-    + HumanPlayer(String name) : Initializes a human player
-
-    ---
-    ' Override Methods
-    + int chooseCardToPlay(List<Integer>) : Allows the player to select a card
-    + Card.Suit chooseTrump() : Allows the player to select a trump suit
-    + List<Card> callZvanje(List<Integer>) : Calls Zvanje based on player input
-    + void callDama() : Calls Dama if possible
+    + int start(int) : Starts the round and returns the next starting player
+    + Player returnWinner(int) : Determines the round winner
 }
 
 class Card {
     ' Attributes
-    + Suit suit : Suit of the card
-    + Rank rank : Rank of the card
-    + int value : Value of the card
+    + Card.Suit suit : The suit of the card
+    + Card.Rank rank : The rank of the card
+    + int value : The value of the card
 
     ---
     ' Constructor
-    + Card(Suit suit, Rank rank) : Initializes a card
+    + Card(Card.Suit, Card.Rank) : Initializes a card
 
     ---
     ' Void Methods
-    + void calculateValue(Suit trumpSuit) : Calculates card value based on trump
+    + void calculateValue(Card.Suit trumpSuit) : Calculates the card's value
 
     ---
     ' Non-void Methods
-    + int getStrength(Suit trumpSuit, Suit leadSuit) : Calculates card strength
-    + Suit getSuit() : Returns the card's suit
-    + Rank getRank() : Returns the card's rank
-    + int getValue() : Returns the card's value
+    + Card.Suit getSuit() : Gets the card's suit
+    + Card.Rank getRank() : Gets the card's rank
+    + int getValue() : Gets the card's value
+    + int getStrength(Card.Suit, Card.Suit) : Determines card strength
 }
 
 class Deck {
     ' Attributes
-    + List<Card> cards : The list of cards in the deck
+    + List<Card> cards : List of cards in the deck
 
     ---
     ' Constructor
@@ -175,66 +110,68 @@ class Deck {
 
     ---
     ' Void Methods
+    + void initializeDeck() : Initializes the deck
     + void shuffle() : Shuffles the deck
-    + void reset() : Resets the deck to its initial state
-    + void dealCards(Player player, int count) : Deals a specific number of cards
-    + void dealHands(List<Player>, int cardsPerPlayer) : Deals cards to all players
-    + void setCards(List<Card>) : Sets the deck state
+    + void dealHand(Player, int) : Deals cards to a player
+    + void dealAllHands(List<Player>, int) : Deals cards to all players
+    + void setCards(List<Card>) : Sets the state of the deck
 
     ---
     ' Non-void Methods
-    + List<Card> getCards() : Returns the current state of the deck
+    + List<Card> getCards() : Gets the current state of the deck
 }
 
-class Hand {
+class Player {
     ' Attributes
-    + List<Card> cards : Cards in the player's hand
+    + String name : The player's name
+    + Hand hand : The player's hand of cards
+    + Team team : The player's team
 
     ---
     ' Constructor
-    + Hand() : Initializes an empty hand
+    + Player(String name, Team team) : Initializes a player
+
+    ---
+    ' Abstract Methods
+    + abstract Card.Suit chooseTrump() : Chooses a trump suit
+    + abstract List<Card> callZvanje(List<Integer>) : Calls Zvanje
+    + abstract void callDama() : Calls Dama
+    + abstract int chooseCardToPlay(List<Integer>) : Chooses a card to play
+
+    ---
+    ' Non-void Methods
+    + Card playCard(int) : Plays a card
+    + String getName() : Gets the player's name
+    + Hand getHand() : Gets the player's hand
+    + Team getTeam() : Gets the player's team
+}
+
+class Team {
+    ' Attributes
+    + String name : The team's name
+    + List<Player> players : The players in the team
+    + List<Card> wonCards : Cards won by the team
+    + int bigs : The team's big score
+    + int smalls : The team's small score
+
+    ---
+    ' Constructor
+    + Team(String name) : Initializes a team
 
     ---
     ' Void Methods
-    + void addCards(List<Card>) : Adds cards to the hand
-    + void removeCard(int index) : Removes a card from the hand
-    + void setCards(List<Card>) : Sets cards in the hand
+    + void addPlayer(Player player) : Adds a player to the team
+    + void addBigs(int points) : Adds points to the big score
+    + void addSmalls(int points) : Adds points to the small score
+    + void addWonCardsAsPoints(List<Card>) : Adds won cards as points
+    + void resetWonCards() : Resets the team's won cards
+    + void resetSmalls() : Resets the small score
 
     ---
     ' Non-void Methods
-    + Card getCard(int index) : Gets a card by index
-    + List<Card> getCards() : Returns all cards in the hand
+    + List<Player> getPlayers() : Gets the players in the team
+    + int getBigs() : Gets the big score
+    + int getSmalls() : Gets the small score
 }
 
-class ZvanjeService {
-    ---
-    ' Non-void Methods
-    + List<ZvanjeType> detectZvanje(Player player, Card.Suit trumpSuit) : Detects Zvanje combinations
-    + Map<String, Object> determineZvanje(List<Player>, Team, Team, Card.Suit) : Determines Zvanje results
-}
-
-class GameState {
-    ---
-    ' Attributes
-    + List<Card> deckState : The current state of the deck
-    + List<List<Card>> handsState : The current state of players' hands
-
-    ---
-    ' Constructor
-    + GameState(List<Card>, List<List<Card>>) : Initializes a game state
-}
-
-' Relationships
-Game "1" -- "1..2" Team : involves
-Game "1" -- "1" Deck : uses
-Game "1" -- "1..*" Player : involves
-Game "1" -- "1" ZvanjeService : uses
-Game "1" -- "1..*" GameState : saves
-Player "1" -- "1" Hand : owns
-Deck "1" -- "0..*" Card : contains
-Hand "1" -- "0..*" Card : contains
-Player <|-- HumanPlayer
-Player <|-- AiPlayerEasy
-Player <|-- AiPlayerNormal
-Player <|-- AiPlayerHard
 @enduml
