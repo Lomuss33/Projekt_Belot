@@ -38,32 +38,47 @@ public class Match {
                 assert player.getHand().isEmpty() : "Player hand should be empty at the start of the match";
             }
 
-            // Start the game
             // Start the game and check for a winner
-            winner = game.startGame(); // Assumes `startGame` returns the winning team or null if no winner yet
+            game.startGame(); // Assumes `startGame` returns the winning team or null if no winner yet
 
+            System.out.println();
             System.out.println("Game over! Scores:");
             System.out.println(team1.getName() + ": " + team1.getBigs());
             System.out.println(team2.getName() + ": " + team2.getBigs());
+            System.out.println();
+
+            // Check if the match is over
+            winner = matchWinner();
 
             if (winner != null) {
+                System.out.println("Match winner found: " + winner.getName());
                 finished = true; // Stop the loop when a winner is found
             } else {
                 System.out.println("No winner yet, starting a new GAME...");
                 rotateDealer(); // Rotate the dealer and prepare for the next game
                 Thread.sleep(3000); // Optional delay
             }
-        }
 
-        // Post-match logic after a winner is determined
+            // reset valus for the next game
+            team1.setSmalls(0);
+            team2.setSmalls(0);
+            team1.resetWonCards();
+            team2.resetWonCards();
+
+        }
 
         // Additional actions after the match ends (e.g., cleanup, next steps)
         handleMatchEnd(winner);
     }
 
-    public boolean endMatch() {
+    public Team matchWinner() {
         // The match is over if either team reaches or exceeds the winning score
-        return team1.getBigs() >= WINNING_SCORE || team2.getBigs() >= WINNING_SCORE;
+        if (team1.getBigs() >= WINNING_SCORE) {
+            return team1;
+        } else if (team2.getBigs() >= WINNING_SCORE) {
+            return team2;
+        }
+        return null;
     }
 
     private void rotateDealer() {
@@ -73,7 +88,7 @@ public class Match {
     private void handleMatchEnd(Team winner) {
         // Additional actions after the match ends (e.g., cleanup, next steps)
         // For example, update player statistics, save match results, etc.
-        
+        System.out.println();
         System.out.println("Match is over! Final scores:");
         System.out.println(team1.getName() + ": " + team1.getBigs());
         System.out.println(team2.getName() + ": " + team2.getBigs());

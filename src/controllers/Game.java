@@ -30,7 +30,7 @@ public class Game {
     }
  
     /* ------------------------------- start game ------------------------------- */
-    public Team startGame() {
+    public void startGame() {
         System.out.println("Game started!");
 
         // Initialize the game
@@ -39,25 +39,24 @@ public class Game {
         // Play 1 deck of rounds and check for a winner
         playRounds();
 
-        // Find game winner team
-        Team winner = lookForWinner();
-
         // Award points to the winning team
         awardGameVictory();
+
+        // Find game winner team
+        Team winner = lookForWinner();
 
         if (winner != null) {
             System.out.println("Final scores: " + team1.getName() + " - " + team1.getBigs() + ", " + team2.getName() + " - " + team2.getBigs());
             finishGame(winner);
         }
     
-        return winner;
     }
 
     public Team lookForWinner() {
         // Check if a team has crossed the win threshold
         Team winner = GameUtils.findGameWinner(team1, team2, zvanjeWin, winTreshold);
         if (winner != null) {
-            System.out.println("Game over! Winner: " + winner.getName());
+            System.out.println("Game over! Winner: " + winner.getName()); 
         } else {
             System.out.println("Game continues. Current scores: " + team1.getName() + " - " + team1.getBigs() + ", " + team2.getName() + " - " + team2.getBigs());
         }
@@ -110,14 +109,17 @@ public class Game {
     private void playRounds() {
 
         // Assert that last player has 8 cards after dealing all cards
-        assert players.get((dealerIndex + 3) % 4).getHand().getCards().size() == 8 : "Players should have 8 cards.";
-
+        if (players.get((dealerIndex + 3) % 4).getHand().getCards().size() != 8) {
+            throw new IllegalStateException("Players should have 8 cards.");
+        }
+        
         int startingPlayerIndex = (dealerIndex + 1) % 4; // Player next to the dealer
         for (int i = 0; i < 8; i++) {
             System.out.println("Round " + (i + 1));
-            // Start a new round and get the winner's index for the next round
-            Round round = new Round(players, startingPlayerIndex);
+            // Start a new round and get the winner's index
+            Round round = new Round(players, startingPlayerIndex, trumpSuit);
             int winnerIndex = round.start(i);
+            // Winner starts the next round
             startingPlayerIndex = winnerIndex;
         }
     }
@@ -133,11 +135,15 @@ public class Game {
         // Check if the dealer's team has crossed the win threshold
         if (dealerTeamPoints >= winTreshold) {
             dealerTeam.addBigs(dealerTeamPoints);
-            System.out.println("Congratulations to the dealer's team!" + dealerTeamPoints);
+            otherTeam.addBigs(otherTeamPoints);
+            System.out.println();
+            System.out.println("Dealer's team PASSED!: " + dealerTeamPoints);
+            System.out.println("Other team: " + otherTeamPoints);
         } else {
             // Award points to the other team
-            otherTeam.addBigs(otherTeamPoints);
-            System.out.println("Congratulations to the other team!" + otherTeamPoints);
+            otherTeam.addBigs(otherTeamPoints + dealerTeamPoints);
+            System.out.println();
+            System.out.println("Dealer's team didnt pass! Other team: " + otherTeamPoints);
         }
     }
     
@@ -161,10 +167,13 @@ public class Game {
 
             // Print player's cards
             System.out.println();
-            System.out.println(player.getName() + "'s ZvanjeTypes: " + result.getZvanjeTypes());
-            System.out.println(player.getName() + "'s cards: " + player.getHand().getCards());
+            player.displayHand();
         }
     
+        for (ZvanjeResult result : zvanjeResults) {
+            System.out.println(result.getPlayer().getName() + "'s ZvanjeTypes: " + result.getZvanjeTypes());
+        }
+
         // Find the player with the highest Zvanje
         ZvanjeResult winningZvanjeResult = zvanjeResults.stream()
                 .filter(result -> result.getBiggestZvanje() != null) // Skip players without Zvanje

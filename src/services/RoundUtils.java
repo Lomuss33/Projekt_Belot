@@ -12,7 +12,7 @@ public class RoundUtils {
     
         // If no cards are played yet, the player is starting and can play any card
         if (onFloorCards.isEmpty()) {
-            System.out.println("No cards on the floor. Any card can be played.");
+            // System.out.println("No cards on the floor. RoundUtils()");
             return CardUtils.getAllCardIndices(handCards.size());
         }
     
@@ -39,10 +39,11 @@ public class RoundUtils {
     
         // Step 2: If no stronger cards exist, allow any card to be played
         if (playableIndexes.isEmpty()) {
-            System.out.println("No stronger cards found. Any card can be played.");
+            // System.out.println("No stronger cards found. RoundUtils()");
             return CardUtils.getAllCardIndices(handCards.size());
         }
-        System.out.println("Playable card indexes: " + playableIndexes);
+
+        //System.out.println("RoundUtils() Playable card indexes: " + playableIndexes);
         return playableIndexes;
     }
     

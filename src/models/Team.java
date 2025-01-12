@@ -19,19 +19,11 @@ public class Team {
     }
 
     // Add the cards won in the current round to the team's won cards
-    public void addWonCardsAndPoints(List<Card> cards) {
+    public void addWonCardsAsPoints(List<Card> cards) {
         wonCards.addAll(cards);
         for (Card card : cards) {
             smalls += card.getValue(); // Add card values to smalls
         }
-    }
-
-    public void addPlayer(Player player) {
-        players.add(player);
-    }
-
-    public List<Player> getPlayers() {
-        return players;
     }
 
     public List<Card> getWonCards() {
@@ -42,12 +34,22 @@ public class Team {
         wonCards = new ArrayList<>();
     }
 
+    
+    public void addPlayer(Player player) {
+        players.add(player);
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     public String getName() {
         return name;
     }
 
     // Update the bigs score
     public void addBigs(int points) {
+        System.out.println("Adding " + points + " points to " + name + " big score");
         this.bigs += points;
     }
 
@@ -60,6 +62,7 @@ public class Team {
     }
 
     public void addSmalls(int points) {
+        System.out.println("Adding " + points + " points to " + name + " small score");
         this.smalls += points;
     }
 

@@ -14,7 +14,7 @@ public class GameUtils {
         List<Player> players = new ArrayList<>();
 
         // Assign human player to Team 1
-        players.add(new HumanPlayer("YOU", team1));
+        players.add(new HumanPlayer("Lovro", team1));
         team1.addPlayer(players.get(0)); // Add to Team 1
 
         // Create AI players based on difficulty

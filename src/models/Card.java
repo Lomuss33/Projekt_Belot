@@ -18,7 +18,7 @@ public class Card {
     }
 
     // Enum for the Rank of the card
-    public enum Rank {
+    public enum Rank { 
         SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE 
     }
 
@@ -95,6 +95,6 @@ public class Card {
     // ToString method for debugging
     @Override
     public String toString() {
-        return rank + " of " + suit + " (" + value + "pts)";
+        return rank + " | " + suit + " |" + value + "pts";
     }
 }
