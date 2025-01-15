@@ -86,8 +86,8 @@ public class Game {
         // Deal 6 cards to players to choose trump suit
         deck.dealAllHands(players, 6);
 
-        System.err.println(players.get(dealerIndex).getName() + " is the dealer.");
-    
+        System.out.println(players.get(dealerIndex).getName() + " is the dealer.");
+        System.out.println();
         // Choose trump suit
         trumpSuit = chooseTrumpSuit(dealerIndex);
 

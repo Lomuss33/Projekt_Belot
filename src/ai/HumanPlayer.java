@@ -20,6 +20,7 @@ import models.*;
 public class HumanPlayer extends Player {
 
     private TrumpChoice trumpChoice = null; // Variable to store the trump suit choice
+    private int cardIndexChoice = -1; // Variable to store the card choice
     private final Object lock = new Object(); // Lock object for synchronizing threads
 
     public HumanPlayer(String name, Team team) {
@@ -30,21 +31,36 @@ public class HumanPlayer extends Player {
     // Choose a card index to play
     @Override
     public int chooseCardToPlay(List<Integer> playableIndexes) {
-        if (playableIndexes.isEmpty()) {
-            throw new IllegalArgumentException("No playable cards available!");
-        }
-        Random random = new Random();
-        return playableIndexes.get(random.nextInt(playableIndexes.size()));
-    }
-
-    // IMPLEMENTATION NEEDED
-    // Find Dama in hand
-    @Override
-    public void callDama() {
-        for(Card card : hand.getCards()) {
-            if(card.getRank() == Card.Rank.QUEEN && card.getSuit() == Card.Suit.CLUBS) {
-                // Call Dama
+        synchronized (lock) { // Enter synchronized block to wait for input
+            while (cardIndexChoice == -1) { // Keep waiting until a valid choice is made
+                try {
+                    System.out.println(this.getName() + "'s hand:");
+                    for (int i = 0; i < hand.getCards().size(); i++) {
+                        Card card = hand.getCard(i);
+                        String playableMarker = playableIndexes.contains(i) ? " (Playable)" : "";
+                        System.out.println(i + " - " + card + playableMarker);
+                    }
+                    System.out.println("Choose a card to play by entering the index:");
+                    lock.wait(); // Pause this thread until notified
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt(); // Restore interrupt status
+                    return -1; // Return -1 in case of an interruption
+                }
             }
+            int chosenCardIndex = trumpChoice.ordinal(); // Use the ordinal value as the chosen card index
+            cardIndexChoice = -1; // Reset for the next round
+            return chosenCardIndex; // Return the chosen index to the game
+        }
+    }
+    
+    // Method called to select a card by the player
+    public void selectCard(int index) {
+        synchronized (lock) { // Enter synchronized block to notify after updating the choice
+            if (index < 0 || index >= hand.getCards().size()) {
+                throw new IllegalArgumentException("Invalid card index.");
+            }
+            cardIndexChoice = index; // Temporarily reuse trumpChoice for card selection
+            lock.notify(); // Wake up the thread waiting for this input
         }
     }
 

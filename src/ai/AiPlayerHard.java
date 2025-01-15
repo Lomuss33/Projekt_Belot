@@ -116,22 +116,6 @@ public class AiPlayerHard extends Player {
         System.out.println(name + " chooses " + bestSuit);
         return Player.TrumpChoice.valueOf(bestSuit.name());
     }
-    
-    
-
-    // Call Dama if the AI has both Queen and King of the trump suit
-    @Override
-    public void callDama() {
-        // Card.Suit trumpSuit = chooseTrump();
-        // boolean hasQueen = hand.getCards().stream()
-        //     .anyMatch(card -> card.getRank() == Card.Rank.QUEEN && card.getSuit() == trumpSuit);
-        // boolean hasKing = hand.getCards().stream()
-        //     .anyMatch(card -> card.getRank() == Card.Rank.KING && card.getSuit() == trumpSuit);
-
-        // if (hasQueen && hasKing) {
-        //     System.out.println(name + " calls Dama in " + trumpSuit);
-        // }
-    }
 
     // Call Zvanje by detecting high-value combinations
     @Override

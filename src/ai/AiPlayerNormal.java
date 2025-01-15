@@ -19,22 +19,6 @@ public class AiPlayerNormal extends Player {
         return playableIndexes.get(random.nextInt(playableIndexes.size()));
     }
 
-    // Call Dama if the player has Queen and King of the trump suit
-    @Override
-    public void callDama() {
-        // Map<Card.Suit, List<Card>> groupedBySuit = groupBySuit(hand.getCards());
-        // for (Map.Entry<Card.Suit, List<Card>> entry : groupedBySuit.entrySet()) {
-        //     List<Card> cards = entry.getValue();
-        //     boolean hasQueen = cards.stream().anyMatch(card -> card.getRank() == Card.Rank.QUEEN);
-        //     boolean hasKing = cards.stream().anyMatch(card -> card.getRank() == Card.Rank.KING);
-
-        //     if (hasQueen && hasKing) {
-        //         System.out.println(name + " calls Dama in " + entry.getKey());
-        //         return;
-        //     }
-        // }
-    }
-
     // Choose Zvanje cards
     @Override
     public List<Card> callZvanje(List<Integer> selectedIndices) {
