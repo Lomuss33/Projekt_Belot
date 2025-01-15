@@ -95,6 +95,6 @@ public class Card {
     // ToString method for debugging
     @Override
     public String toString() {
-        return rank + " | " + suit + " |" + value + "pts";
+        return rank + " | " + suit;
     }
 }

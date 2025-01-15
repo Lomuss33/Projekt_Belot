@@ -51,17 +51,6 @@ public class AiPlayerEasy extends Player {
         return chosenSuit;
     }
 
-    // Randomly decide to call Dama (even if it doesn't make sense)
-    @Override
-    public void callDama() {
-        // Random random = new Random();
-        // if (random.nextBoolean()) {
-        //     System.out.println(name + " calls Dama randomly, even if it's not valid!");
-        // } else {
-        //     System.out.println(name + " decides not to call Dama.");
-        // }
-    }
-
     // Return an empty list for Zvanje (no detection logic)
     @Override
     public List<Card> callZvanje(List<Integer> selectedIndices) {

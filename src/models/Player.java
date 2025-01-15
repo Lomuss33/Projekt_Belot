@@ -50,9 +50,6 @@ public abstract class Player {
     // Abstract method to call zvanje
     public abstract List<Card> callZvanje(List<Integer> selectedIndices);
     
-    // Abstract method to call dama
-    public abstract void callDama();
-
     // Abstract method to choose a card to be played
     public abstract int chooseCardToPlay(List<Integer> playableIndices);
 
