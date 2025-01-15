@@ -19,6 +19,9 @@ import models.*;
 
 public class HumanPlayer extends Player {
 
+    private TrumpChoice trumpChoice = null; // Variable to store the trump suit choice
+    private final Object lock = new Object(); // Lock object for synchronizing threads
+
     public HumanPlayer(String name, Team team) {
         super(name, team);
     }
@@ -56,26 +59,41 @@ public class HumanPlayer extends Player {
     }
 
     // NEEDS TO BE IMPLEMENTED CORRECTLY
+    
     // Choose trump suit
     @Override
-    public Card.Suit chooseTrump() {
-        return Card.Suit.HEARTS; // Implement actual trump suit selection logic
+    public TrumpChoice chooseTrumpOrSkip(int turnForChoosingTrump) {
+        synchronized (lock) { // Enter synchronized block to wait for input
+            while (trumpChoice == null) { // Keep waiting until a valid choice is made
+                try {
+                    System.out.println(this.getName() + " is choosing trump...");
+                    lock.wait(); // Pause this thread until notified
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt(); // Restore interrupt status
+                    return null; // Return null in case of an interruption
+                }
+            }
+            TrumpChoice result = trumpChoice; // Save the chosen suit to return
+            trumpChoice = null; // Reset for the next round
+            return result; // Return the choice to the game
+        }
+
+
     }
-    // Choose suit based on input string
-    public Card.Suit chooseSuit(String suit) {
-        switch (suit.toUpperCase()) {
-            case "HEARTS":
-                return Card.Suit.HEARTS;
-            case "DIAMONDS":
-                return Card.Suit.DIAMONDS;
-            case "CLUBS":
-                return Card.Suit.CLUBS;
-            case "SPADES":
-                return Card.Suit.SPADES;
-            case "SKIP":
-                return null; // or handle skip case appropriately
-            default:
-                throw new IllegalArgumentException("Invalid suit: " + suit);
+
+    // CALLED BY PLAYER
+    // Method called when human input arrives
+    public void trumpChoice(int choice) {
+        synchronized (lock) { // Enter synchronized block to notify after updating the choice
+            trumpChoice = switch (choice) {
+                case 1 -> Player.TrumpChoice.SPADES;
+                case 2 -> Player.TrumpChoice.HEARTS;
+                case 3 -> Player.TrumpChoice.DIAMONDS;
+                case 4 -> Player.TrumpChoice.CLUBS;
+                case 5 -> Player.TrumpChoice.SKIP;
+                default -> throw new IllegalArgumentException("Invalid trump choice.");
+            }; // Update the trump choice
+            lock.notify(); // Wake up the thread waiting for this input
         }
     }
 

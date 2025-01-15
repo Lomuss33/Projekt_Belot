@@ -59,45 +59,78 @@ public class AiPlayerHard extends Player {
 
     // Choose the trump suit based on the best scoring mechanism
     @Override
-    public Card.Suit chooseTrump() {
+    public TrumpChoice chooseTrumpOrSkip(int turnForChoosingTrump) {
         Map<Card.Suit, Integer> suitScores = new HashMap<>();
+        boolean hasJackAndNineCombo = false;
+        Card.Suit bestSuit = null;
+    
+        // Evaluate hand to find potential trump suits
         for (Card card : hand.getCards()) {
-            int score = getCardScore(card);
-            suitScores.put(card.getSuit(), suitScores.getOrDefault(card.getSuit(), 0) + score);
+            Card.Suit suit = card.getSuit();
+    
+            // Update suit scores, excluding EIGHT and SEVEN cards for final selection
+            if (card.getRank() != Card.Rank.EIGHT && card.getRank() != Card.Rank.SEVEN) {
+                int score = card.getStrength(suit, null); // Calculate strength assuming this suit as trump
+                suitScores.put(suit, suitScores.getOrDefault(suit, 0) + score);
+            }
+    
+            // Check if the suit contains both JACK and NINE
+            boolean hasJack = hand.getCards().stream().anyMatch(c -> c.getSuit() == suit && c.getRank() == Card.Rank.JACK);
+            boolean hasNine = hand.getCards().stream().anyMatch(c -> c.getSuit() == suit && c.getRank() == Card.Rank.NINE);
+    
+            if (hasJack && hasNine) {
+                long supportingCards = hand.getCards().stream()
+                    .filter(c -> (c.getSuit() == suit && c.getRank() != Card.Rank.JACK && c.getRank() != Card.Rank.NINE) || 
+                                 (c.getRank() == Card.Rank.ACE && c.getSuit() != suit))
+                    .count();
+    
+                if (supportingCards >= 2) {
+                    hasJackAndNineCombo = true;
+                    bestSuit = suit;
+                }
+            }
         }
-
-        // Choose the suit with the highest score
-        return suitScores.entrySet().stream()
-            .max(Map.Entry.comparingByValue())
-            .map(Map.Entry::getKey)
-            .orElse(null);
+    
+        // If turnForChoosingTrump is 3, MUST choose a suit
+        if (turnForChoosingTrump == 3) {
+            if (bestSuit == null) {
+                // Choose the suit with the highest score if no JACK and NINE combo
+                bestSuit = suitScores.entrySet().stream()
+                    .max(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .orElse(null);
+            }
+            if (bestSuit != null) {
+                System.out.println(name + " is forced to choose " + bestSuit);
+                return Player.TrumpChoice.valueOf(bestSuit.name());
+            }
+        }
+    
+        // Skip unless there is a valid JACK and NINE combo
+        if (!hasJackAndNineCombo) {
+            System.out.println(name + " chooses to skip.");
+            return Player.TrumpChoice.SKIP;
+        }
+    
+        // Return the trump choice corresponding to the best suit
+        System.out.println(name + " chooses " + bestSuit);
+        return Player.TrumpChoice.valueOf(bestSuit.name());
     }
-
-    // Calculate score for a card based on rank
-    private int getCardScore(Card card) {
-        return switch (card.getRank()) {
-            case JACK -> 20;
-            case NINE -> 14;
-            case ACE -> 11;
-            case TEN -> 10;
-            case KING -> 4;
-            case QUEEN -> 3;
-            default -> 0;
-        };
-    }
+    
+    
 
     // Call Dama if the AI has both Queen and King of the trump suit
     @Override
     public void callDama() {
-        Card.Suit trumpSuit = chooseTrump();
-        boolean hasQueen = hand.getCards().stream()
-            .anyMatch(card -> card.getRank() == Card.Rank.QUEEN && card.getSuit() == trumpSuit);
-        boolean hasKing = hand.getCards().stream()
-            .anyMatch(card -> card.getRank() == Card.Rank.KING && card.getSuit() == trumpSuit);
+        // Card.Suit trumpSuit = chooseTrump();
+        // boolean hasQueen = hand.getCards().stream()
+        //     .anyMatch(card -> card.getRank() == Card.Rank.QUEEN && card.getSuit() == trumpSuit);
+        // boolean hasKing = hand.getCards().stream()
+        //     .anyMatch(card -> card.getRank() == Card.Rank.KING && card.getSuit() == trumpSuit);
 
-        if (hasQueen && hasKing) {
-            System.out.println(name + " calls Dama in " + trumpSuit);
-        }
+        // if (hasQueen && hasKing) {
+        //     System.out.println(name + " calls Dama in " + trumpSuit);
+        // }
     }
 
     // Call Zvanje by detecting high-value combinations
