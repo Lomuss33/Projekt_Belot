@@ -22,17 +22,17 @@ public class AiPlayerNormal extends Player {
     // Call Dama if the player has Queen and King of the trump suit
     @Override
     public void callDama() {
-        Map<Card.Suit, List<Card>> groupedBySuit = groupBySuit(hand.getCards());
-        for (Map.Entry<Card.Suit, List<Card>> entry : groupedBySuit.entrySet()) {
-            List<Card> cards = entry.getValue();
-            boolean hasQueen = cards.stream().anyMatch(card -> card.getRank() == Card.Rank.QUEEN);
-            boolean hasKing = cards.stream().anyMatch(card -> card.getRank() == Card.Rank.KING);
+        // Map<Card.Suit, List<Card>> groupedBySuit = groupBySuit(hand.getCards());
+        // for (Map.Entry<Card.Suit, List<Card>> entry : groupedBySuit.entrySet()) {
+        //     List<Card> cards = entry.getValue();
+        //     boolean hasQueen = cards.stream().anyMatch(card -> card.getRank() == Card.Rank.QUEEN);
+        //     boolean hasKing = cards.stream().anyMatch(card -> card.getRank() == Card.Rank.KING);
 
-            if (hasQueen && hasKing) {
-                System.out.println(name + " calls Dama in " + entry.getKey());
-                return;
-            }
-        }
+        //     if (hasQueen && hasKing) {
+        //         System.out.println(name + " calls Dama in " + entry.getKey());
+        //         return;
+        //     }
+        // }
     }
 
     // Choose Zvanje cards
@@ -43,18 +43,49 @@ public class AiPlayerNormal extends Player {
 
     // Choose the trump suit based on the most valuable cards in hand
     @Override
-    public Card.Suit chooseTrump() {
-        Map<Card.Suit, Integer> suitValues = new HashMap<>();
+    public TrumpChoice chooseTrumpOrSkip(int turnForChoosingTrump) {
+        Map<Card.Suit, Integer> suitStrengths = new HashMap<>();
+    
+        // Calculate the total strength of each suit as if it were the trump suit
         for (Card card : hand.getCards()) {
-            suitValues.put(card.getSuit(), suitValues.getOrDefault(card.getSuit(), 0) + card.getValue());
+            Card.Suit suit = card.getSuit();
+            suitStrengths.put(
+                suit,
+                suitStrengths.getOrDefault(suit, 0) + card.getStrength(suit, null) // Treat `suit` as the trump suit
+            );
         }
-
-        // Find the suit with the highest value
-        return suitValues.entrySet().stream()
+    
+        // Find the suit with the highest total strength
+        Card.Suit strongestSuit = suitStrengths.entrySet().stream()
             .max(Map.Entry.comparingByValue())
             .map(Map.Entry::getKey)
             .orElse(null);
+    
+        // If turnForChoosingTrump is 3, MUST choose a suit
+        if (turnForChoosingTrump == 3) {
+            if (strongestSuit == null) {
+                // Fallback to the first available suit if no valid strong suit is found
+                strongestSuit = suitStrengths.keySet().stream().findFirst().orElse(null);
+            }
+            if (strongestSuit != null) {
+                System.out.println(name + " is forced to choose " + strongestSuit);
+                return Player.TrumpChoice.valueOf(strongestSuit.name());
+            }
+        }
+    
+        // If no strong suit is found or its strength is <= 30, skip trump selection
+        if (strongestSuit == null || suitStrengths.get(strongestSuit) <= 30) {
+            System.out.println(name + " chooses to skip.");
+            return Player.TrumpChoice.SKIP;
+        }
+    
+        // Return the trump choice corresponding to the strongest suit
+        System.out.println(name + " chooses " + strongestSuit);
+        return Player.TrumpChoice.valueOf(strongestSuit.name());
     }
+    
+    
+
 
     // Group cards by suit
     private Map<Card.Suit, List<Card>> groupBySuit(List<Card> cards) {

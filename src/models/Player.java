@@ -20,6 +20,24 @@ public abstract class Player {
     protected Hand hand;
     protected Team team;
 
+    public static enum TrumpChoice {
+        SKIP(null), // No corresponding suit for SKIP
+        SPADES(Card.Suit.SPADES),
+        HEARTS(Card.Suit.HEARTS),
+        DIAMONDS(Card.Suit.DIAMONDS),
+        CLUBS(Card.Suit.CLUBS);
+
+        private final Card.Suit suit;
+
+        private TrumpChoice(Card.Suit suit) {
+            this.suit = suit;
+        }
+
+        public Card.Suit getSuit() {
+            return suit;
+        }
+    }
+
     public Player(String name, Team team) {
         this.name = name;
         this.team = team;
@@ -27,7 +45,7 @@ public abstract class Player {
     }
 
     // Abstract method to choose trump
-    public abstract Card.Suit chooseTrump();
+    public abstract TrumpChoice chooseTrumpOrSkip(int turnForChoosingTrump);
 
     // Abstract method to call zvanje
     public abstract List<Card> callZvanje(List<Integer> selectedIndices);

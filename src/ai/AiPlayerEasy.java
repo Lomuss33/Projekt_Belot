@@ -30,24 +30,36 @@ public class AiPlayerEasy extends Player {
     }
 
     // Randomly choose a trump suit
+    // 1 - SPADES, 2 - HEARTS, 3 - DIAMONDS, 4 - CLUBS, 5 - SKIP
     @Override
-    public Card.Suit chooseTrump() {
-        Card.Suit[] suits = Card.Suit.values();
+    public TrumpChoice chooseTrumpOrSkip(int turnForChoosingTrump) {
         Random random = new Random();
-        Card.Suit chosenSuit = suits[random.nextInt(suits.length)];
-        System.out.println(name + " randomly chooses " + chosenSuit + " as trump suit.");
+    
+        // 50% chance to skip
+        if (random.nextBoolean()) {
+            System.out.println(name + " chooses to skip.");
+            return Player.TrumpChoice.SKIP;
+        }
+    
+        // 50% chance to choose a random suit
+        Player.TrumpChoice[] nonSkipChoices = Arrays.stream(Player.TrumpChoice.values())
+            .filter(choice -> choice != Player.TrumpChoice.SKIP)
+            .toArray(Player.TrumpChoice[]::new);
+    
+        Player.TrumpChoice chosenSuit = nonSkipChoices[random.nextInt(nonSkipChoices.length)];
+        System.out.println(name + " randomly chooses " + chosenSuit);
         return chosenSuit;
     }
 
     // Randomly decide to call Dama (even if it doesn't make sense)
     @Override
     public void callDama() {
-        Random random = new Random();
-        if (random.nextBoolean()) {
-            System.out.println(name + " calls Dama randomly, even if it's not valid!");
-        } else {
-            System.out.println(name + " decides not to call Dama.");
-        }
+        // Random random = new Random();
+        // if (random.nextBoolean()) {
+        //     System.out.println(name + " calls Dama randomly, even if it's not valid!");
+        // } else {
+        //     System.out.println(name + " decides not to call Dama.");
+        // }
     }
 
     // Return an empty list for Zvanje (no detection logic)

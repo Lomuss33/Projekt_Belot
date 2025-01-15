@@ -7,8 +7,10 @@
 
 package controllers;
 
+import ai.HumanPlayer;
 import java.util.*;
 import models.*;
+import models.Player.TrumpChoice;
 import services.*;
 import services.ZvanjeService.ZvanjeResult;
 import services.ZvanjeService.ZvanjeType;
@@ -74,11 +76,9 @@ public class Game {
     public void initializeGame() {
         // Shuffle the deck in front of players
         deck.initializeDeck();
-
         // Secure reset small points for both teams
         team1.resetSmalls();
         team2.resetSmalls();
-
         // Assert that the deck size is 32
         if (deck.getCards().size() != 32) {
             throw new IllegalStateException("Deck size must be 32 cards.");
@@ -161,7 +161,6 @@ public class Game {
     }    
 
     private ZvanjeResult reportZvanje(Card.Suit trumpSuit, int dealerIndex) {
-        ZvanjeService zvanjeService = new ZvanjeService();
         List<ZvanjeResult> zvanjeResults = new ArrayList<>();
     
         int numPlayers = players.size();
@@ -170,7 +169,7 @@ public class Game {
             int currentIndex = (dealerIndex + i + 1) % numPlayers;
             Player player = players.get(currentIndex);
 
-            ZvanjeResult result = zvanjeService.detectPlayerZvanje(player, trumpSuit);
+            ZvanjeResult result = ZvanjeService.detectPlayerZvanje(player, trumpSuit);
             zvanjeResults.add(result);
 
             // Print player's cards
@@ -241,37 +240,51 @@ public class Game {
         }
     }
 
+    // Method to choose the trump suit by going around the table and forcing a choice if all players skip (Human com: trumpChoice(int choice))
     private Card.Suit chooseTrumpSuit(int dealerIndex) {
-        int currentIndex = (dealerIndex + 1) % 4; // Player next to the dealer
+        int currentIndex = (dealerIndex + 1) % players.size(); // Player next to the dealer
         int skips = 0;
-        Card.Suit chosenSuit = null;
+        TrumpChoice finalChoice = null;
 
-        for (int i = 0; i < 4; i++) {
+        CurrentState currentState = new CurrentState(team1, team2, players, zvanjeWin, winTreshold, dealerIndex);
+
+        for (int i = 0; i < players.size(); i++) {
             Player currentPlayer = players.get(currentIndex);
             System.out.println(currentPlayer.getName() + "'s turn to choose trump suit.");
+            if(currentPlayer instanceof HumanPlayer) {
+                System.out.println("""
+                    Choose Your Trump Suit Option:
+                    0. Skip Trump Selection
+                    1. Spades
+                    2. Hearts
+                    3. Diamonds
+                    4. Clubs
+                    -> trumpChoice(int choice)
+                    Please make your choice (0-4): 
+                    """);
+            }
 
-            // Ask the current player to choose trump suit
-            chosenSuit = currentPlayer.chooseTrump();
+            if (i == players.size() - 1 && skips == players.size()) {
+                System.out.println(currentPlayer.getName() + " MUST choose a trump suit:");
+            }
+            TrumpChoice playerChoice = currentPlayer.chooseTrumpOrSkip(i);
 
-            if (chosenSuit != null) {
-                System.out.println(currentPlayer.getName() + " chose " + chosenSuit);
+            if (playerChoice != TrumpChoice.SKIP) {
+                finalChoice = playerChoice;
+                System.out.println(currentPlayer.getName() + " chose " + finalChoice);
                 break;
             } else {
                 skips++;
                 System.out.println(currentPlayer.getName() + " skipped.");
             }
+                System.out.println(currentPlayer.getName() + " finally chose " + finalChoice);
 
-            // If all players skip, the last player is forced to choose
-            if (i == 3 && skips == 3) {
-                    System.out.println(currentPlayer + " MUST choose a trump suit:");
-                    while (chosenSuit == null) {
-                        chosenSuit = currentPlayer.chooseTrump();
-                    }
-            }
-            currentIndex = (currentIndex + 1) % 4; // Move to the next player
+            currentIndex = (currentIndex + 1) % players.size(); // Move to the next player
         }
-        return chosenSuit;
+
+        return finalChoice != null ? finalChoice.getSuit() : null; // Use enum conversion
     }
+
 
     // Sort all players' hands by suit and rank
     public static void sortAllPlayersHands(List<Player> players) {
