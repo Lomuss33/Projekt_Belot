@@ -1,7 +1,7 @@
-package models;
+//package models;
 
-import java.util.List;
-import services.ZvanjeService.ZvanjeResult;
+// import java.util.List;
+// import services.ZvanjeService.ZvanjeResult;
 
 public class CurrentState {
     private final Team team1, team2;

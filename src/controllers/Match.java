@@ -5,13 +5,13 @@
 // ░░░░▄▄███▄▄░░░░░█████░
 
 
-package controllers;
+//package controllers;
 
-import ai.HumanPlayer;
-import controllers.Game.Difficulty;
-import java.util.List;
-import models.*;
-import services.GameUtils;
+// import ai.HumanPlayer;
+// import controllers.Game.Difficulty;
+// import java.util.List;
+// import models.*;
+// import services.GameUtils;
 
 public class Match {
 
@@ -113,6 +113,7 @@ public class Match {
 
     // Method to be called from the GUI when the human player chooses a trump suit
     public void trumpDecision(int choice) {
+        System.out.println("trumpDecision made: " + choice);
         humanPlayer.trumpChoice(choice); // humanPlayer is your HumanPlayer instance
     }
 }

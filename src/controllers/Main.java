@@ -16,7 +16,8 @@ public class Main {
         Match match = new Match(Game.Difficulty.EASY);
         // Start the match
         match.startMatch();
-        // 
+        Thread.sleep(5000);
+        match.trumpDecision(2);
         System.out.println("------------------------------------ x -----------------------------------");
 
     }  

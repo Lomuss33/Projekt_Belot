@@ -8,7 +8,7 @@
 // CARD
 //
 
-package models;
+//package models;
 //import models.Card;
 
 public class Card {
@@ -79,12 +79,37 @@ public class Card {
 
     // Getter Suit
     public Suit getSuit() {
-        return suit;
+        return suit; 
+    }
+
+    public String printSuit() {
+        switch (suit) {
+            case HEARTS: return "♥";
+            case DIAMONDS: return "♦";
+            case CLUBS: return "♣";
+            case SPADES: return "♠";
+            default: return "";
+        }
     }
 
     // Getter Rank
     public Rank getRank() {
         return rank;
+    }
+
+    // ERROR default?
+    public String printRank() {
+        switch (rank) {
+            case SEVEN: return "7";
+            case EIGHT: return "8";
+            case NINE: return "9";
+            case TEN: return "10";
+            case JACK: return "J";
+            case QUEEN: return "Q";
+            case KING: return "K";
+            case ACE: return "A";
+            default: return "";
+        }
     }
 
     // Getter Value
