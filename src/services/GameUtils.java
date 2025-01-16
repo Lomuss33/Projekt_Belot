@@ -15,7 +15,6 @@ public class GameUtils {
 
         // Assign human player to Team 1
         players.add(new HumanPlayer("Lovro", team1));
-        team1.addPlayer(players.get(0)); // Add to Team 1
 
         // Create AI players based on difficulty
         switch (difficulty) {
@@ -40,9 +39,6 @@ public class GameUtils {
                 players.add(new AiPlayerHard("Bot 3", team2));
                 break;
         }
-        // Add players to their respective teams
-        players.forEach(player -> player.getTeam().addPlayer(player));
-
         return players;
     }
 

@@ -74,7 +74,7 @@ public class Match {
     private void assertInitialTeamState(Team team) {
         assert team.getSmalls() == 0 : team.getName() + " small score should be 0 at the start of the match";
         assert team.getBigs() == 0 : team.getName() + " big score should be 0 at the start of the match";
-        for (Player player : team.getPlayers()) {
+        for (Player player : players) {
             assert player.getHand().isEmpty() : player.getName() + "'s hand should be empty at the start of the match";
         }
     }

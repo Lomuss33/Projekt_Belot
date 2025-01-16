@@ -64,7 +64,7 @@ public class ZvanjeService {
         }
     }
 
-    public static ZvanjeResult biggestZvanje(List<ZvanjeResult> results, int dealerIndex) {
+    public static ZvanjeResult biggestZvanje(List<ZvanjeResult> results) {
         if (results == null || results.isEmpty()) {
             return null; // No results
         }
@@ -80,14 +80,8 @@ public class ZvanjeService {
             .filter(result -> result.getTotalPoints() == maxPoints)
             .collect(Collectors.toList());
     
-        if (topResults.size() == 1) {
-            return topResults.get(0); // Return the only top result
-        }
-    
-        // Resolve tie using the dealerIndex: Choose the result closest to dealerIndex (right-hand modulo 4)
-        return topResults.stream()
-            .min(Comparator.comparingInt(result -> (4 + result.getPlayer().getTeam().getPlayers().indexOf(result.getPlayer()) - dealerIndex) % 4))
-            .orElse(null);
+        // Choose the result closest to dealer (who got their result first)
+        return topResults.get(0);
     }
     
 
