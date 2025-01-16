@@ -10,14 +10,12 @@ import java.util.List;
 
 public class Team {
     private final String name;
-    private final List<Player> players;
     private List<Card> wonCards;
     private int bigs; // big score / current score in game
     public int smalls; // small score / points won in the current round
 
     public Team(String name) {
         this.name = name;
-        this.players = new ArrayList<>();
         this.wonCards = new ArrayList<>();
         this.bigs = 0; // Initialize big score
         this.smalls = 0; // Initialize small score
@@ -37,15 +35,6 @@ public class Team {
 
     public void resetWonCards() {
         wonCards = new ArrayList<>();
-    }
-
-    
-    public void addPlayer(Player player) {
-        players.add(player);
-    }
-
-    public List<Player> getPlayers() {
-        return players;
     }
 
     public String getName() {

@@ -183,7 +183,7 @@ public class Game {
         }
         System.out.println();
         // Find the player with the highest Zvanje
-        ZvanjeResult winningZvanjeResult = ZvanjeService.biggestZvanje(zvanjeResults, dealerIndex);
+        ZvanjeResult winningZvanjeResult = ZvanjeService.biggestZvanje(zvanjeResults);
     
         // If no Zvanje is detected for any player, return null
         if (winningZvanjeResult == null) {
