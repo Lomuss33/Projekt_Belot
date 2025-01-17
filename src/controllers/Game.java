@@ -36,30 +36,31 @@ public class Game {
         this.deck = new Deck();
         this.zvanjeWin = null;
         this.dealerIndex = dealerIndex;        
+        this.playerTurn = false;
     }
  
     /* ------------------------------- start game ------------------------------- */
-    public void startGame() {
-        System.out.println("Game started!");
+    // public void startGame() {
+    //     System.out.println("Game started!");
 
-        // Initialize the game
-        initializeGame();
+    //     // Initialize the game
+    //     initializeGame();
     
-        // Play 1 deck of rounds and check for a winner
-        playRounds();
+    //     // Play 1 deck of rounds and check for a winner
+    //     playRounds();
 
-        // Award points to the winning team
-        awardGameVictory();
+    //     // Award points to the winning team
+    //     awardGameVictory();
 
-        // Find game winner team
-        Team winner = lookForWinner();
+    //     // Find game winner team
+    //     Team winner = lookForWinner();
 
-        if (winner != null) {
-            System.out.println("Final scores: " + team1.getName() + " - " + team1.getBigs() + ", " + team2.getName() + " - " + team2.getBigs());
-            finishGame(winner);
-        }
+    //     if (winner != null) {
+    //         System.out.println("Final scores: " + team1.getName() + " - " + team1.getBigs() + ", " + team2.getName() + " - " + team2.getBigs());
+    //         finishGame(winner);
+    //     }
     
-    }
+    // }
 
     public Team lookForWinner() {
         // Check if a team has crossed the win threshold
@@ -88,15 +89,22 @@ public class Game {
 
         System.out.println(players.get(dealerIndex).getName() + " is the dealer.");
         System.out.println();
-        // Choose trump suit
-        trumpSuit = chooseTrumpSuit(dealerIndex);
+    }
 
-        // Assert that deck has 8 cards left after dealing all cards and that trump suit is chosen
-        if (deck.getCards().size() != 8 || trumpSuit == null) {
-            throw new IllegalStateException("Choosing Trump Suit failed.");
+    public boolean trumpSelection() {
+        trumpSuit = chooseTrumpSuit(dealerIndex);
+        if (trumpSuit != null) {
+            System.out.println("Trump suit chosen: " + trumpSuit);
+            return true;
+        } else {
+            System.out.println("No trump suit chosen.");
+            return false;
         }
 
-        // Sort all hands, deal last 2 cards and update card values
+    }
+
+    public void startGame() {
+        // Sort all hands, deal last 2 cards and update card values 
         updateCardValues(trumpSuit);
         deck.dealAllHands(players, 2);
         sortAllPlayersHands(players);
@@ -107,7 +115,6 @@ public class Game {
 
         // Calculate the winning threshold
         winTreshold = GameUtils.calculateWinThreshold(zvanjeWin);
-
     }
     
     /* ------------------------------- start game ------------------------------- */
@@ -246,11 +253,11 @@ public class Game {
         int skips = 0;
         TrumpChoice finalChoice = null;
 
-        CurrentState currentState = new CurrentState(team1, team2, players, zvanjeWin, winTreshold, dealerIndex);
+        //CurrentState currentState = new CurrentState(team1, team2, players, zvanjeWin, winTreshold, dealerIndex)
 
         for (int i = 0; i < players.size(); i++) {
             Player currentPlayer = players.get(currentIndex);
-            System.out.println(currentPlayer.getName() + "'s turn to choose trump suit.");
+            System.out.println(currentPlayer.getName() + "'s turn to choose trump suit."); 
             if(currentPlayer instanceof HumanPlayer) {
                 System.out.println("""
                     Choose Your Trump Suit Option:

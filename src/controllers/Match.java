@@ -10,11 +10,20 @@ package controllers;
 import ai.HumanPlayer;
 import controllers.Game.Difficulty;
 import java.util.List;
+import javax.swing.text.TabableView;
 import models.*;
 import services.GameUtils;
 
 public class Match {
 
+    enum MatchPhase {
+        START,
+        CHOOSING_TRUMP,
+        PLAYING_ROUNDS,
+        END_OF_GAME,
+        END_OF_MATCH
+    }
+    private MatchPhase currentPhase;
     public Game game;
     public final Team team1, team2;
     private final List<Player> players;
@@ -22,6 +31,7 @@ public class Match {
     public static final int WINNING_SCORE = 501; // The score required to win the match
     private final HumanPlayer me;
     private Team winner; // Reference to the winning team
+    private boolean trumpChosen;
 
     public Match(Difficulty difficulty) {
         this.team1 = new Team("Team 1");
@@ -29,7 +39,56 @@ public class Match {
         players = GameUtils.initializePlayers(difficulty, team1, team2);
         this.dealerIndex = 3; // Start with the last player as the dealer so YOU can play first
         this.me = (HumanPlayer) players.get(0); // Initialize humanPlayer
+        this.trumpChosen = false; 
+        this.currentPhase = MatchPhase.START;
     }
+
+    public void play() {
+        switch (currentPhase) {
+            case START:
+                System.out.println("new Game...");
+                game = new Game(players, team1, team2, dealerIndex);
+                game.initializeGame();
+                break;
+            case CHOOSING_TRUMP:
+                System.out.println("Match phase: CHOOSING_TRUMP");
+                if (game.trumpSelection()) {
+                    currentPhase = MatchPhase.PLAYING_ROUNDS;
+                }
+                break;
+            case PLAYING_ROUNDS:
+                System.out.println("Match phase: PLAYING_ROUNDS");
+                break;
+            case END_OF_GAME:
+                System.out.println("Match phase: END_OF_GAME");
+                break;
+            case END_OF_MATCH:
+                System.out.println("Match phase: END_OF_MATCH");
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + currentPhase);
+        }
+
+    }
+
+
+
+
+    // while(trumpChosen == false) {
+    //     System.out.println("Player chooses with Match.choseTrump(int x)");
+    //     trumpChosen = game.trumpSelection();
+    // }
+
+
+
+    trumpChosen = false;
+    public void chooseTrump() {
+        System.out.println("Player chooses with Match.choseTrump(int x)");
+        me.chooseTrump();
+    }
+
+
+
 
     public void startMatch() throws InterruptedException {
         boolean finished = false;
