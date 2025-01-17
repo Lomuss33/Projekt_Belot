@@ -301,5 +301,35 @@ public class Game {
     }
 
 
+    public Team getTeam1() {
+        return team1;
+    }
 
+    public Team getTeam2() {
+        return team2;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public ZvanjeResult getZvanjeWin() {
+        return zvanjeWin;
+    }
+
+    public int getWinTreshold() {
+        return winTreshold;
+    }
+
+    public Deck getDeck() {
+        return deck;
+    }
+
+    public Card.Suit getTrumpSuit() {
+        return trumpSuit;
+    }
+
+    public int getDealerIndex() {
+        return dealerIndex;
+    }
 }
