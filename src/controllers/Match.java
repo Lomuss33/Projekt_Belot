@@ -20,7 +20,7 @@ public class Match {
     private final List<Player> players;
     private int dealerIndex;
     public static final int WINNING_SCORE = 501; // The score required to win the match
-    private final HumanPlayer humanPlayer;
+    private final HumanPlayer me;
     private Team winner; // Reference to the winning team
 
     public Match(Difficulty difficulty) {
@@ -28,7 +28,7 @@ public class Match {
         this.team2 = new Team("Team 2");
         players = GameUtils.initializePlayers(difficulty, team1, team2);
         this.dealerIndex = 3; // Start with the last player as the dealer so YOU can play first
-        this.humanPlayer = (HumanPlayer) players.get(0); // Initialize humanPlayer
+        this.me = (HumanPlayer) players.get(0); // Initialize humanPlayer
     }
 
     public void startMatch() throws InterruptedException {
@@ -113,6 +113,6 @@ public class Match {
 
     // Method to be called from the GUI when the human player chooses a trump suit
     public void trumpDecision(int choice) {
-        humanPlayer.trumpChoice(choice); // humanPlayer is your HumanPlayer instance
+        me.trumpChoice(choice); // humanPlayer is your HumanPlayer instance
     }
 }
