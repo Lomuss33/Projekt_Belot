@@ -39,7 +39,7 @@ void turtleScores(Turtle turtle, int size, List<Player> players) {
     int teamCount = 2;
     turtle.moveTo(turtle.height - 20, turtle.width / 2);
     for (int i = 0; i < teamCount; i++) {
-        Player team = players.get(i).getTeam();
+        Team team = players.get(i).getTeam();
         turtle.text(team + ": " + team.getBigs(), Font.COURIER, size, Font.Align.CENTER);
         turtle.backward(3 * size);
     }
@@ -60,6 +60,7 @@ void turtleTrump(Turtle turtle, int size) {
     turtle.text(trumpTask, Font.COURIER, size, Font.Align.CENTER);
 }
 
+// FIX
 void turtleEnd(Turtle turtle, int size, Team winner) {
     turtle.moveTo(turtle.height / 2, turtle.width / 2);
     turtle.text("We have a WINNER: " + winner.getName(), Font.COURIER, size, Font.Align.CENTER);
@@ -68,7 +69,7 @@ void turtleEnd(Turtle turtle, int size, Team winner) {
     turtle.backward(3 * size);
     turtle.text("Game over! Scores:", Font.COURIER, size, Font.Align.CENTER);
     turtle.backward(3 * size);
-    turtleScores(turtle, size, winner.getPlayers());
+    //turtleScores(turtle, size, winner.getPlayers());
 }
 
 
