@@ -104,7 +104,7 @@ public class Game {
             System.out.println("Trump suit chosen: " + trumpSuit);
             // Reset decisionMade for all players
             for (Player player : players) {
-                player.setDecisionMade(false);
+                player.setWaiting(false);
             }
             return true;
         } else {
@@ -134,7 +134,7 @@ public class Game {
             System.out.println("Round " + (i + 1));
             // Start a new round and get the winner's index
             if (!midRound) currentRound = new Round(players, roundStarterIndex, trumpSuit); // Start a new round
-            int winnerIndex = currentRound.start(i); // Start the round and find its winner 
+            int winnerIndex = currentRound.playTurns(i); // Start the round and find its winner 
             if(winnerIndex == -1) {
                 midRound = true; 
                 return false; // If the round is not over, HumanPlayer is playing
@@ -264,7 +264,7 @@ public class Game {
         for (int i = 0; i < players.size(); i++) {
             Player currentPlayer = players.get(currentIndex);
             // Skip players who have already made a decision
-            if(currentPlayer.isDecisionMade() && i != 3) {
+            if(currentPlayer.isWaiting() && i != 3) {
                 currentIndex = (currentIndex + 1) % players.size(); // Move to the next player
                 continue;
             }
@@ -285,7 +285,7 @@ public class Game {
                     TrumpChoice humanChoice  = ((HumanPlayer) currentPlayer).getTrumpChoice();
 
                     if (humanChoice != null) { // If the player has made a choice
-                        currentPlayer.setDecisionMade(true);
+                        currentPlayer.setWaiting(true);
                         if (humanChoice == TrumpChoice.SKIP) {
                             if (i == dealerIndex) { // If last player, return null
                                 System.out.println(currentPlayer.getName() + " must pick!");
@@ -310,7 +310,7 @@ public class Game {
             }
 
             TrumpChoice playerChoice = currentPlayer.chooseTrumpOrSkip(i);
-            currentPlayer.setDecisionMade(true);
+            currentPlayer.setWaiting(true);
 
             // Skip if the player chooses to skip
             if (playerChoice != TrumpChoice.SKIP) {

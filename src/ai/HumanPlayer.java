@@ -34,30 +34,15 @@ public class HumanPlayer extends Player {
         return cardIndexChoice;
     }
 
-    // IMPLEMENTATION NEEDED
     // Choose a card index to play
     @Override
     public int chooseCardToPlay(List<Integer> playableIndexes) {
-            while (cardIndexChoice == -1) { // Keep waiting until a valid choice is made
-                    System.out.println(this.getName() + "'s hand:");
-                    for (int i = 0; i < hand.getCards().size(); i++) {
-                        Card card = hand.getCard(i);
-                        String playableMarker = playableIndexes.contains(i) ? " (Playable)" : "";
-                        System.out.println(i + " - " + card + playableMarker);
-                    }
-                    System.out.println("Choose a card to play by entering the index:");
+            if (cardIndexChoice == -1) { // Keep waiting until a valid choice is made
+                    return -1; // No choice made yet
                 }
             int chosenCardIndex = trumpChoice.ordinal(); // Use the ordinal value as the chosen card index
             cardIndexChoice = -1; // Reset for the next round
             return chosenCardIndex; // Return the chosen index to the game
-    }
-    
-    // Method called to select a card by the player
-    public void selectCard(int index) {
-            if (index < 0 || index >= hand.getCards().size()) {
-                throw new IllegalArgumentException("Invalid card index.");
-            }
-            cardIndexChoice = index; // Temporarily reuse trumpChoice for card selection
     }
 
     // Get selected cards from index to go check Zvanje
@@ -69,23 +54,22 @@ public class HumanPlayer extends Player {
         }
         return selectedCards;
     }
-
-    // NEEDS TO BE IMPLEMENTED CORRECTLY
     
     // Choose trump suit
     @Override
     public TrumpChoice chooseTrumpOrSkip(int turnForChoosingTrump) {
-            while (trumpChoice == null) { // Keep waiting until a valid choice is made
-                    System.out.println(this.getName() + " is choosing trump...");
-                    return null; // Return null in case of an interruption
+            if (trumpChoice == null) { // Keep waiting until a valid choice is made
+                    if (turnForChoosingTrump == 3) {
+                        System.out.println("CANT SKIP");
+                    }
+                    return null; // No choice made yet
             }
             TrumpChoice result = trumpChoice; // Save the chosen suit to return
-            trumpChoice = null; // Reset for the next round
+            trumpChoice = null; // Reset for the next game
             return result; // Return the choice to the game
     }
 
-    // CALLED BY PLAYER
-    // Method called when human input arrives
+    // Method called when trump input arrives
     public void trumpChoice(int choice) {
         trumpChoice = switch (choice) {
             case 1 -> Player.TrumpChoice.SPADES;
@@ -95,6 +79,15 @@ public class HumanPlayer extends Player {
             case 0 -> Player.TrumpChoice.SKIP;
             default -> throw new IllegalArgumentException("Invalid trump choice.");
         }; // Update the trump choice
+    }
+
+    // Method called when card input arrives
+    public void cardChoice(int choice) {
+        // Check if the index is valid
+        if (choice < 0 || choice >= hand.getSize()) {
+            throw new IllegalArgumentException("Invalid card choice.");
+        }
+        cardIndexChoice = choice; // Update the card choice
     }
 
 }

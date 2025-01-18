@@ -55,9 +55,9 @@ public class Match {
                 // Fall through after initializing the game
             case CHOOSING_TRUMP:
                 System.out.println("Match phase: CHOOSING_TRUMP");
-                if (game.trumpSelection()) { // if true = trump selection is over
+                if (game.trumpSelection()) { // true = trump selection is over
                     currentPhase = MatchPhase.PLAYING_ROUNDS;
-                }else { // if false = trump selection is on HumanPlayer
+                }else { // false = trump selection is on HumanPlayer
                     System.out.println("""
                         Choose Your Trump Suit Option:
                         0. Skip Trump Selection
@@ -78,14 +78,11 @@ public class Match {
                 // Fall through after showing zvanje
             case PLAYING_ROUNDS:
                 System.out.println("Match phase: PLAYING_ROUNDS");
-                if(!(game.playRounds())){ // if false = still playing rounds
-                    break; // Restart playing round with Match.playcard(int x) that invokes play()
-                }else { // if true = end of all rounds
+                if(!(game.playRounds())){ // false = still playing rounds stop the rounds
+                    break;
+                }else { // true = end of all rounds, continue to end of game
                     System.out.println("End of game");
                 }
-
-
-                
                 currentPhase = MatchPhase.END_OF_GAME;
                 // Fall through after playing all rounds
             case END_OF_GAME:
@@ -153,6 +150,12 @@ public class Match {
     // Method to be called from the GUI when the human player chooses a trump suit
     public void pickTrump(int choice) {
         me.trumpChoice(choice); // humanPlayer is your HumanPlayer instance
+        this.play();
+    }
+
+    // Method to be called from the GUI when the human player chooses a card to play
+    public void pickCard(int choice) {
+        me.cardChoice(choice); // humanPlayer is your HumanPlayer instance
         this.play();
     }
 
