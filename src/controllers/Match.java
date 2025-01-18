@@ -79,7 +79,7 @@ public class Match {
             case PLAYING_ROUNDS:
                 System.out.println("Match phase: PLAYING_ROUNDS");
                 if(!(game.playRounds())){ // if false = still playing rounds
-                    break;
+                    break; // Restart playing round with Match.playcard(int x) that invokes play()
                 }else { // if true = end of all rounds
                     System.out.println("End of game");
                 }
