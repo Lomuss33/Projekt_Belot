@@ -15,7 +15,7 @@ public class Round {
     private final List<Player> players;
     private final Suit trumpSuit;
     private final int startingPlayerIndex;
-    private List<Card> onFloorCards;
+    private final List<Card> onFloorCards;
 
     public Round(List<Player> players, int startingPlayerIndex, Suit trumpSuit) {
         this.players = players;
@@ -24,6 +24,7 @@ public class Round {
         this.onFloorCards = new ArrayList<>();
     }
 
+    // WHY ALWAYS int 1 return
     // Return winner index of round, if HumanPlayer hast played returns -1
     public int playTurns(int i) {
 
@@ -31,14 +32,16 @@ public class Round {
             Player currentPlayer = players.get((startingPlayerIndex + turn) % 4);
             // Skip the player if he has already made a decision
             if(currentPlayer.isWaiting()) continue;
-
-            // Get playable card indexes and let the player choose one
+            
+            System.out.println("Waiting for " + currentPlayer.getName() + " to play a card...");
+            // Calculate playable card indexes and let the player choose one
             int cardBeingPlay = throwCard(currentPlayer);
 
-            if (cardBeingPlay == -1) {
+            if (cardBeingPlay == -1) { // HumanPlayer has not made a choice yet
+                System.err.println("On floor cards: " + onFloorCards);
+                currentPlayer.displayHand(); // Print the hand of the player
                 return -1;
             }
-
 
         }
         // Determine the round winner
@@ -53,14 +56,15 @@ public class Round {
         System.out.println();
         // Add the won cards and their points to the winning player's team
         winner.getTeam().addWonCardsAsPoints(onFloorCards);
-    
+        // Clear the cards on the floor
+        onFloorCards.clear();
         // Return the index of the next starting player
         return players.indexOf(winner);
         
     }
 
     // INFO: getPlayableIndices() resets
-    private List<Integer> givePlayableIndices(Player currentPlayer) {
+    private List<Integer> calcPlayableIndices(Player currentPlayer) {
         // Get playable card indexes
         List<Integer> playableIndexes = RoundUtils.findPlayableCardIndexes(
             currentPlayer.getHand().getCards(), onFloorCards, trumpSuit);
@@ -75,7 +79,7 @@ public class Round {
     // Play each turn in the round 
     private int throwCard(Player currentPlayer) {
         // Get playable card indexes and let the player choose one
-        List<Integer> playableIndexes = givePlayableIndices(currentPlayer);
+        List<Integer> playableIndexes = calcPlayableIndices(currentPlayer);
 
         if (playableIndexes.isEmpty()) {
             throw new IllegalStateException("No playable cards available.");
@@ -85,14 +89,19 @@ public class Round {
         int chosenIndex = currentPlayer.chooseCardToPlay(playableIndexes);
 
         if(chosenIndex == -1) { // Keep waiting until a valid choice is made
+            System.err.println("playableIndexes: " + playableIndexes);
             return -1; // Human Player has not made a choice yet
         }else {
             Card playedCard = currentPlayer.playCard(chosenIndex);
+
+            System.out.println(currentPlayer.getName() + " played: " + playedCard.toString());
             onFloorCards.add(playedCard);
+            System.err.println("On floor cards: " + onFloorCards);
+            currentPlayer.setPlayableIndices(null); // Reset playable indices
         }
         
-        Player winner = returnWinner(startingPlayerIndex);
-        return players.indexOf(winner);
+        currentPlayer.setWaiting(true);
+        return chosenIndex;
     }
 
     // Determine and award points to the round winner and get starter for the next round
@@ -105,16 +114,15 @@ public class Round {
         Suit leadSuit = onFloorCards.get(0).getSuit();
         Card strongestCard = RoundUtils.findStrongestCard(onFloorCards, trumpSuit, leadSuit);
 
-        // Find the player and his team who played the strongest card
+        // Find the player and his team who played the strongest card 
         int winningPlayerIndex = (startingPlayerIndex + onFloorCards.indexOf(strongestCard)) % 4;
         Player winningPlayer = players.get(winningPlayerIndex);
-
 
         System.out.println();
         System.out.println("WIN CARD: " + strongestCard.toString());
         System.out.println("Round winner: " + winningPlayer.getName());
         System.out.println("Points won: " + onFloorCards.stream().mapToInt(Card::getValue).sum());
-        
+
         return winningPlayer;
     }
 }
