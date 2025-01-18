@@ -18,8 +18,9 @@ public abstract class Player {
     
     protected String name;
     protected Hand hand;
+    protected List<Integer> playableIndices; 
     protected Team team;
-    protected boolean decisionMade;
+    protected boolean waiting;
 
     public static enum TrumpChoice {
         SKIP(null), // No corresponding suit for SKIP
@@ -43,7 +44,7 @@ public abstract class Player {
         this.name = name;
         this.team = team;
         this.hand = new Hand();
-        this.decisionMade = false;
+        this.waiting = false;
     }
 
     // Abstract method to choose trump
@@ -79,12 +80,22 @@ public abstract class Player {
         return team;
     }
 
-    public boolean isDecisionMade() {
-        return decisionMade;
+    public boolean isWaiting() {
+        return waiting;
     }
 
-    public void setDecisionMade(boolean decisionMade) {
-        this.decisionMade = decisionMade;
+    public void setWaiting(boolean decisionMade) {
+        this.waiting = decisionMade;
+    }
+
+    public void setPlayableIndices(List<Integer> playableIndices) {
+        this.playableIndices = playableIndices;
+    }
+
+    public List<Integer> getPlayableIndices() {
+        List<Integer> list = playableIndices;
+        playableIndices = null;
+        return list;
     }
 
     // Display the hand of the player

@@ -24,6 +24,10 @@ public class Hand {
         cards = new ArrayList<>();
     }
 
+    public int getSize() {
+        return cards.size();
+    }
+
     // Add cards to the hand
     public void addCards(List<Card> newCards) {
         cards.addAll(newCards);

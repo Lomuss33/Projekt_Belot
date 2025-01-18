@@ -24,21 +24,28 @@ public class Round {
         this.onFloorCards = new ArrayList<>();
     }
 
-    // Play 4 turns, determine the round winner, and return the index of the next starting player
-    public int start(int i) {
+    // Return winner index of round, if HumanPlayer hast played returns -1
+    public int playTurns(int i) {
 
         for (int turn = 0; turn < players.size(); turn++) { // Resume from the current turn
             Player currentPlayer = players.get((startingPlayerIndex + turn) % 4);
-            if(currentPlayer.isDecisionMade()) continue;
+            // Skip the player if he has already made a decision
+            if(currentPlayer.isWaiting()) continue;
+
             // Get playable card indexes and let the player choose one
-            playTurn(currentPlayer);
+            int cardBeingPlay = throwCard(currentPlayer);
+
+            if (cardBeingPlay == -1) {
+                return -1;
+            }
+
+
         }
-
-
         // Determine the round winner
         Player winner = returnWinner(startingPlayerIndex);
+
         // Award 10 points if this is the 7th round
-        if (i == 7) {
+            if (i == 7) {
             winner.getTeam().addSmalls(10);
             System.out.println("Bonus 10 points awarded to " + winner.getTeam().getName() + " for winning the 7th round!");
         }
@@ -51,24 +58,41 @@ public class Round {
         return players.indexOf(winner);
         
     }
+
+    // INFO: getPlayableIndices() resets
+    private List<Integer> givePlayableIndices(Player currentPlayer) {
+        // Get playable card indexes
+        List<Integer> playableIndexes = RoundUtils.findPlayableCardIndexes(
+            currentPlayer.getHand().getCards(), onFloorCards, trumpSuit);
+
+        // Set the playable card indexes for the player
+        currentPlayer.setPlayableIndices(playableIndexes);
+
+        return playableIndexes;
+    }
     
+    // Winner player index
     // Play each turn in the round 
-    private void playTurn(Player currentPlayer) {
+    private int throwCard(Player currentPlayer) {
+        // Get playable card indexes and let the player choose one
+        List<Integer> playableIndexes = givePlayableIndices(currentPlayer);
 
-            // Get playable card indexes and let the player choose one
-            List<Integer> playableIndexes = RoundUtils.findPlayableCardIndexes(
-                currentPlayer.getHand().getCards(), onFloorCards, trumpSuit);
+        if (playableIndexes.isEmpty()) {
+            throw new IllegalStateException("No playable cards available.");
+        }
+ 
+        // Choose a card to play
+        int chosenIndex = currentPlayer.chooseCardToPlay(playableIndexes);
 
-            if (playableIndexes.isEmpty()) {
-                throw new IllegalStateException("No playable cards available.");
-            }
-
-            int chosenCardIndex = currentPlayer.chooseCardToPlay(playableIndexes);
-
-            // Play the chosen card
-            Card playedCard = currentPlayer.playCard(chosenCardIndex);
+        if(chosenIndex == -1) { // Keep waiting until a valid choice is made
+            return -1; // Human Player has not made a choice yet
+        }else {
+            Card playedCard = currentPlayer.playCard(chosenIndex);
             onFloorCards.add(playedCard);
-        //}
+        }
+        
+        Player winner = returnWinner(startingPlayerIndex);
+        return players.indexOf(winner);
     }
 
     // Determine and award points to the round winner and get starter for the next round
