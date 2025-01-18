@@ -125,11 +125,6 @@ public class Game {
 
     // Play 8 rounds and check for a winner after each round
     public boolean playRounds() {
-        // Assert that last player has 8 cards after dealing all cards
-        if (players.get((dealerIndex + 3) % 4).getHand().getCards().size() != 8) {
-            throw new IllegalStateException("Players should have 8 cards.");
-        }
-
         for (int i = roundCount; i < 8; i++) { // Resume from saved round count
             System.out.println("Round " + (i + 1));
             // Start a new round and get the winner's index
@@ -139,12 +134,17 @@ public class Game {
                 midRound = true; 
                 return false; // If the round is not over, HumanPlayer is playing
             }
+            System.err.println("Winner index: " + winnerIndex);
             roundStarterIndex = winnerIndex; // Winner starts the next round
             roundCount++; // Increment the round count
         }
+
         awardGameVictory(); // Award points to the winning team
         roundCount = 0; // Reset round count for the next game
-        return true; // End of all rounds
+        for(Player player : players) { // Reset all players' waiting status
+        player.setWaiting(false);
+        }
+        return true; // End of all rounds 
     }
 
     public void awardGameVictory() {
@@ -170,11 +170,6 @@ public class Game {
             System.out.println("Other team GETS ALL: " + otherTeam.getBigs());
         }
     }
-    
-
-    private void finishGame(Team winner) {
-        System.out.println("Game found winner! Winner: " + winner.getName());
-    }    
 
     private ZvanjeResult reportZvanje(Card.Suit trumpSuit, int dealerIndex) {
         List<ZvanjeResult> zvanjeResults = new ArrayList<>();
@@ -367,5 +362,19 @@ public class Game {
 
     public int getDealerIndex() {
         return dealerIndex;
+    }
+
+    public void xx() {
+        for (Player player : players) {
+            System.out.println(player.getName() + "'s hand:");
+            player.displayHand();
+            System.out.println();
+        }
+    }
+
+    public void xy() {
+        for (Player player : players) {
+            System.out.println(player.getName() + " is waiting: " + player.isWaiting());
+        }
     }
 }

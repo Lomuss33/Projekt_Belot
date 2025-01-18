@@ -93,9 +93,7 @@ public abstract class Player {
     }
 
     public List<Integer> getPlayableIndices() {
-        List<Integer> list = playableIndices;
-        playableIndices = null;
-        return list;
+        return playableIndices;
     }
 
     // Display the hand of the player
