@@ -27,18 +27,13 @@ public class Round {
     // Play 4 turns, determine the round winner, and return the index of the next starting player
     public int start(int i) {
 
-        // Reset floor cards for the new round
-        onFloorCards = new ArrayList<>();
-
-        // Play turns for all players
-        playTurns(startingPlayerIndex);
-
-        // Print the cards on the floor for each player                 !!!!!!!!!!!!!!!!!!!!!!!!!!
-        for (int turn = 0; turn < players.size(); turn++) {
+        for (int turn = 0; turn < players.size(); turn++) { // Resume from the current turn
             Player currentPlayer = players.get((startingPlayerIndex + turn) % 4);
-            Card playedCard = onFloorCards.get(turn);
-            System.out.println(currentPlayer.getName() + " : " + playedCard);
+            if(currentPlayer.isDecisionMade()) continue;
+            // Get playable card indexes and let the player choose one
+            playTurn(currentPlayer);
         }
+
 
         // Determine the round winner
         Player winner = returnWinner(startingPlayerIndex);
@@ -54,12 +49,11 @@ public class Round {
     
         // Return the index of the next starting player
         return players.indexOf(winner);
+        
     }
     
     // Play each turn in the round 
-    private void playTurns(int startingPlayerIndex) {
-        for (int turn = 0; turn < players.size(); turn++) {
-            Player currentPlayer = players.get((startingPlayerIndex + turn) % 4);
+    private void playTurn(Player currentPlayer) {
 
             // Get playable card indexes and let the player choose one
             List<Integer> playableIndexes = RoundUtils.findPlayableCardIndexes(
@@ -74,7 +68,7 @@ public class Round {
             // Play the chosen card
             Card playedCard = currentPlayer.playCard(chosenCardIndex);
             onFloorCards.add(playedCard);
-        }
+        //}
     }
 
     // Determine and award points to the round winner and get starter for the next round
