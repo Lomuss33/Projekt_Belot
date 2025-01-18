@@ -35,21 +35,25 @@ public class AiPlayerEasy extends Player {
     public TrumpChoice chooseTrumpOrSkip(int turnForChoosingTrump) {
         Random random = new Random();
     
-        // 50% chance to skip
-        if (random.nextBoolean()) {
-            System.out.println(name + " chooses to skip.");
-            return Player.TrumpChoice.SKIP;
+        // If it's the 3rd turn, must choose (no skip)
+        if (turnForChoosingTrump == 3) {
+            Player.TrumpChoice[] nonSkipChoices = Arrays.stream(Player.TrumpChoice.values())
+                .filter(choice -> choice != Player.TrumpChoice.SKIP)
+                .toArray(Player.TrumpChoice[]::new);
+            return nonSkipChoices[random.nextInt(nonSkipChoices.length)];
         }
     
-        // 50% chance to choose a random suit
-        Player.TrumpChoice[] nonSkipChoices = Arrays.stream(Player.TrumpChoice.values())
-            .filter(choice -> choice != Player.TrumpChoice.SKIP)
-            .toArray(Player.TrumpChoice[]::new);
-    
-        Player.TrumpChoice chosenSuit = nonSkipChoices[random.nextInt(nonSkipChoices.length)];
-        System.out.println(name + " randomly chooses " + chosenSuit);
-        return chosenSuit;
+        // Otherwise, 50% skip, 50% random suit
+        if (random.nextBoolean()) {
+            return Player.TrumpChoice.SKIP;
+        } else {
+            Player.TrumpChoice[] nonSkipChoices = Arrays.stream(Player.TrumpChoice.values())
+                .filter(choice -> choice != Player.TrumpChoice.SKIP)
+                .toArray(Player.TrumpChoice[]::new);
+            return nonSkipChoices[random.nextInt(nonSkipChoices.length)];
+        }
     }
+    
 
     // Return an empty list for Zvanje (no detection logic)
     @Override

@@ -10,7 +10,6 @@ package controllers;
 import ai.HumanPlayer;
 import controllers.Game.Difficulty;
 import java.util.List;
-import javax.swing.text.TabableView;
 import models.*;
 import services.GameUtils;
 
@@ -19,19 +18,20 @@ public class Match {
     enum MatchPhase {
         START,
         CHOOSING_TRUMP,
+        SHOW_ZVANJE,
         PLAYING_ROUNDS,
         END_OF_GAME,
         END_OF_MATCH
     }
     private MatchPhase currentPhase;
     public Game game;
+    public int gameCounter;
     public final Team team1, team2;
     private final List<Player> players;
     private int dealerIndex;
     public static final int WINNING_SCORE = 501; // The score required to win the match
     private final HumanPlayer me;
     private Team winner; // Reference to the winning team
-    private boolean trumpChosen;
 
     public Match(Difficulty difficulty) {
         this.team1 = new Team("Team 1");
@@ -39,8 +39,8 @@ public class Match {
         players = GameUtils.initializePlayers(difficulty, team1, team2);
         this.dealerIndex = 3; // Start with the last player as the dealer so YOU can play first
         this.me = (HumanPlayer) players.get(0); // Initialize humanPlayer
-        this.trumpChosen = false; 
         this.currentPhase = MatchPhase.START;
+        this.gameCounter = 0;
     }
 
     public void play() {
@@ -49,85 +49,65 @@ public class Match {
                 System.out.println("new Game...");
                 game = new Game(players, team1, team2, dealerIndex);
                 game.initializeGame();
-                break;
+                assertInitialTeamState(team1);
+                assertInitialTeamState(team2);
+                currentPhase = MatchPhase.CHOOSING_TRUMP;
+                // Fall through after initializing the game
             case CHOOSING_TRUMP:
                 System.out.println("Match phase: CHOOSING_TRUMP");
-                if (game.trumpSelection()) {
+                if (game.trumpSelection()) { // if true = trump selection is over
                     currentPhase = MatchPhase.PLAYING_ROUNDS;
+                }else { // if false = trump selection is on HumanPlayer
+                    System.out.println("""
+                        Choose Your Trump Suit Option:
+                        0. Skip Trump Selection
+                        1. Spades
+                        2. Hearts
+                        3. Diamonds
+                        4. Clubs
+                        -> Match.pickTrump(int choice)
+                        Please make your choice (0-4): 
+                        """);
+                        break;
                 }
-                break;
+                // Fall through if trump selection is successful
+            case SHOW_ZVANJE:
+                System.out.println("Match phase: REPORT_ZVANJE");
+                game.showZvanje();
+                currentPhase = MatchPhase.PLAYING_ROUNDS;
+                // Fall through after showing zvanje
             case PLAYING_ROUNDS:
                 System.out.println("Match phase: PLAYING_ROUNDS");
-                break;
+                if(!(game.playRounds())){ // if false = still playing rounds
+                    break;
+                }else { // if true = end of all rounds
+                    System.out.println("End of game");
+                }
+
+
+                
+                currentPhase = MatchPhase.END_OF_GAME;
+                // Fall through after playing all rounds
             case END_OF_GAME:
-                System.out.println("Match phase: END_OF_GAME");
-                break;
+                gameCounter++;
+                System.out.println("Game " + gameCounter + "over!");
+                winner = matchWinner();
+                if (winner == null) { 
+                    rotateDealer();
+                    resetForNextGame();
+                    currentPhase = MatchPhase.START;
+                    System.err.println("Start game " + gameCounter + " with Match.play()");
+                    break;
+                } else {
+                    currentPhase = MatchPhase.END_OF_MATCH;
+                }
+                // Fall through after finding the match winner
             case END_OF_MATCH:
-                System.out.println("Match phase: END_OF_MATCH");
-                break;
+                handleMatchEnd(winner);
+                return; // Exit the play method
             default:
                 throw new IllegalStateException("Unexpected value: " + currentPhase);
         }
-
-    }
-
-
-
-
-    // while(trumpChosen == false) {
-    //     System.out.println("Player chooses with Match.choseTrump(int x)");
-    //     trumpChosen = game.trumpSelection();
-    // }
-
-
-
-    trumpChosen = false;
-    public void chooseTrump() {
-        System.out.println("Player chooses with Match.choseTrump(int x)");
-        me.chooseTrump();
-    }
-
-
-
-
-    public void startMatch() throws InterruptedException {
-        boolean finished = false;
-
-        while (!finished) {
-
-            System.out.println("! Starting a new game...");
-            game = new Game(players, team1, team2, dealerIndex);
-            // Assertions to verify initial conditions of teams
-            assertInitialTeamState(team1);
-            assertInitialTeamState(team2);
-            // Start the game and check for a winner
-            game.startGame();
-            
-            System.out.println();
-            System.out.println("Game over! Scores:");
-            System.out.println(team1.getName() + ": " + team1.getBigs());
-            System.out.println(team2.getName() + ": " + team2.getBigs());
-            System.out.println();
-
-            // Check if the match is over
-            winner = matchWinner();
-
-            if (winner != null) {
-                System.out.println("Match winner found: " + winner.getName());
-                finished = true; // Stop the loop when a winner is found
-            } else {
-                System.out.println("No winner yet, starting a new GAME...");
-                rotateDealer(); // Rotate the dealer and prepare for the next game
-                Thread.sleep(3000); // Optional delay
-            }
-
-            // reset valus for the next game
-            resetForNextGame();
-
-        }
-
-        // Additional actions after the match ends (e.g., cleanup, next steps)
-        handleMatchEnd(winner);
     }
 
     private void assertInitialTeamState(Team team) {
@@ -171,7 +151,12 @@ public class Match {
     }
 
     // Method to be called from the GUI when the human player chooses a trump suit
-    public void trumpDecision(int choice) {
+    public void pickTrump(int choice) {
         me.trumpChoice(choice); // humanPlayer is your HumanPlayer instance
+        this.play();
+    }
+
+    public void currentPhase() {
+        System.out.println("Current phase: " + currentPhase);
     }
 }

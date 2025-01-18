@@ -24,6 +24,10 @@ public class Game {
     private final Deck deck;
     private Card.Suit trumpSuit;
     private final int dealerIndex;
+    private int roundStarterIndex;
+    private int roundCount;
+    private boolean midRound;
+    private Round currentRound;
 
     public enum Difficulty {
         EASY, NORMAL, HARD, TEST
@@ -35,8 +39,11 @@ public class Game {
         this.team2 = team2;
         this.deck = new Deck();
         this.zvanjeWin = null;
-        this.dealerIndex = dealerIndex;        
-        this.playerTurn = false;
+        this.dealerIndex = dealerIndex;    
+        this.roundStarterIndex = (dealerIndex + 1) % 4; // Player next to the dealer starts    
+        this.roundCount = 0;
+        this.midRound = false;
+        this.currentRound = null;
     }
  
     /* ------------------------------- start game ------------------------------- */
@@ -95,47 +102,49 @@ public class Game {
         trumpSuit = chooseTrumpSuit(dealerIndex);
         if (trumpSuit != null) {
             System.out.println("Trump suit chosen: " + trumpSuit);
+            // Reset decisionMade for all players
+            for (Player player : players) {
+                player.setDecisionMade(false);
+            }
             return true;
         } else {
-            System.out.println("No trump suit chosen.");
+            System.out.println("YOU ARE NEXT!");
             return false;
         }
-
-    }
-
-    public void startGame() {
-        // Sort all hands, deal last 2 cards and update card values 
-        updateCardValues(trumpSuit);
-        deck.dealAllHands(players, 2);
-        sortAllPlayersHands(players);
-
-        // Determine, announce, and award Zvanje
-        System.out.println("ZVANJE:");
-        zvanjeWin = reportZvanje(trumpSuit, dealerIndex);
-
-        // Calculate the winning threshold
-        winTreshold = GameUtils.calculateWinThreshold(zvanjeWin);
     }
     
-    /* ------------------------------- start game ------------------------------- */
+    public void showZvanje() {
+        System.out.println("ZVANJE:");
+        // Sort all hands, deal last 2 cards and update card values
+        updateCardValues(trumpSuit);
+        deck.dealAllHands(players, 2);
+        sortAllPlayersHands(players);        
+        zvanjeWin = reportZvanje(trumpSuit, dealerIndex);
+        winTreshold = GameUtils.calculateWinThreshold(zvanjeWin);
+    }
 
     // Play 8 rounds and check for a winner after each round
-    private void playRounds() {
-
+    public boolean playRounds() {
         // Assert that last player has 8 cards after dealing all cards
         if (players.get((dealerIndex + 3) % 4).getHand().getCards().size() != 8) {
             throw new IllegalStateException("Players should have 8 cards.");
         }
-        
-        int startingPlayerIndex = (dealerIndex + 1) % 4; // Player next to the dealer
-        for (int i = 0; i < 8; i++) {
+
+        for (int i = roundCount; i < 8; i++) { // Resume from saved round count
             System.out.println("Round " + (i + 1));
             // Start a new round and get the winner's index
-            Round round = new Round(players, startingPlayerIndex, trumpSuit);
-            int winnerIndex = round.start(i);
-            // Winner starts the next round
-            startingPlayerIndex = winnerIndex;
+            if (!midRound) currentRound = new Round(players, roundStarterIndex, trumpSuit); // Start a new round
+            int winnerIndex = currentRound.start(i); // Start the round and find its winner 
+            if(winnerIndex == -1) {
+                midRound = true; 
+                return false; // If the round is not over, HumanPlayer is playing
+            }
+            roundStarterIndex = winnerIndex; // Winner starts the next round
+            roundCount++; // Increment the round count
         }
+        awardGameVictory(); // Award points to the winning team
+        roundCount = 0; // Reset round count for the next game
+        return true; // End of all rounds
     }
 
     public void awardGameVictory() {
@@ -249,49 +258,76 @@ public class Game {
 
     // Method to choose the trump suit by going around the table and forcing a choice if all players skip (Human com: trumpChoice(int choice))
     private Card.Suit chooseTrumpSuit(int dealerIndex) {
-        int currentIndex = (dealerIndex + 1) % players.size(); // Player next to the dealer
-        int skips = 0;
+        int currentIndex  = (dealerIndex + 1) % players.size(); // Player next to the dealer
         TrumpChoice finalChoice = null;
-
-        //CurrentState currentState = new CurrentState(team1, team2, players, zvanjeWin, winTreshold, dealerIndex)
 
         for (int i = 0; i < players.size(); i++) {
             Player currentPlayer = players.get(currentIndex);
-            System.out.println(currentPlayer.getName() + "'s turn to choose trump suit."); 
+            // Skip players who have already made a decision
+            if(currentPlayer.isDecisionMade() && i != 3) {
+                currentIndex = (currentIndex + 1) % players.size(); // Move to the next player
+                continue;
+            }
+            System.out.println(currentPlayer.getName() + "'s turn to choose trump suit.");
+            // Handle human player 
             if(currentPlayer instanceof HumanPlayer) {
-                System.out.println("""
-                    Choose Your Trump Suit Option:
-                    0. Skip Trump Selection
-                    1. Spades
-                    2. Hearts
-                    3. Diamonds
-                    4. Clubs
-                    -> trumpChoice(int choice)
-                    Please make your choice (0-4): 
-                    """);
+                // System.out.println("""
+                //     Choose Your Trump Suit Option:
+                //     0. Skip Trump Selection
+                //     1. Spades
+                //     2. Hearts
+                //     3. Diamonds
+                //     4. Clubs
+                //     -> Match.pickTrump(int choice)
+                //     Please make your choice (0-4): 
+                //     """);
+                    // Wait for the human player to make a choice or return already made choice
+                    TrumpChoice humanChoice  = ((HumanPlayer) currentPlayer).getTrumpChoice();
+
+                    if (humanChoice != null) { // If the player has made a choice
+                        currentPlayer.setDecisionMade(true);
+                        if (humanChoice == TrumpChoice.SKIP) {
+                            if (i == dealerIndex) { // If last player, return null
+                                System.out.println(currentPlayer.getName() + " must pick!");
+                                return null;
+                            }
+                            System.out.println(currentPlayer.getName() + " skipped.");
+                            continue;
+                        } else {
+                            finalChoice = humanChoice; // Real trump choice
+                            System.out.println(currentPlayer.getName() + " chose " + finalChoice);
+                            break;
+                        }        
+                    } else {
+                        return null; // Give the human player a chance to choose
+                    }
+                    // currentPlayer.setDecisionMade(true);
+                    // return choice != null ? choice.getSuit() : null;
             }
 
-            if (i == players.size() - 1 && skips == players.size()) {
-                System.out.println(currentPlayer.getName() + " MUST choose a trump suit:");
+            if (i == 3) {
+                System.out.println(currentPlayer.getName() + " MUST choose a trump suit:");                
             }
+
             TrumpChoice playerChoice = currentPlayer.chooseTrumpOrSkip(i);
+            currentPlayer.setDecisionMade(true);
 
+            // Skip if the player chooses to skip
             if (playerChoice != TrumpChoice.SKIP) {
                 finalChoice = playerChoice;
                 System.out.println(currentPlayer.getName() + " chose " + finalChoice);
                 break;
             } else {
-                skips++;
                 System.out.println(currentPlayer.getName() + " skipped.");
             }
-                System.out.println(currentPlayer.getName() + " finally chose " + finalChoice);
+            
+            System.out.println(currentPlayer.getName() + " chose: " + finalChoice);
 
             currentIndex = (currentIndex + 1) % players.size(); // Move to the next player
         }
-
-        return finalChoice != null ? finalChoice.getSuit() : null; // Use enum conversion
+        // After all players have made a choice, return the final choice
+        return finalChoice != null ? finalChoice.getSuit() : null;
     }
-
 
     // Sort all players' hands by suit and rank
     public static void sortAllPlayersHands(List<Player> players) {

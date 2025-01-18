@@ -233,3 +233,15 @@ interface Clerk {
 /open views/Input/Slider.java
 
 LiveView view = Clerk.view();
+
+
+// Bela GAME CODE Imports
+// Start with powershell:
+// cd src
+// javac -d out models\*.java controllers\*.java services\*.java ai\*.java 
+// jshell --class-path out
+// /o lvp.java
+import models.*;
+import controllers.*;
+import services.*;
+import ai.*;
