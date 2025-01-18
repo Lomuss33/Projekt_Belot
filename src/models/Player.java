@@ -19,6 +19,7 @@ public abstract class Player {
     protected String name;
     protected Hand hand;
     protected Team team;
+    protected boolean decisionMade;
 
     public static enum TrumpChoice {
         SKIP(null), // No corresponding suit for SKIP
@@ -42,6 +43,7 @@ public abstract class Player {
         this.name = name;
         this.team = team;
         this.hand = new Hand();
+        this.decisionMade = false;
     }
 
     // Abstract method to choose trump
@@ -75,6 +77,14 @@ public abstract class Player {
     // Set the team of the player
     public Team getTeam() {
         return team;
+    }
+
+    public boolean isDecisionMade() {
+        return decisionMade;
+    }
+
+    public void setDecisionMade(boolean decisionMade) {
+        this.decisionMade = decisionMade;
     }
 
     // Display the hand of the player
