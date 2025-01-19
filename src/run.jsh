@@ -923,3 +923,5 @@ import services.*;
 import ai.*;
 Match y = new Match(Game.Difficulty.EASY);
 y.play()
+y.pickTrump(0);
+y.pickCard(0);

@@ -80,9 +80,8 @@ public class Match {
                 System.out.println("Match phase: PLAYING_ROUNDS");
                 if(!(game.playRounds())){ // false = still playing rounds stop the rounds
                     break;
-                }else { // true = end of all rounds, continue to end of game
-                    System.out.println("End of game");
                 }
+                System.out.println("End of game");
                 currentPhase = MatchPhase.END_OF_GAME;
                 // Fall through after playing all rounds
             case END_OF_GAME:

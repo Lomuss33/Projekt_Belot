@@ -14,7 +14,7 @@ import services.RoundUtils;
 public class Round {
     private final List<Player> players;
     private final Suit trumpSuit;
-    private final int startingPlayerIndex;
+    private int startingPlayerIndex;
     private final List<Card> onFloorCards;
 
     public Round(List<Player> players, int startingPlayerIndex, Suit trumpSuit) {
@@ -30,15 +30,22 @@ public class Round {
 
         for (int turn = 0; turn < players.size(); turn++) { // Resume from the current turn
             Player currentPlayer = players.get((startingPlayerIndex + turn) % 4);
+            System.out.println("ROUNDplayTurns() startingplayerindex: " + startingPlayerIndex);
+            System.out.println("ROUNDplayTurns()currentPlayer: " + currentPlayer.getName());
             // Skip the player if he has already made a decision
-            if(currentPlayer.isWaiting()) continue;
-            
-            System.out.println("Waiting for " + currentPlayer.getName() + " to play a card...");
+            if(currentPlayer.isWaiting()) {
+                System.out.println("ROUNDplayTurns() Skipping " + currentPlayer.getName() + "...");
+                continue;
+            } 
+            System.out.println("ROUNDplayTurns() Waiting for " + currentPlayer.getName() + " to play a card...");
             // Calculate playable card indexes and let the player choose one
+            System.out.println("ROUNDplayTurns()onFloorCards: " + onFloorCards);
             int cardBeingPlay = throwCard(currentPlayer);
+            System.out.println("ROUNDplayTurns()cardBeingPlay: " + cardBeingPlay);
 
             if (cardBeingPlay == -1) { // HumanPlayer has not made a choice yet
-                System.err.println("On floor cards: " + onFloorCards);
+                System.out.println("ROUNDplayTurns()cardBeingPlay: " + cardBeingPlay);
+                System.err.println("ROUNDplayTurns()On floor cards: " + onFloorCards);
                 currentPlayer.displayHand(); // Print the hand of the player
                 return -1;
             }
@@ -46,6 +53,7 @@ public class Round {
         }
         // Determine the round winner
         Player winner = returnWinner(startingPlayerIndex);
+        startingPlayerIndex = players.indexOf(winner);
 
         // Award 10 points if this is the 7th round
             if (i == 7) {
@@ -56,8 +64,10 @@ public class Round {
         System.out.println();
         // Add the won cards and their points to the winning player's team
         winner.getTeam().addWonCardsAsPoints(onFloorCards);
+        System.out.println("onFloorCards: " + onFloorCards);
         // Clear the cards on the floor
         onFloorCards.clear();
+
         // Return the index of the next starting player
         return players.indexOf(winner);
         
@@ -97,9 +107,8 @@ public class Round {
             System.out.println(currentPlayer.getName() + " played: " + playedCard.toString());
             onFloorCards.add(playedCard);
             System.err.println("On floor cards: " + onFloorCards);
-            currentPlayer.setPlayableIndices(null); // Reset playable indices
-        }
-        
+            currentPlayer.setPlayableIndices(playableIndexes); // Reset  playable indices
+        } 
         currentPlayer.setWaiting(true);
         return chosenIndex;
     }
