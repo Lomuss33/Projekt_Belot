@@ -98,6 +98,7 @@ public abstract class Player {
 
     // Display the hand of the player
     public void displayHand() {
+        System.out.println("displayHand");
         System.out.println(name + "'s Hand:");
         List<Card> cards = hand.getCards();
         for (int i = 0; i < cards.size(); i++) {

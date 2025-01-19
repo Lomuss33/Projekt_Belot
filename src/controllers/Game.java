@@ -126,24 +126,27 @@ public class Game {
     // Play 8 rounds and check for a winner after each round
     public boolean playRounds() {
         for (int i = roundCount; i < 8; i++) { // Resume from saved round count
-            System.out.println("Round " + (i + 1));
+            System.out.println("playRounds() Round " + (i + 1));
             // Start a new round and get the winner's index
+            System.out.println("playRounds() Round starter index: " + roundStarterIndex);
             if (!midRound) currentRound = new Round(players, roundStarterIndex, trumpSuit); // Start a new round
             int winnerIndex = currentRound.playTurns(i); // Start the round and find its winner 
             if(winnerIndex == -1) {
                 midRound = true; 
                 return false; // If the round is not over, HumanPlayer is playing
             }
-            System.err.println("Winner index: " + winnerIndex);
+            System.err.println("playRounds() Winner index: " + winnerIndex);
             roundStarterIndex = winnerIndex; // Winner starts the next round
+            System.out.println("playRounds() Round winner: " + players.get(winnerIndex).getName());
+            for(Player player : players) { // Reset all players' waiting status
+            player.setWaiting(false);
+            }
             roundCount++; // Increment the round count
         }
 
         awardGameVictory(); // Award points to the winning team
         roundCount = 0; // Reset round count for the next game
-        for(Player player : players) { // Reset all players' waiting status
-        player.setWaiting(false);
-        }
+
         return true; // End of all rounds 
     }
 
@@ -214,16 +217,20 @@ public class Game {
 
 
         // Print results
-        System.out.println("Player with the highest Zvanje: " + winningPlayer.getName());
-        System.out.println("Winning Team: " + winningTeam.getName());
-        System.out.println("Total Zvanje Points: " + totalPoints);
-        // Print ZvanjeTypes for the winning team
-        System.out.println("ZvanjeTypes for the winning team:");
-                zvanjeResults.stream()
-                        .filter(result -> result.getPlayer().getTeam() == winningTeam)
-                        .flatMap(result -> result.getZvanjeTypes().stream())
-                        .forEach(System.out::println);
-    
+        if (winningZvanjeResult.getBiggestZvanje() != null) {
+            System.out.println("Player with the highest Zvanje: " + winningPlayer.getName());
+            System.out.println("Winning Team: " + winningTeam.getName());
+            System.out.println("Total Zvanje Points: " + totalPoints);
+            // Print ZvanjeTypes for the winning team
+            System.out.println("Zvanje types of the winning team:");
+            zvanjeResults.stream()
+                    .filter(result -> result.getPlayer().getTeam() == winningTeam)
+                    .flatMap(result -> result.getZvanjeTypes().stream())
+                    .forEach(System.out::println);
+        } else {
+            System.out.println("No Zvanje detected for any player.");
+        }
+        System.out.println();
         return winningZvanjeResult;
     }
     
