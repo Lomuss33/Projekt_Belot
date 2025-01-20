@@ -46,7 +46,8 @@ public class Match {
     public void play() {
         switch (currentPhase) {
             case START:
-                System.out.println("new Game...");
+                System.out.println();
+                System.out.println("Match phase: START");
                 game = new Game(players, team1, team2, dealerIndex);
                 game.initializeGame();
                 assertInitialTeamState(team1);
@@ -54,6 +55,7 @@ public class Match {
                 currentPhase = MatchPhase.CHOOSING_TRUMP;
                 // Fall through after initializing the game
             case CHOOSING_TRUMP:
+                System.out.println();
                 System.out.println("Match phase: CHOOSING_TRUMP");
                 if (game.trumpSelection()) { // true = trump selection is over
                     currentPhase = MatchPhase.PLAYING_ROUNDS;
@@ -72,11 +74,13 @@ public class Match {
                 }
                 // Fall through if trump selection is successful
             case SHOW_ZVANJE:
+                System.out.println();
                 System.out.println("Match phase: REPORT_ZVANJE");
                 game.showZvanje();
                 currentPhase = MatchPhase.PLAYING_ROUNDS;
                 // Fall through after showing zvanje
             case PLAYING_ROUNDS:
+                System.out.println();
                 System.out.println("Match phase: PLAYING_ROUNDS");
                 if(!(game.playRounds())){ // false = still playing rounds stop the rounds
                     break;
@@ -85,8 +89,9 @@ public class Match {
                 currentPhase = MatchPhase.END_OF_GAME;
                 // Fall through after playing all rounds
             case END_OF_GAME:
-                gameCounter++;
+                System.out.println();
                 System.out.println("Game " + gameCounter + "over!");
+                gameCounter++;
                 winner = matchWinner();
                 if (winner == null) { 
                     rotateDealer();
