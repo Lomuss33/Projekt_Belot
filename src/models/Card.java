@@ -36,28 +36,28 @@ public class Card {
     public int getStrength(Card.Suit trumpSuit, Card.Suit leadSuit) {
         if (this.getSuit() == trumpSuit) {
             // Strength for Trump Cards
-            switch (this.getRank()) {
-                case JACK: return 16; // Strongest
-                case NINE: return 15;
-                case ACE: return 14;
-                case KING: return 13;
-                case QUEEN: return 12;
-                case TEN: return 11;
-                case EIGHT: return 10;
-                case SEVEN: return 9; // Weakest
-            }
+            return switch (this.getRank()) {
+                case JACK -> 16; // Strongest
+                case NINE -> 15;
+                case ACE -> 14;
+                case KING -> 13;
+                case QUEEN -> 12;
+                case TEN -> 11;
+                case EIGHT -> 10;
+                case SEVEN -> 9; // Weakest
+            };
         } else if (this.getSuit() == leadSuit) {
             // Strength for Non-Trump Cards
-            switch (this.getRank()) {
-                case ACE: return 8; // Strongest
-                case KING: return 7;
-                case QUEEN: return 6;
-                case JACK: return 5;
-                case TEN: return 4;
-                case NINE: return 3;
-                case EIGHT: return 2;
-                case SEVEN: return 1; // Weakest
-            }
+            return switch (this.getRank()) {
+                case ACE -> 8; // Strongest
+                case KING -> 7;
+                case QUEEN -> 6;
+                case JACK -> 5;
+                case TEN -> 4;
+                case NINE -> 3;
+                case EIGHT -> 2;
+                case SEVEN -> 1; // Weakest
+            };
         }
         return 0; // If the card is not of trump or lead suit
     }
@@ -66,14 +66,14 @@ public class Card {
     public void calculateValue(Suit trumpSuit) {
         boolean isTrump = this.suit == trumpSuit;
         switch (this.rank) {
-            case SEVEN: value = 0; break;
-            case EIGHT: value = 0; break;
-            case NINE: value = isTrump ? 14 : 0; break;
-            case TEN: value = 10; break;
-            case JACK: value = isTrump ? 20 : 2; break;
-            case QUEEN: value = 3; break;
-            case KING: value = 4; break;
-            case ACE: value = 11; break;
+            case SEVEN -> value = 0;
+            case EIGHT -> value = 0;
+            case NINE -> value = isTrump ? 14 : 0;
+            case TEN -> value = 10;
+            case JACK -> value = isTrump ? 20 : 2;
+            case QUEEN -> value = 3;
+            case KING -> value = 4;
+            case ACE -> value = 11;
         }
     }
 
@@ -92,31 +92,34 @@ public class Card {
         return value;
     }
 
+    public String printSuit() {
+        return switch (this.suit) {
+            case HEARTS -> "\u2665"; // ♥
+            case DIAMONDS -> "\u2666"; // ♦
+            case CLUBS -> "\u2663"; // ♣
+            case SPADES -> "\u2660"; // ♠
+            default -> "?";
+        };
+    }
+    
+
+    public String printRank() {
+        return switch (this.rank) {
+            case ACE -> "A";
+            case KING -> "K";
+            case QUEEN -> "Q";
+            case JACK -> "J";
+            case TEN -> "10";
+            case NINE -> "9";
+            case EIGHT -> "8";
+            case SEVEN -> "7";
+            default -> "";
+        };
+    }
+
     // ToString method for debugging
     @Override
     public String toString() {
-        String suitSymbol;
-        switch (suit) {
-            case HEARTS: suitSymbol = "♥"; break;
-            case DIAMONDS: suitSymbol = "♦"; break;
-            case CLUBS: suitSymbol = "♣"; break;
-            case SPADES: suitSymbol = "♠"; break;
-            default: suitSymbol = ""; break;
-        }
-
-        String rankString;
-        switch (rank) {
-            case ACE: rankString = " A"; break;
-            case KING: rankString = " K"; break;
-            case QUEEN: rankString = " Q"; break;
-            case JACK: rankString = " J"; break;
-            case TEN: rankString = "10"; break;
-            case NINE: rankString = " 9"; break;
-            case EIGHT: rankString = " 8"; break;
-            case SEVEN: rankString = " 7"; break;
-            default: rankString = ""; break;
-        }
-
-        return rankString + suitSymbol;
+        return printRank() + printSuit();
     }
 }
