@@ -45,29 +45,6 @@ public class Game {
         this.midRound = false;
         this.currentRound = null;
     }
- 
-    /* ------------------------------- start game ------------------------------- */
-    // public void startGame() {
-    //     System.out.println("Game started!");
-
-    //     // Initialize the game
-    //     initializeGame();
-    
-    //     // Play 1 deck of rounds and check for a winner
-    //     playRounds();
-
-    //     // Award points to the winning team
-    //     awardGameVictory();
-
-    //     // Find game winner team
-    //     Team winner = lookForWinner();
-
-    //     if (winner != null) {
-    //         System.out.println("Final scores: " + team1.getName() + " - " + team1.getBigs() + ", " + team2.getName() + " - " + team2.getBigs());
-    //         finishGame(winner);
-    //     }
-    
-    // }
 
     public Team lookForWinner() {
         // Check if a team has crossed the win threshold
@@ -126,18 +103,16 @@ public class Game {
     // Play 8 rounds and check for a winner after each round
     public boolean playRounds() {
         for (int i = roundCount; i < 8; i++) { // Resume from saved round count
-            System.out.println("playRounds() Round " + (i + 1));
+            System.out.println("Round " + (i + 1));
             // Start a new round and get the winner's index
-            System.out.println("playRounds() Round starter index: " + roundStarterIndex);
+            System.out.println("Round starts: " + players.get(roundStarterIndex).getName());
             if (!midRound) currentRound = new Round(players, roundStarterIndex, trumpSuit); // Start a new round
             int winnerIndex = currentRound.playTurns(i); // Start the round and find its winner 
             if(winnerIndex == -1) {
                 midRound = true; 
                 return false; // If the round is not over, HumanPlayer is playing
             }
-            System.err.println("playRounds() Winner index: " + winnerIndex);
             roundStarterIndex = winnerIndex; // Winner starts the next round
-            System.out.println("playRounds() Round winner: " + players.get(winnerIndex).getName());
             for(Player player : players) { // Reset all players' waiting status
             player.setWaiting(false);
             }
@@ -169,7 +144,7 @@ public class Game {
             // Award points to the other team
             otherTeam.addBigs(otherTeamPoints + dealerTeamPoints);
             System.out.println();
-            System.out.println("Dealer's team didnt pass! Dealer's team: " + dealerTeam.getBigs());
+            System.out.println("Dealer's team did NOT PASS! Dealer's team: " + dealerTeam.getBigs());
             System.out.println("Other team GETS ALL: " + otherTeam.getBigs());
         }
     }
@@ -307,7 +282,7 @@ public class Game {
                     // return choice != null ? choice.getSuit() : null;
             }
 
-            if (i == 3) {
+            if (i == dealerIndex) {
                 System.out.println(currentPlayer.getName() + " MUST choose a trump suit:");                
             }
 
@@ -323,8 +298,6 @@ public class Game {
                 System.out.println(currentPlayer.getName() + " skipped.");
             }
             
-            System.out.println(currentPlayer.getName() + " chose: " + finalChoice);
-
             currentIndex = (currentIndex + 1) % players.size(); // Move to the next player
         }
         // After all players have made a choice, return the final choice

@@ -30,27 +30,23 @@ public class Round {
 
         for (int turn = 0; turn < players.size(); turn++) { // Resume from the current turn
             Player currentPlayer = players.get((startingPlayerIndex + turn) % 4);
-            System.out.println("ROUNDplayTurns() startingplayerindex: " + startingPlayerIndex);
-            System.out.println("ROUNDplayTurns()currentPlayer: " + currentPlayer.getName());
             // Skip the player if he has already made a decision
             if(currentPlayer.isWaiting()) {
-                System.out.println("ROUNDplayTurns() Skipping " + currentPlayer.getName() + "...");
                 continue;
             } 
-            System.out.println("ROUNDplayTurns() Waiting for " + currentPlayer.getName() + " to play a card...");
             // Calculate playable card indexes and let the player choose one
-            System.out.println("ROUNDplayTurns()onFloorCards: " + onFloorCards);
             int cardBeingPlay = throwCard(currentPlayer);
-            System.out.println("ROUNDplayTurns()cardBeingPlay: " + cardBeingPlay);
 
             if (cardBeingPlay == -1) { // HumanPlayer has not made a choice yet
-                System.out.println("ROUNDplayTurns()cardBeingPlay: " + cardBeingPlay);
-                System.err.println("ROUNDplayTurns()On floor cards: " + onFloorCards);
+                printOnFloorCards(startingPlayerIndex);
+                System.err.println("Playable Indexes: " + currentPlayer.getPlayableIndices());
                 currentPlayer.displayHand(); // Print the hand of the player
                 return -1;
             }
 
         }
+        printOnFloorCards(startingPlayerIndex);
+        System.out.println();
         // Determine the round winner
         Player winner = returnWinner(startingPlayerIndex);
         startingPlayerIndex = players.indexOf(winner);
@@ -60,14 +56,11 @@ public class Round {
             winner.getTeam().addSmalls(10);
             System.out.println("Bonus 10 points awarded to " + winner.getTeam().getName() + " for winning the 7th round!");
         }
-        
         System.out.println();
         // Add the won cards and their points to the winning player's team
         winner.getTeam().addWonCardsAsPoints(onFloorCards);
-        System.out.println("onFloorCards: " + onFloorCards);
         // Clear the cards on the floor
         onFloorCards.clear();
-
         // Return the index of the next starting player
         return players.indexOf(winner);
         
@@ -99,14 +92,10 @@ public class Round {
         int chosenIndex = currentPlayer.chooseCardToPlay(playableIndexes);
 
         if(chosenIndex == -1) { // Keep waiting until a valid choice is made
-            System.err.println("playableIndexes: " + playableIndexes);
             return -1; // Human Player has not made a choice yet
         }else {
             Card playedCard = currentPlayer.playCard(chosenIndex);
-
-            System.out.println(currentPlayer.getName() + " played: " + playedCard.toString());
             onFloorCards.add(playedCard);
-            System.err.println("On floor cards: " + onFloorCards);
             currentPlayer.setPlayableIndices(playableIndexes); // Reset  playable indices
         } 
         currentPlayer.setWaiting(true);
@@ -134,4 +123,20 @@ public class Round {
 
         return winningPlayer;
     }
+
+    private void printOnFloorCards(int startingPlayerIndex) {
+        System.out.println("On floor cards:");
+        // Loop through the on-floor cards and print each with the player who placed it
+        for (int i = 0; i < onFloorCards.size(); i++) {
+            Card card = onFloorCards.get(i);
+            // Calculate the index of the player who placed the card
+            int playerIndex = (startingPlayerIndex + i) % players.size();
+            Player player = players.get(playerIndex);
+    
+            // Print the card and the corresponding player's name
+            System.out.println(card + " : " + player.getName());
+        }
+        System.out.println();
+    }
+    
 }
