@@ -95,6 +95,28 @@ public class Card {
     // ToString method for debugging
     @Override
     public String toString() {
-        return rank + " | " + suit;
+        String suitSymbol;
+        switch (suit) {
+            case HEARTS: suitSymbol = "♥"; break;
+            case DIAMONDS: suitSymbol = "♦"; break;
+            case CLUBS: suitSymbol = "♣"; break;
+            case SPADES: suitSymbol = "♠"; break;
+            default: suitSymbol = ""; break;
+        }
+
+        String rankString;
+        switch (rank) {
+            case ACE: rankString = " A"; break;
+            case KING: rankString = " K"; break;
+            case QUEEN: rankString = " Q"; break;
+            case JACK: rankString = " J"; break;
+            case TEN: rankString = "10"; break;
+            case NINE: rankString = " 9"; break;
+            case EIGHT: rankString = " 8"; break;
+            case SEVEN: rankString = " 7"; break;
+            default: rankString = ""; break;
+        }
+
+        return rankString + suitSymbol;
     }
 }

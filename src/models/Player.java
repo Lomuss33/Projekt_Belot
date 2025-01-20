@@ -102,7 +102,7 @@ public abstract class Player {
         System.out.println(name + "'s Hand:");
         List<Card> cards = hand.getCards();
         for (int i = 0; i < cards.size(); i++) {
-            System.out.println(i + ": " + cards.get(i));
+            System.out.println(i + " : " + cards.get(i));
         }
     }
 }

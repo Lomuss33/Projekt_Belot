@@ -22,6 +22,8 @@ A Java-based implementation of the classic Belot card game. This project feature
 - **Dynamic Trump Selection**: Players dynamically choose the trump suit at the beginning of the game.
 - **Team-Based Gameplay**: Play in teams and compete to score 1001 points to win the match.
 - **Customizable Difficulty**: Set game difficulty levels for personalized challenges.
+- **Real-Time Score Tracking**: Monitor team scores throughout the game.
+- **Comprehensive Game Logs**: Review past rounds and moves for strategy improvement.
 
 ---
 
@@ -39,6 +41,22 @@ A Java-based implementation of the classic Belot card game. This project feature
 4. Play continues for 8 rounds or until a team scores 1001 points.
 5. The team with the highest score wins the match!
 
+### Additional Commands
+- **Drop Mid-Game**: Use `/open run.js` to terminate the current game.
+- **Trump Selection**: Use `pickTrump(0-5)` to select the trump suit (0 to skip unless last, 1-4 for suit options).
+- **Card Selection**: Use `pickCard(0-8)` to play a card from your hand, depending on the number of cards.
+
+### Example to Start a New Game
+```java
+import models.*;
+import controllers.*;
+import services.*;
+import ai.*;
+
+Match y = new Match(Game.Difficulty.EASY);
+y.play();
+```
+
 ---
 
 ## Installation
@@ -52,7 +70,14 @@ A Java-based implementation of the classic Belot card game. This project feature
    cd your-repo-name
    ```
 3. Open the project in your favorite Java IDE (e.g., IntelliJ IDEA, Eclipse, VSCode).
-4. Compile and run the `Main` class.
+4. Compile the project:
+   ```bash
+   javac -d out models/*.java controllers/*.java services/*.java ai/*.java
+   ```
+5. Run the `Main` class:
+   ```bash
+   jshell --class-path out
+   ```
 
 ---
 
@@ -91,7 +116,11 @@ A Java-based implementation of the classic Belot card game. This project feature
 │   │   ├── GameStateManager.java
 │   │   ├── ScoringService.java
 │   │   ├── ZvanjeService.java
-│
+│   ├── ai
+│   │   ├── EasyAI.java
+│   │   ├── NormalAI.java
+│   │   ├── HardAI.java
+
 ├── README.md
 ├── LICENSE
 ```
@@ -129,3 +158,4 @@ Special thanks to everyone who contributed to the development of this project an
 ---
 
 Enjoy playing Belot! 😊
+
