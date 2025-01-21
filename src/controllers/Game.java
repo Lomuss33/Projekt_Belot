@@ -19,15 +19,15 @@ public class Game {
 
     private final Team team1, team2;
     private final List<Player> players;
-    private ZvanjeResult zvanjeWin;
-    private int winTreshold;
+    public ZvanjeResult zvanjeWin;
+    public int winTreshold;
     private final Deck deck;
-    private Card.Suit trumpSuit;
+    public Card.Suit trumpSuit;
     private final int dealerIndex;
     private int roundStarterIndex;
     private int roundCount;
     private boolean midRound;
-    private Round currentRound;
+    public Round currentRound;
 
     public enum Difficulty {
         EASY, NORMAL, HARD, TEST
@@ -342,19 +342,5 @@ public class Game {
 
     public int getDealerIndex() {
         return dealerIndex;
-    }
-
-    public void xx() {
-        for (Player player : players) {
-            System.out.println(player.getName() + "'s hand:");
-            player.displayHand();
-            System.out.println();
-        }
-    }
-
-    public void xy() {
-        for (Player player : players) {
-            System.out.println(player.getName() + " is waiting: " + player.isWaiting());
-        }
     }
 }

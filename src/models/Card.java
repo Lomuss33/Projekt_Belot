@@ -12,14 +12,40 @@ package models;
 //import models.Card;
 
 public class Card {
-    // Enum for the Suit of the card
+    // Enum for the Suit of the card with string attribute
     public enum Suit {
-        HEARTS, DIAMONDS, CLUBS, SPADES
+        HEARTS("\u2665"), // ♥
+        DIAMONDS("\u2666"), // ♦
+        CLUBS("\u2663"), // ♣
+        SPADES("\u2660"); // ♠
+
+        private final String symbol;
+
+        Suit(String symbol) {
+            this.symbol = symbol;
+        }
+
+        public String getSymbol() {
+            return symbol;
+        }
     }
 
     // Enum for the Rank of the card
-    public enum Rank { 
-        SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE 
+    public enum Rank {
+        SEVEN("7"), EIGHT("8"),
+        NINE("9"), TEN("10"),
+        JACK("J"), QUEEN("Q"),
+        KING("K"), ACE("A");
+
+        private final String symbol;
+
+        Rank(String symbol) {
+            this.symbol = symbol;
+        }
+
+        public String getSymbol() {
+            return symbol;
+        }
     }
 
     private final Suit suit; // Suit of the card
@@ -93,28 +119,11 @@ public class Card {
     }
 
     public String printSuit() {
-        return switch (this.suit) {
-            case HEARTS -> "\u2665"; // ♥
-            case DIAMONDS -> "\u2666"; // ♦
-            case CLUBS -> "\u2663 "; // ♣
-            case SPADES -> "\u2660 "; // ♠
-            default -> "?";
-        };
+        return suit.getSymbol();
     }
-    
 
     public String printRank() {
-        return switch (this.rank) {
-            case ACE -> "A";
-            case KING -> "K";
-            case QUEEN -> "Q";
-            case JACK -> "J";
-            case TEN -> "10";
-            case NINE -> "9";
-            case EIGHT -> "8";
-            case SEVEN -> "7";
-            default -> "";
-        };
+        return rank.getSymbol();
     }
 
     // ToString method for debugging

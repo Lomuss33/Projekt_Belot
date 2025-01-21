@@ -79,6 +79,8 @@ y.play();
    jshell --class-path out
    ```
 
+Command line: C:\WINDOWS\system32\cmd.exe '/K' 'chcp 65001'
+- chcp 65001 // must for Console Suit output with UTF-8
 ---
 
 ## Game Overview

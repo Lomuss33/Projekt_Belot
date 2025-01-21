@@ -15,7 +15,7 @@ public class Round {
     private final List<Player> players;
     private final Suit trumpSuit;
     private int startingPlayerIndex;
-    private final List<Card> onFloorCards;
+    public final List<Card> onFloorCards;
 
     public Round(List<Player> players, int startingPlayerIndex, Suit trumpSuit) {
         this.players = players;
@@ -137,6 +137,18 @@ public class Round {
             System.out.println(card + " : " + player.getName());
         }
         System.out.println();
+    }
+
+    public List<Card> getOnFloorCards() {
+        return onFloorCards;
+    }
+
+    public int getStartingPlayerIndex() {
+        return startingPlayerIndex;
+    }
+
+    public Player getPlayerIndex(int index) {
+        return players.get(index);
     }
     
 }
