@@ -166,4 +166,12 @@ public class Match {
     public void currentPhase() {
         System.out.println("Current phase: " + currentPhase);
     }
+
+    public Round getCurrentRound() {
+        return game.currentRound;
+    }
+
+    public Game getCurrentGame() {
+        return game;
+    }
 }
