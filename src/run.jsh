@@ -917,12 +917,13 @@ class Slider implements Clerk {
     }
 }
 LiveView view = Clerk.view();
+System.setOut(new java.io.PrintStream(System.out, true, "UTF-8"));
 import models.*;
 import controllers.*;
 import services.*;
 import ai.*;
-System.setOut(new java.io.PrintStream(System.out, true, "UTF-8"));
 Match y = new Match(Game.Difficulty.EASY);
 y.play()
 y.pickTrump(0);
 y.pickCard(0);
+/o TurtlePlay.java
