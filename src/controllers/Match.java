@@ -27,15 +27,15 @@ public class Match {
     public Game game;
     public int gameCounter;
     public final Team team1, team2;
-    private final List<Player> players;
-    private int dealerIndex;
+    public final List<Player> players;
+    public int dealerIndex;
     public static final int WINNING_SCORE = 501; // The score required to win the match
-    private final HumanPlayer me;
-    private Team winner; // Reference to the winning team
+    public final HumanPlayer me;
+    public Team winner; // Reference to the winning team 
 
     public Match(Difficulty difficulty) {
-        this.team1 = new Team("Team 1");
-        this.team2 = new Team("Team 2");
+        this.team1 = new Team("Your Team");
+        this.team2 = new Team("Enemy Team");
         players = GameUtils.initializePlayers(difficulty, team1, team2);
         this.dealerIndex = 3; // Start with the last player as the dealer so YOU can play first
         this.me = (HumanPlayer) players.get(0); // Initialize humanPlayer

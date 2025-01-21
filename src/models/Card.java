@@ -96,8 +96,8 @@ public class Card {
         return switch (this.suit) {
             case HEARTS -> "\u2665"; // ♥
             case DIAMONDS -> "\u2666"; // ♦
-            case CLUBS -> "\u2663"; // ♣
-            case SPADES -> "\u2660"; // ♠
+            case CLUBS -> "\u2663 "; // ♣
+            case SPADES -> "\u2660 "; // ♠
             default -> "?";
         };
     }

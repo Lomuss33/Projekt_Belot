@@ -9,24 +9,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Team {
-    private final String name;
+    private String name;
     private List<Card> wonCards;
     private int bigs; // big score / current score in game
     public int smalls; // small score / points won in the current round
 
-    public Team(String name) {
-        this.name = name;
+    public Team(String teamName) {
+        this.name = teamName;
         this.wonCards = new ArrayList<>();
         this.bigs = 0; // Initialize big score
         this.smalls = 0; // Initialize small score
     }
 
     // Add the cards won in the current round to the team's won cards
-    public void addWonCardsAsPoints(List<Card> cards) {
-        wonCards.addAll(cards);
-        for (Card card : cards) {
+    public void addWonCardsAsPoints(List<Card> addedCards) {
+        wonCards.addAll(addedCards);
+        for (Card card : addedCards) {
             smalls += card.getValue(); // Add card values to smalls
         }
+    }
+
+    public List<Player> getPlayers(List<Player> allPlayers) {
+        List<Player> teamPlayers = new ArrayList<>();
+        for (Player player : allPlayers) {
+            if (player.getTeam() == this) {
+                teamPlayers.add(player);
+            }
+        }
+        return teamPlayers;
+        
     }
 
     public List<Card> getWonCards() {
@@ -35,6 +46,10 @@ public class Team {
 
     public void resetWonCards() {
         wonCards = new ArrayList<>();
+    }
+
+    public void setName(String nameToSet) {
+        this.name = nameToSet;
     }
 
     public String getName() {
