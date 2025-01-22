@@ -4,56 +4,70 @@ public class TurtlePlay {
 
     public Turtle turtle;
     public controllers.Match match;
-    public Player me;
+    private boolean metchSettings;
 
     public TurtlePlay(Turtle turtle) {
-        // Create a new match 
         this.turtle = turtle;
+        turtle.penUp();
+        this.match = new controllers.Match(); 
+        this.metchSettings = false; // Indicates whether settings() has been called
+        System.out.println("TurtlePlay initialized. Please call settings() to customize the match.");
+        drawMatchStart(); // Draws the initial start screen
+    }
+    
+    public Turtle drawMatchStart() { 
         turtle.left(90);
-        System.out.println("Creating a new match...");
-        this.match = new controllers.Match(controllers.Game.Difficulty.EASY);
-        System.out.println("Match created!");
-        this.me = match.me;
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.out.println("Thread was interrupted, Failed to complete operation");
-        }
-        drawStart();
+        turtle.moveTo(300, 100);
+        turtle.text("Welcome to Bela!", Font.COURIER, 20, Font.Align.CENTER);
+        turtle.backward(80);
+        turtle.text("Start game by setting difficulty and names:", Font.COURIER, 20, Font.Align.CENTER);
+        turtle.backward(20);
+        turtle.text("settings(controllers.Game.Difficulty.EASY, MyTeam, EnemyTeam, MyName, teamMate, enemyMate1, enemyMate2)", Font.COURIER, 9, Font.Align.CENTER);
+        turtle.backward(40);
+        turtle.text("or", Font.COURIER, 20, Font.Align.CENTER);
+        turtle.backward(40);
+        turtle.text("use defaults:", Font.COURIER, 20, Font.Align.CENTER);
+        turtle.backward(20);
+        turtle.text("play()", Font.COURIER, 9, Font.Align.CENTER);
+        return turtle;
     }
 
-    public Turtle drawStart() { 
-        turtle.penUp();
-        turtle.text("Welcome to Bela!", Font.COURIER, 20, Font.Align.CENTER);
-        turtle.backward(40);
-        turtle.text("Start game with play()", Font.COURIER, 20, Font.Align.CENTER);
+    public Turtle drawGameStart() { 
+        turtle.moveTo(300, 100);
+        turtle.text("Game #" + (match.getGameCounter() + 1) + " starting!", Font.COURIER, 20, Font.Align.CENTER);
+        turtlePlayerInfo(turtle, match);
         return turtle;
     }
 
     public Turtle play() {
-        // fix 2x play() call
-        match.play();
+        // Reset the turtle
         turtle.reset();
         turtle.left(90);
-
-        switch(match.getCurrentPhase()) {
-            case START:
-                // turtleOtherPlayers(turtle, match.players);
-                // SHOW OPTIONS TO CHANGE NAMES of players and teams
-                break;
-            case CHOOSING_TRUMP:
+ 
+        // Handle game phases
+        switch (match.getCurrentPhase()) {
+            case START -> {
+                // Check if settings were initialized
+                if (!metchSettings) {
+                    // Initialize with default basic settings
+                    System.out.println("Settings were not initialized. Using default settings...");
+                    this.settings(null, null, null, null, null, null, null);
+                }
+                metchSettings = false; // Reset the settings flag
+                drawGameStart();
+            }
+            case CHOOSING_TRUMP -> {
+                System.err.println("CHOOSING_TRUMP");
+                match.play();
                 turtleOtherPlayers(turtle, match.players);
                 turtleHand(turtle, match.me.getHand());
                 turtleTrumpChoices(turtle, match.getCurrentGame());
-                break;
-
-            case SHOW_ZVANJE:
-                // turtleOtherPlayers(turtle, match.players);
-                turtleHand(turtle, match.me.getHand());
-                break;
-            
-            case PLAYING_ROUNDS:
+            }
+            case SHOW_ZVANJE -> {
+                System.err.println("SHOW_ZVANJE");
+                turtleZvanjeResult(turtle, match.getCurrentGame());
+            }
+            case PLAYING_ROUNDS -> {
                 turtleOtherPlayers(turtle, match.players);
                 turtleHand(turtle, match.me.getHand());
                 turtleBigScore(turtle, match.players);
@@ -61,35 +75,135 @@ public class TurtlePlay {
                 turtleGameInfo(turtle, match.getCurrentGame());
                 turtleOnFloor(turtle, match.getCurrentRound());
                 turtleStartingPlayer(turtle, match.getCurrentRound());
-                break;
-
-            case END_OF_GAME:
-                
-                break;
-            case END_OF_MATCH:
-                
-                break;
+            }
+            case END_OF_GAME -> {
+                System.out.println("Game over!");
+            }
+            case END_OF_MATCH -> {
+                System.out.println("Match ended!");
+            }
+            default -> throw new IllegalStateException("Unexpected phase: " + match.getCurrentPhase());
         }
         return turtle;
     }
 
-    public void pickCard(int cardIndex) {
-        if (match.getCurrentPhase() != controllers.Match.MatchPhase.PLAYING_ROUNDS) {
-            throw new IllegalStateException("Cannot play a card at this phase!");
-        }
-        // Play a card
-        match.pickCard(cardIndex);
-        play();
+    public void settings(controllers.Game.Difficulty difficulty, String team1Name, String team2Name, 
+                     String playerName, String teamMate, String enemyMate1, String enemyMate2) {
+        // Set up the teams
+        match.initializeGameSettings(
+            difficulty != null ? difficulty : controllers.Game.Difficulty.EASY,
+            team1Name != null ? team1Name : "Team 1",
+            team2Name != null ? team2Name : "Team 2",
+            playerName != null ? playerName : "You",
+            teamMate != null ? teamMate : "Teammate",
+            enemyMate1 != null ? enemyMate1 : "Enemy 1",
+            enemyMate2 != null ? enemyMate2 : "Enemy 2"
+        );
+        metchSettings = true;
     }
 
-    public void pickTrump(int trumpChoice) {
+    // Method to be called from the GUI when the human player accepts the zvanje
+    public void startGame(boolean setBoolean) {  
+        if (match.getCurrentPhase() != controllers.Match.MatchPhase.START) {
+            System.out.println("Error: You cannot accept Zvanje at this phase! Current phase: " + match.getCurrentPhase());
+            return; // Exit the method without advancing the game
+        }
+        match.startGame(setBoolean);
+        // Move the game forward by calling play() to progress to the next round
+        this.play();
+    }
+
+    // Method to be called from the GUI when the human player chooses a trump suit
+    public void pickTrump(int choice) {
         if (match.getCurrentPhase() != controllers.Match.MatchPhase.CHOOSING_TRUMP) {
-            throw new IllegalStateException("Cannot choose trump at this phase!");
+            System.out.println("Error: You cannot pick a trump at this phase! Current phase: " + match.getCurrentPhase());
+            return; // Exit the method without advancing the game
         }
         // Proceed with trump selection if phase is valid
-        match.pickTrump(trumpChoice);
-        play();
+        match.pickTrump(choice); 
+        // Move the game forward by calling play() to progress to the next phase
+        this.play();
+    }    
+
+    // Method to be called from the GUI when the human player accepts the zvanje
+    public void startRound(boolean setBoolean) {  
+        if (match.getCurrentPhase() != controllers.Match.MatchPhase.SHOW_ZVANJE) {
+            System.out.println("Error: You cannot accept Zvanje at this phase! Current phase: " + match.getCurrentPhase());
+            return; // Exit the method without advancing the game
+        }
+        match.startRound(setBoolean);
+        // Move the game forward by calling play() to progress to the next round
+        this.play();
     }
+
+    // Method to be called from the GUI when the human player chooses a card to play
+    public void pickCard(int choice) {
+        if (match.getCurrentPhase() != controllers.Match.MatchPhase.PLAYING_ROUNDS) {
+            System.out.println("Error: You cannot play a card at this phase! Current phase: " + match.getCurrentPhase());
+            return; // Exit the method without advancing the game
+        }
+        // Proceed with card play if phase is valid
+        match.pickCard(choice); 
+        // Move the game forward by calling play() to progress to the next round
+        this.play();
+    }    
+
+    public void endGame(boolean setBoolean) { 
+        if (match.getCurrentPhase() != controllers.Match.MatchPhase.END_OF_GAME) {
+            System.out.println("Error: You cannot end the game at this phase! Current phase: " + match.getCurrentPhase());
+            return; // Exit the method without advancing the game
+        }
+        match.endGame(setBoolean);
+        // Move the game forward by calling play() to progress to the next round
+        this.play();
+    }
+}
+
+public void turtleZvanjeResult(Turtle turtle, controllers.Game game) {
+    // Display the result of the zvanje
+    turtle.moveTo(turtle.width / 2, turtle.height / 4);
+    turtle.penUp();
+    if (game.getZvanjePoints() == 0) {
+        turtle.text("No zvanje winner", Font.COURIER, 20, Font.Align.CENTER);
+    } else {
+        turtle.text("Zvanje winner: " + game.getZvanjeWinner(), Font.COURIER, 20, Font.Align.CENTER);
+        turtle.backward(40);
+        turtle.text("Zvanje points: " + game.getZvanjePoints(), Font.COURIER, 20, Font.Align.CENTER);
+        turtle.backward(40);
+        turtle.text("Zvanje types: ", Font.COURIER, 20, Font.Align.CENTER);
+        turtle.backward(20);
+        turtle.text(game.getZvanjeTypes(), Font.COURIER, 20, Font.Align.CENTER);
+        turtle.backward(40);
+        turtle.text("Cards used: " + game.getZvanjeCards(), Font.COURIER, 20, Font.Align.CENTER);
+    }
+}
+
+public void turtlePlayerInfo(Turtle turtle, controllers.Match match) {
+    // Display the name of the player
+    turtle.penUp();
+    turtle.moveTo(turtle.width / 4, turtle.height / 2);
+    turtle.color(0, 0, 0);
+    turtle.text(match.team1.getName(), Font.COURIER, 20, Font.Align.CENTER);
+    turtle.backward(20);
+    turtle.text(match.players.get(0).getName() + " & " + match.players.get(2).getName(), Font.COURIER, 20, Font.Align.CENTER);
+    turtle.moveTo(turtle.width * 3/4, turtle.height / 2);
+    turtle.color(0, 0, 0);
+    turtle.text(match.team2.getName(), Font.COURIER, 20, Font.Align.CENTER);
+    turtle.backward(20);
+    turtle.text(match.players.get(1).getName() + " & " + match.players.get(3).getName(), Font.COURIER, 20, Font.Align.CENTER);
+}
+
+public void turtleStartScreen(Turtle turtle) {
+    // Display the start screen
+    turtle.moveTo(100, 300);
+    turtle.text("Match created", Font.COURIER, 20, Font.Align.CENTER);
+    turtle.backward(20);
+    turtle.text("Start game with startGame(true)", Font.COURIER, 20, Font.Align.CENTER);
+    turtle.backward(40);
+    turtle.text("GAME SETTINGS:", Font.COURIER, 20, Font.Align.CENTER);
+    turtle.moveTo(150, 200);
+    turtle.text("Difficulty: EASY", Font.COURIER, 20, Font.Align.LEFT);
+
 }
 
 public Turtle turtleOtherPlayers(Turtle turtle, List<Player> players) {
@@ -209,19 +323,6 @@ public Turtle turtleOnFloor(Turtle turtle, controllers.Round round) {
         
         // Draw the card
         turtleCard(turtle, card); // Assuming `turtleCard` already centers the card
-        
-        // // Move below the card to write the player's name
-        // turtle.right(90); // Face downward
-        // turtle.forward(size); // Move down a bit
-        // turtle.left(90); // Face forward
-        
-        // // // Print the name of the player who played the card
-        // // turtle.text(player.getName(), Font.COURIER, size, Font.Align.CENTER);
-        
-        // // Reset position for the next card
-        // turtle.left(90); // Face upward
-        // turtle.backward(size); // Move back up
-        // turtle.right(90); // Face forward
     }
 
     return turtle;

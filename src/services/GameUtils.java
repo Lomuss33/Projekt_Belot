@@ -10,33 +10,34 @@ import services.ZvanjeService.ZvanjeResult;
 public class GameUtils {
     
     // Initialize players and assign them to the given teams
-    public static List<Player> initializePlayers(Difficulty difficulty, Team team1, Team team2) {
+    public static List<Player> initializePlayers(Difficulty difficulty, Team team1, Team team2, 
+                String playerName, String teamMate, String enemyMate1, String enemyMate2) {
         List<Player> players = new ArrayList<>();
 
         // Assign human player to Team 1
-        players.add(new HumanPlayer("Lovro", team1));
+        players.add(new HumanPlayer(playerName, team1));
 
         // Create AI players based on difficulty
         switch (difficulty) {
             case EASY:
-                players.add(new AiPlayerEasy("Bot 1", team2)); // Bot 1 in Team 2
-                players.add(new AiPlayerEasy("Bot 2", team1)); // Bot 2 in Team 1
-                players.add(new AiPlayerEasy("Bot 3", team2)); // Bot 3 in Team 2
+                players.add(new AiPlayerEasy(enemyMate1, team2)); // Bot 1 in Team 2
+                players.add(new AiPlayerEasy(teamMate, team1)); // Bot 2 in Team 1
+                players.add(new AiPlayerEasy(enemyMate2, team2)); // Bot 3 in Team 2
                 break;
             case NORMAL:
-                players.add(new AiPlayerNormal("Bot 1", team2));
-                players.add(new AiPlayerNormal("Bot 2", team1));
-                players.add(new AiPlayerNormal("Bot 3", team2));
+                players.add(new AiPlayerNormal(enemyMate1, team2));
+                players.add(new AiPlayerNormal(teamMate, team1));
+                players.add(new AiPlayerNormal(enemyMate2, team2));
                 break;
             case HARD:
-                players.add(new AiPlayerHard("Bot 1", team2));
-                players.add(new AiPlayerHard("Bot 2", team1));
-                players.add(new AiPlayerHard("Bot 3", team2));
+                players.add(new AiPlayerHard(enemyMate1, team2));
+                players.add(new AiPlayerHard(teamMate, team1));
+                players.add(new AiPlayerHard(enemyMate2, team2));
                 break;
             case TEST:
-                players.add(new AiPlayerEasy("Bot 1", team2));
-                players.add(new AiPlayerNormal("Bot 2", team1));
-                players.add(new AiPlayerHard("Bot 3", team2));
+                players.add(new AiPlayerEasy(enemyMate1, team2));
+                players.add(new AiPlayerNormal(teamMate, team1));
+                players.add(new AiPlayerHard(enemyMate1, team2));
                 break;
         }
         return players;

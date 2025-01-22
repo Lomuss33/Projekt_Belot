@@ -87,4 +87,9 @@ public class Team {
     public int getSmalls() {
         return smalls;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

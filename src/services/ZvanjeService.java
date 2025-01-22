@@ -24,19 +24,25 @@ public class ZvanjeService {
     public static class ZvanjeResult {
 
         private final List<ZvanjeType> zvanjeTypes;
+        private final List<Card> cardsOfZvanje;
         private final ZvanjeType biggestZvanje;
         private final Player player;
         private int totalPoints;
     
-        public ZvanjeResult(Player player, List<ZvanjeType> zvanjeTypes) {
-            this(player, zvanjeTypes, 0, null);
-        }
+        // public ZvanjeResult(Player player, List<ZvanjeType> zvanjeTypes) {
+        //     this(player, zvanjeTypes, 0, null, null);
+        // }
 
-        public ZvanjeResult(Player player, List<ZvanjeType> zvanjeTypes, int totalPoints, ZvanjeType biggestZvanje) {
+        public ZvanjeResult(Player player, List<ZvanjeType> zvanjeTypes, int totalPoints, ZvanjeType biggestZvanje, List<Card> cardsOfZvanje) {
             this.player = player;
             this.zvanjeTypes = new ArrayList<>(zvanjeTypes);
             this.totalPoints = totalPoints;
             this.biggestZvanje = biggestZvanje;
+            this.cardsOfZvanje = new ArrayList<>(cardsOfZvanje);;
+        }
+
+        public List<Card> getCardsOfZvanje() {
+            return cardsOfZvanje;
         }
         
         public List<ZvanjeType> getZvanjeTypes() {
@@ -88,33 +94,44 @@ public class ZvanjeService {
     // Detect all Zvanje types for a player
     public static ZvanjeResult detectPlayerZvanje(Player player, Card.Suit trumpSuit) {
         if (player == null || player.getHand() == null || player.getHand().getCards().isEmpty()) {
-            return new ZvanjeResult(player, Collections.emptyList());
+            return new ZvanjeResult(player, Collections.emptyList(), 0, null, Collections.emptyList());
         }
     
         List<Card> cards = player.getHand().getCards();
+    
         List<ZvanjeType> detectedZvanjeTypes = new ArrayList<>();
+        Map<ZvanjeType, List<Card>> cardsUsedForZvanjeMap = new HashMap<>(); // New map to track cards used for Zvanje
     
         // Detect four-of-a-kind Zvanje
-        detectFourOfAKind(groupByRank(cards), detectedZvanjeTypes);
+        detectFourOfAKind(groupByRank(cards), detectedZvanjeTypes, cardsUsedForZvanjeMap);
     
         // Detect sequences
-        groupBySuit(cards).values().forEach(suitCards -> detectSequences(suitCards, detectedZvanjeTypes));
+        groupBySuit(cards).values().forEach(suitCards ->
+            detectSequences(suitCards, detectedZvanjeTypes, cardsUsedForZvanjeMap)
+        );
     
         // Detect special combinations like BELA
-        detectBela(cards, trumpSuit, detectedZvanjeTypes);
+        detectBela(cards, trumpSuit, detectedZvanjeTypes, cardsUsedForZvanjeMap);
+    
+        // Combine all cards used for Zvanje
+        List<Card> cardsUsedForZvanje = cardsUsedForZvanjeMap.values()
+            .stream()
+            .flatMap(Collection::stream)
+            .distinct()
+            .collect(Collectors.toList());
     
         // Calculate total points and determine the biggest Zvanje
         int totalPoints = detectedZvanjeTypes.stream()
-                .mapToInt(ZvanjeType::getPoints)
-                .sum();
+            .mapToInt(ZvanjeType::getPoints)
+            .sum();
     
         ZvanjeType biggestZvanje = detectedZvanjeTypes.stream()
-                .max(Comparator.comparingInt(ZvanjeType::getPoints))
-                .orElse(null);
+            .max(Comparator.comparingInt(ZvanjeType::getPoints))
+            .orElse(null);
     
-        return new ZvanjeResult(player, detectedZvanjeTypes, totalPoints, biggestZvanje);
+        return new ZvanjeResult(player, detectedZvanjeTypes, totalPoints, biggestZvanje, cardsUsedForZvanje);
     }
-
+    
     // Group cards by rank
     private static Map<Card.Rank, List<Card>> groupByRank(List<Card> cards) {
         return cards.stream().collect(Collectors.groupingBy(Card::getRank));
@@ -127,7 +144,7 @@ public class ZvanjeService {
 
 
 
-    private static void detectFourOfAKind(Map<Card.Rank, List<Card>> rankGroups, List<ZvanjeType> zvanjeTypes) {
+    private static void detectFourOfAKind(Map<Card.Rank, List<Card>> rankGroups, List<ZvanjeType> zvanjeTypes, Map<ZvanjeType, List<Card>> cardsUsedForZvanjeMap) {
         rankGroups.forEach((rank, groupedCards) -> {
             if (groupedCards.size() == 4) {
                 ZvanjeType zvanje = switch (rank) {
@@ -138,28 +155,31 @@ public class ZvanjeService {
                 };
                 if (zvanje != null) {
                     zvanjeTypes.add(zvanje);
+                    cardsUsedForZvanjeMap.put(zvanje, new ArrayList<>(groupedCards)); // Track these cards
                 }
             }
         });
     }
     
+    
 
-    private static void detectSequences(List<Card> suitCards, List<ZvanjeType> zvanjeTypes) {
+    private static void detectSequences(List<Card> suitCards, List<ZvanjeType> zvanjeTypes, Map<ZvanjeType, List<Card>> cardsUsedForZvanjeMap) {
         suitCards.sort(Comparator.comparingInt(card -> card.getRank().ordinal()));
-
+    
         List<Card> currentSequence = new ArrayList<>();
+    
         for (Card card : suitCards) {
             if (!currentSequence.isEmpty() &&
                     card.getRank().ordinal() != currentSequence.get(currentSequence.size() - 1).getRank().ordinal() + 1) {
-                evaluateSequence(currentSequence, zvanjeTypes);
+                evaluateSequence(currentSequence, zvanjeTypes, cardsUsedForZvanjeMap);
                 currentSequence.clear();
             }
             currentSequence.add(card);
         }
-        evaluateSequence(currentSequence, zvanjeTypes);
+        evaluateSequence(currentSequence, zvanjeTypes, cardsUsedForZvanjeMap);
     }
-
-    private static void evaluateSequence(List<Card> sequence, List<ZvanjeType> zvanjeTypes) {
+    
+    private static void evaluateSequence(List<Card> sequence, List<ZvanjeType> zvanjeTypes, Map<ZvanjeType, List<Card>> cardsUsedForZvanjeMap) {
         int size = sequence.size();
         if (size >= 3) {
             ZvanjeType zvanje = switch (size) {
@@ -171,16 +191,20 @@ public class ZvanjeService {
             };
             if (zvanje != null) {
                 zvanjeTypes.add(zvanje);
+                cardsUsedForZvanjeMap.put(zvanje, new ArrayList<>(sequence)); // Track this sequence
             }
         }
     }
-    private static void detectBela(List<Card> cards, Card.Suit trumpSuit, List<ZvanjeType> zvanjeTypes) {
+
+    private static void detectBela(List<Card> cards, Card.Suit trumpSuit, List<ZvanjeType> zvanjeTypes, Map<ZvanjeType, List<Card>> cardsUsedForZvanjeMap) {
         List<Card> belaCards = cards.stream()
-                .filter(card -> card.getSuit() == trumpSuit &&
-                        (card.getRank() == Card.Rank.KING || card.getRank() == Card.Rank.QUEEN))
-                .toList();
+            .filter(card -> card.getSuit() == trumpSuit &&
+                    (card.getRank() == Card.Rank.KING || card.getRank() == Card.Rank.QUEEN))
+            .toList();
         if (belaCards.size() == 2) {
             zvanjeTypes.add(ZvanjeType.BELA);
+            cardsUsedForZvanjeMap.put(ZvanjeType.BELA, belaCards); // Track BELA cards
         }
     }
+    
 }

@@ -17,16 +17,16 @@ import services.ZvanjeService.ZvanjeType;
 
 public class Game {
 
-    private final Team team1, team2;
-    private final List<Player> players;
+    public final Team team1, team2;
+    public final List<Player> players;
     public ZvanjeResult zvanjeWin;
     public int winTreshold;
-    private final Deck deck;
+    public final Deck deck;
     public Card.Suit trumpSuit;
-    private final int dealerIndex;
-    private int roundStarterIndex;
-    private int roundCount;
-    private boolean midRound;
+    public final int dealerIndex;
+    public int roundStarterIndex;
+    public int roundCount;
+    public boolean midRound;
     public Round currentRound;
 
     public enum Difficulty {
@@ -328,6 +328,14 @@ public class Game {
 
     public int getZvanjePoints() {
         return zvanjeWin.getTotalPoints();
+    }
+
+    public List<Card> getZvanjeCards() {
+        return zvanjeWin.getCardsOfZvanje();
+    }
+
+    public String getZvanjeTypes() {
+        return zvanjeWin.getZvanjeTypes().toString();
     }
 
     public int getWinTreshold() {
