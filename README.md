@@ -76,7 +76,7 @@ y.play();
    ```
 5. Run the `Main` class:
    ```bash
-   jshell --class-path out
+   jshell --class-path out --enable-preview
    ```
 
 Command line: C:\WINDOWS\system32\cmd.exe '/K' 'chcp 65001'

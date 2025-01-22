@@ -15,7 +15,7 @@ import services.GameUtils;
 
 public class Match {
 
-    enum MatchPhase {
+    public enum MatchPhase {
         START,
         CHOOSING_TRUMP,
         SHOW_ZVANJE,
@@ -23,7 +23,7 @@ public class Match {
         END_OF_GAME,
         END_OF_MATCH
     }
-    private MatchPhase currentPhase;
+    public MatchPhase currentPhase;
     public Game game;
     public int gameCounter;
     public final Team team1, team2;
@@ -32,6 +32,7 @@ public class Match {
     public static final int WINNING_SCORE = 501; // The score required to win the match
     public final HumanPlayer me;
     public Team winner; // Reference to the winning team 
+    public boolean zvanjeCheck;
 
     public Match(Difficulty difficulty) {
         this.team1 = new Team("Your Team");
@@ -41,6 +42,7 @@ public class Match {
         this.me = (HumanPlayer) players.get(0); // Initialize humanPlayer
         this.currentPhase = MatchPhase.START;
         this.gameCounter = 0;
+        this.zvanjeCheck = false;
     }
 
     public void play() {
@@ -58,7 +60,8 @@ public class Match {
                 System.out.println();
                 System.out.println("Match phase: CHOOSING_TRUMP");
                 if (game.trumpSelection()) { // true = trump selection is over
-                    currentPhase = MatchPhase.PLAYING_ROUNDS;
+                    currentPhase = MatchPhase.SHOW_ZVANJE;
+                    game.findZvanje();
                 }else { // false = trump selection is on HumanPlayer
                     System.out.println("""
                         Choose Your Trump Suit Option:
@@ -75,9 +78,14 @@ public class Match {
                 // Fall through if trump selection is successful
             case SHOW_ZVANJE:
                 System.out.println();
-                System.out.println("Match phase: REPORT_ZVANJE");
-                game.showZvanje();
-                currentPhase = MatchPhase.PLAYING_ROUNDS;
+                System.out.println("Match phase: SHOW_ZVANJE");
+                if(zvanjeCheck){
+                    currentPhase = MatchPhase.PLAYING_ROUNDS;
+                    break;
+                }else{
+                    System.out.println("Accept the Zvanje with Match.zvanjeCheck(boolean setBoolean)");
+                    break;
+                }
                 // Fall through after showing zvanje
             case PLAYING_ROUNDS:
                 System.out.println();
@@ -91,6 +99,7 @@ public class Match {
             case END_OF_GAME:
                 System.out.println();
                 System.out.println("Game " + gameCounter + "over!");
+                zvanjeCheck = false;
                 gameCounter++;
                 winner = matchWinner();
                 if (winner == null) { 
@@ -153,15 +162,31 @@ public class Match {
 
     // Method to be called from the GUI when the human player chooses a trump suit
     public void pickTrump(int choice) {
+        if (currentPhase != MatchPhase.CHOOSING_TRUMP) {
+            System.out.println("Error: You cannot pick a trump at this phase! Current phase: " + currentPhase);
+            return; // Exit the method without advancing the game
+        }
+    
+        // Proceed with trump selection if phase is valid
         me.trumpChoice(choice); // humanPlayer is your HumanPlayer instance
+    
+        // Move the game forward by calling play() to progress to the next phase
         this.play();
-    }
+    }    
 
     // Method to be called from the GUI when the human player chooses a card to play
     public void pickCard(int choice) {
+        if (currentPhase != MatchPhase.PLAYING_ROUNDS) {
+            System.out.println("Error: You cannot play a card at this phase! Current phase: " + currentPhase);
+            return; // Exit the method without advancing the game
+        }
+    
+        // Proceed with card play if phase is valid
         me.cardChoice(choice); // humanPlayer is your HumanPlayer instance
+    
+        // Move the game forward by calling play() to progress to the next round
         this.play();
-    }
+    }    
 
     public void currentPhase() {
         System.out.println("Current phase: " + currentPhase);
@@ -174,4 +199,19 @@ public class Match {
     public Game getCurrentGame() {
         return game;
     }
+
+    public MatchPhase getCurrentPhase() {
+        return currentPhase;
+    }
+
+    public void zvanjeCheck(boolean setBoolean) {  
+        if (currentPhase != MatchPhase.SHOW_ZVANJE) {
+            System.out.println("Error: You cannot accapt Zvanje at this phase! Current phase: " + currentPhase);
+            return; // Exit the method without advancing the game
+        }
+        this.zvanjeCheck = setBoolean;
+        // Move the game forward by calling play() to progress to the next round
+        this.play();
+    }
+
 }

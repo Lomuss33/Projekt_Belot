@@ -90,8 +90,7 @@ public class Game {
         }
     }
     
-    public void showZvanje() {
-        System.out.println("ZVANJE:");
+    public void findZvanje() {
         // Sort all hands, deal last 2 cards and update card values
         updateCardValues(trumpSuit);
         deck.dealAllHands(players, 2);
@@ -311,7 +310,6 @@ public class Game {
         }
     }
 
-
     public Team getTeam1() {
         return team1;
     }
@@ -324,8 +322,12 @@ public class Game {
         return players;
     }
 
-    public ZvanjeResult getZvanjeWin() {
-        return zvanjeWin;
+    public Player getZvanjeWinner() {
+        return zvanjeWin.getPlayer();
+    }
+
+    public int getZvanjePoints() {
+        return zvanjeWin.getTotalPoints();
     }
 
     public int getWinTreshold() {

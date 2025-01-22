@@ -150,5 +150,9 @@ public class Round {
     public Player getPlayerIndex(int index) {
         return players.get(index);
     }
+
+    public Suit getTrumpSuit() {
+        return trumpSuit;
+    }
     
 }

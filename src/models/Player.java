@@ -58,7 +58,7 @@ public abstract class Player {
 
     public final Card playCard(int index) {
         if (index < 0 || index >= hand.getCards().size()) {
-            throw new IllegalArgumentException("Invalid card index.");
+            throw new IllegalArgumentException("Out of bounds card index.");
         }
         Card card = hand.getCard(index);
         hand.removeCard(index);
@@ -104,5 +104,10 @@ public abstract class Player {
         for (int i = 0; i < cards.size(); i++) {
             System.out.println(i + " : " + cards.get(i));
         }
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
