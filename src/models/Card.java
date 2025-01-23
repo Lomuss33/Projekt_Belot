@@ -11,7 +11,7 @@
 package models;
 //import models.Card;
 
-public class Card {
+public class Card implements Cloneable {
     // Enum for the Suit of the card with string attribute
     public enum Suit {
         HEARTS("\u2665"), // ♥
@@ -57,6 +57,19 @@ public class Card {
         this.suit = suit;
         this.rank = rank;
         this.value = 0; // Value based on trump or non-trump
+    }
+
+    // Constructor with value for game state
+    public Card(Suit suit, Rank rank, int value) {
+        this.suit = suit;
+        this.rank = rank;
+        this.value = value;
+    }
+
+    // Clone method
+    @Override
+    public Card clone() throws CloneNotSupportedException {
+        return new Card(this.suit, this.rank, this.value); // Create a new Card object
     }
 
     public int getStrength(Card.Suit trumpSuit, Card.Suit leadSuit) {

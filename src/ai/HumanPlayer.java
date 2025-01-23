@@ -17,16 +17,41 @@ package ai;
 import java.util.*;
 import models.*;
 
-public class HumanPlayer extends Player {
+public class HumanPlayer extends Player implements Cloneable {
 
-    private TrumpChoice trumpChoice = null; // Variable to store the trump suit choice
-    private int cardIndexChoice = -1; // Variable to store the card choice
+    public  TrumpChoice trumpChoice; // Variable to store the trump suit choice
+    public int cardIndexChoice; // Variable to store the card choice
+    public boolean choiceMade;
 
     public HumanPlayer(String name, Team team) {
         super(name, team);
+        System.err.println("trumpchoice: " + trumpChoice);
+        this.trumpChoice = null; // No choice made yet
+        System.err.println("trumpchoice: " + trumpChoice);
+        System.err.println("this player: " + this.hashCode());
+        this.cardIndexChoice = -1; // No choice made yet
+        this.choiceMade = false;
+    }
+
+    @Override
+    public HumanPlayer clone() throws CloneNotSupportedException {
+        // Step 1: Perform shallow copy using `super.clone()`
+        HumanPlayer cloned = (HumanPlayer) super.clone(); // Clone basic Player fields
+
+        // Step 2: Clone `trumpChoice` and `cardIndexChoice` fields
+        System.err.println("trumpchoice: " + trumpChoice);
+        cloned.trumpChoice = this.trumpChoice; // Enum: safe to copy directly
+        System.err.println("trumpchoice: " + trumpChoice);
+        System.err.println("this player: " + this.hashCode());
+        cloned.cardIndexChoice = this.cardIndexChoice; // Primitive field: safe to copy
+
+        // Step 3: Return the cloned object
+        return cloned;
     }
 
     public TrumpChoice getTrumpChoice() {
+        System.err.println(")))))))))))))))))))))))))))) TRUMP CHOICE: " + trumpChoice);
+        System.err.println("this player: " + this.hashCode());
         return trumpChoice;
     }
 
@@ -65,11 +90,14 @@ public class HumanPlayer extends Player {
                     return null; // No choice made yet
             }
             TrumpChoice result = trumpChoice; // Save the chosen suit to return
+            System.err.println("§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§ TRUMP CHOICE: " + trumpChoice);
+            System.err.println("this player: " + this.hashCode());
+
             trumpChoice = null; // Reset for the next game
             return result; // Return the choice to the game
     }
 
-    // Method called when trump input arrives
+    // Method called when trump input arrives 
     public void trumpChoice(int choice) {
         trumpChoice = switch (choice) {
             case 1 -> Player.TrumpChoice.SPADES;
@@ -79,6 +107,9 @@ public class HumanPlayer extends Player {
             case 0 -> Player.TrumpChoice.SKIP;
             default -> throw new IllegalArgumentException("Invalid trump choice.");
         }; // Update the trump choice
+        System.err.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TRUMP CHOICE: " + trumpChoice);
+        System.err.println("this player: " + this.hashCode());
+
     }
 
     // Method called when card input arrives

@@ -8,7 +8,8 @@ package models;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Team {
+public class Team implements Cloneable {
+
     private String name;
     private List<Card> wonCards;
     private int bigs; // big score / current score in game
@@ -20,6 +21,21 @@ public class Team {
         this.wonCards = new ArrayList<>();
         this.bigs = 0; // Initialize big score
         this.smalls = 0; // Initialize small score
+    }
+
+    @Override
+    public Team clone() throws CloneNotSupportedException {
+        Team clonedTeam = (Team) super.clone(); // Perform shallow copy first
+        // Deep clone `wonCards`
+        clonedTeam.wonCards = new ArrayList<>();
+        for (Card card : this.wonCards) {
+            clonedTeam.wonCards.add(card.clone()); // Assuming Card implements clone()
+        }
+        // Copy scores
+        clonedTeam.bigs = this.bigs;
+        clonedTeam.awardedBigs = this.awardedBigs;
+        clonedTeam.smalls = this.smalls;
+        return clonedTeam;
     }
 
     // Add the cards won in the current round to the team's won cards

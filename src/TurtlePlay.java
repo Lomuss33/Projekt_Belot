@@ -16,12 +16,22 @@ public class TurtlePlay {
 
 
     public TurtlePlay(Turtle turtle) {
-        this.turtle = turtle;
+        this.turtle = turtle; 
         turtle.penUp();
         turtle.left(90);
         this.match = new controllers.Match(); 
         System.out.println("TurtlePlay initialized. Please call settings() to customize the match.");
         drawMatchStart(turtle); // Draws the initial start screen
+    }
+    
+    // If user wants to go back one step, just call:
+    public void oups() {
+        if(match.getCurrentPhase() == controllers.Match.MatchPhase.START || match.getCurrentPhase() == controllers.Match.MatchPhase.END_OF_MATCH) {
+            System.out.println("Cannot go back further than the start of the match.");
+            return;
+        }
+        match.revertToPreviousSnapshot();
+        play();
     }
 
     public Turtle play() {
@@ -44,7 +54,6 @@ public class TurtlePlay {
             }
             case CHOOSING_TRUMP -> {
                 System.err.println("CHOOSING_TRUMP");
-                match.play();
                 turtle.moveTo(0,400);
                 turtle.text("📗", Font.COURIER, 2000, Font.Align.CENTER);
                 turtleOtherPlayers(turtle, match.players);
@@ -114,9 +123,15 @@ public class TurtlePlay {
             System.out.println("Error: You cannot pick a trump at this phase! Current phase: " + match.getCurrentPhase());
             return; // Exit the method without advancing the game
         }
+        System.err.println("///////////////////////////////GameTrump picked: " + match.getCurrentGame().getTrumpSuit());
+        System.err.println("///////////////////////////////Player Trump picked: " + match.me.trumpChoice);
+
         // Proceed with trump selection if phase is valid
-        match.pickTrump(choice); 
+        match.pickTrump(choice);
         // Move the game forward by calling play() to progress to the next phase
+        System.err.println("/////////////////////////////// Game Trump picked: " + match.getCurrentGame().getTrumpSuit());
+        System.err.println("///////////////////////////////Player Trump picked: " + match.me.trumpChoice);
+
         this.play();
     }    
 

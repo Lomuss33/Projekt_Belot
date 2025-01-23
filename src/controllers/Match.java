@@ -9,11 +9,15 @@ package controllers;
 
 import ai.HumanPlayer;
 import controllers.Game.Difficulty;
-import java.util.List;
-import models.*;
-import services.GameUtils;
 
-public class Match {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+import models.*;
+import services.*;
+
+public class Match implements Cloneable { // Implement Cloneable{
 
     public enum MatchPhase {
         START,
@@ -22,7 +26,8 @@ public class Match {
         PLAYING_ROUNDS,
         END_OF_GAME,
         END_OF_MATCH
-    }
+        }
+
     public MatchPhase currentPhase;
     public Game game;
     public int gameCounter;
@@ -35,6 +40,7 @@ public class Match {
     public boolean startGame;
     public boolean endGame;
     public boolean startRound;
+    public final Stack<Match> snapshots = new Stack<>();
 
     public Match() {
         this.team1 = null;  // Initialize as placeholders
@@ -48,8 +54,23 @@ public class Match {
         this.startGame = false; // Phase progression is off initially
         this.endGame = false;
         this.startRound = false;
-    }
+    }    // Override clone for deep copying
+
     
+    @Override
+    public Match clone() throws CloneNotSupportedException {
+        Match cloned = (Match) super.clone(); // Perform shallow copy
+
+        // Deep clone mutable objects
+        cloned.team1 = (team1 != null) ? team1.clone() : null;
+        cloned.team2 = (team2 != null) ? team2.clone() : null;
+        cloned.game = (game != null) ? game.clone() : null;
+        cloned.winner = (winner != null) ? winner.clone() : null;
+        cloned.players = game.players;
+        cloned.me = (HumanPlayer) players.get(0);
+
+        return cloned;       
+    }
 
     public void play() {
         switch (currentPhase) {
@@ -224,8 +245,18 @@ public class Match {
             System.out.println("Error: You cannot pick a trump at this phase! Current phase: " + currentPhase);
             return; // Exit the method without advancing the game
         }
+        // Save the current state before proceeding
+        System.out.println("this player: " + me.hashCode());
+        saveSnapshot(); 
+        System.out.println("this player: " + me.hashCode());
+
+        if (choice < 0 || choice > 4) { // Ensure valid choice
+            System.out.println("Invalid choice! Please select a number between 0 and 4.");
+            return;
+        }
         // Proceed with trump selection if phase is valid
         me.trumpChoice(choice); // humanPlayer is your HumanPlayer instance
+        //game.setTrumpSuit(choice);
         // Move the game forward by calling play() to progress to the next phase
         this.play();
     }    
@@ -247,6 +278,8 @@ public class Match {
             System.out.println("Error: You cannot play a card at this phase! Current phase: " + currentPhase);
             return; // Exit the method without advancing the game
         }
+        // Save the current state before proceeding
+        saveSnapshot(); 
         // Proceed with card play if phase is valid
         me.cardChoice(choice); // humanPlayer is your HumanPlayer instance
         // Move the game forward by calling play() to progress to the next round
@@ -263,6 +296,57 @@ public class Match {
         this.play();
     }
 
+    public void saveSnapshot() {
+        try {
+            Match snapshot = this.clone(); // Clone the match object
+            for (int i = 0; i < players.size(); i++) {
+                snapshot.players.set(i, players.get(i).clone()); // Deep-copy player states
+            }
+            snapshots.push(snapshot);
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException("Snapshot saving failed", e);
+        }
+    }
+
+    public void revertToPreviousSnapshot() { 
+        if (snapshots.isEmpty()) {
+            System.err.println("No previous snapshot to revert to!");
+            return;
+        }
+        try {
+            Match previousState = snapshots.pop();
+            this.game = previousState.game.clone();
+            this.currentPhase = previousState.currentPhase;
+            this.team1 = game.getTeam1();
+            this.team2 = game.getTeam2();
+            this.players = new ArrayList<>(previousState.players);
+            this.dealerIndex = game.getDealerIndex();
+            this.me = (HumanPlayer) players.get(0); 
+            this.startGame = previousState.startGame;
+            this.startRound = previousState.startRound;
+            this.endGame = previousState.endGame;
+    
+            // Reset variables needed for the current phase
+            resetPhaseState();
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException("Snapshot restoration failed", e);
+        }
+    }
+
+    private void resetPhaseState() {
+        switch (currentPhase) {
+            case CHOOSING_TRUMP:
+                if (me.trumpChoice == null) {
+                    System.out.println("Restoring CHOOSING_TRUMP phase. Waiting for player's trump choice...");
+                }
+                for (Player player : players) {
+                    player.setWaiting(false); // Ensure all players reset their waiting state
+                }
+                break;
+            // Add handling for other phases if needed
+        }
+    }    
+    
 
     public void initializeGameSettings(Difficulty difficulty, String team1Name, String team2Name,  
                         String playerName, String teamMate, String enemyMate1, String enemyMate2) {

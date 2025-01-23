@@ -11,10 +11,11 @@
 
 package models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // IDEA: maybe create a unique hashcode for backtracing the hand of the player
-public abstract class Player {
+public abstract class Player implements Cloneable {
     
     protected String name;
     protected Hand hand;
@@ -45,6 +46,14 @@ public abstract class Player {
         this.team = team;
         this.hand = new Hand();
         this.waiting = false;
+    }
+
+    @Override
+    public Player clone() throws CloneNotSupportedException{ 
+            Player cloned = (Player) super.clone(); // Shallow copy first
+            cloned.hand = this.hand.clone(); // Deep copy of the hand
+            cloned.team = this.team.clone(); // Deep copy of the team
+            return cloned;
     }
 
     // Abstract method to choose trump

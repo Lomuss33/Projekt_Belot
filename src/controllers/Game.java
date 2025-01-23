@@ -15,15 +15,15 @@ import services.*;
 import services.ZvanjeService.ZvanjeResult;
 import services.ZvanjeService.ZvanjeType;
 
-public class Game {
+public class Game implements Cloneable {
 
-    public final Team team1, team2;
-    public final List<Player> players;
+    public Team team1, team2;
+    public List<Player> players;
     public ZvanjeResult zvanjeWin;
     public int winTreshold;
-    public final Deck deck;
+    public Deck deck;
     public Card.Suit trumpSuit;
-    public final int dealerIndex;
+    public int dealerIndex;
     public int roundStarterIndex;
     public int roundCount;
     public boolean teamPassed;
@@ -46,6 +46,40 @@ public class Game {
         this.midRound = false;
         this.currentRound = null;
     }
+
+    @Override
+    public Game clone() throws CloneNotSupportedException { 
+        Game clonedGame = (Game) super.clone(); // Create a shallow copy first
+
+        // Deep clone the teams
+        clonedGame.team1 = (team1 != null) ? team1.clone() : null; // Assuming Team implements proper clone()
+        clonedGame.team2 = (team2 != null) ? team2.clone() : null;
+
+        // Deep clone the deck
+        clonedGame.deck = (deck != null) ? deck.clone() : null; // Assuming Deck implements proper clone()
+
+        // Deep clone the current round (if applicable)
+        clonedGame.currentRound = (currentRound != null) ? currentRound.clone() : null; // Assuming Round implements proper clone() 
+        if(clonedGame.currentRound != null) {
+            clonedGame.players = clonedGame.currentRound.getPlayers();
+            clonedGame.trumpSuit = clonedGame.currentRound.getTrumpSuit();
+        }else {
+            clonedGame.players = new ArrayList<>(players.size());
+            for (Player player : players) {
+                clonedGame.players.add((Player) player.clone());
+            }
+        }
+        clonedGame.winTreshold = this.winTreshold;
+        clonedGame.roundStarterIndex = this.roundStarterIndex;
+        clonedGame.roundCount = this.roundCount;
+        clonedGame.teamPassed = this.teamPassed;
+        clonedGame.midRound = this.midRound;
+        clonedGame.dealerIndex = this.dealerIndex;
+
+        // Return the fully deep-cloned object
+        return clonedGame;
+    }
+
 
     public Team lookForWinner() {
         // Check if a team has crossed the win threshold
@@ -261,8 +295,11 @@ public class Game {
                 //     Please make your choice (0-4): 
                 //     """);
                     // Wait for the human player to make a choice or return already made choice
+                    System.err.println("!!!!!!!!!!!!!!!!!!!!!!!humanChoice: " + ((HumanPlayer) currentPlayer).getTrumpChoice());
                     TrumpChoice humanChoice  = ((HumanPlayer) currentPlayer).getTrumpChoice();
-
+                    System.err.println("!!!!!!!!!!!!!!!!!!!!!!!humanChoice: " + humanChoice);
+                    System.err.println("!!!!!!!!!!!!!!!!!!!!!!!currentPlayer: " + currentPlayer.hashCode());
+                    System.out.println("player: " + currentPlayer.hashCode() + currentPlayer.getName());
                     if (humanChoice != null) { // If the player has made a choice
                         currentPlayer.setWaiting(true);
                         if (humanChoice == TrumpChoice.SKIP) {
@@ -311,6 +348,10 @@ public class Game {
         for (Player player : players) {
             player.getHand().sortCards(); // Sort each player's hand in place
         }
+    }
+
+    public void setTrumpSuit(int choice) {
+        this.trumpSuit = Card.Suit.values()[choice];
     }
 
     public Team getTeam1() {

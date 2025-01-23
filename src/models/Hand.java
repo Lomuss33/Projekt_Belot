@@ -15,13 +15,27 @@ import java.util.ArrayList;
 import java.util.List;
 import services.CardUtils;
 
-public class Hand {
+public class Hand implements Cloneable {
 
     private List<Card> cards;
 
     // Constructor initializes an empty hand
     public Hand() {
         cards = new ArrayList<>();
+    }
+
+    // Override clone() method to implement deep copy
+    @Override
+    public Hand clone() throws CloneNotSupportedException {
+        Hand cloned = (Hand) super.clone(); // Shallow copy of Hand object
+
+        // Deep copy the cards list
+        cloned.cards = new ArrayList<>();
+        for (Card card : this.cards) {
+            cloned.cards.add(card.clone()); // Assuming Card implements Cloneable and has its own clone method
+        }
+
+        return cloned;
     }
 
     public int getSize() {

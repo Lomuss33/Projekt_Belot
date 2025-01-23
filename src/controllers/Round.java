@@ -11,17 +11,32 @@ import models.*;
 import models.Card.Suit;
 import services.RoundUtils;
 
-public class Round {
-    private final List<Player> players;
-    private final Suit trumpSuit;
+public class Round implements Cloneable {
+    private List<Player> players;
+    private Suit trumpSuit;
     private int startingPlayerIndex;
-    public final List<Card> onFloorCards;
+    public List<Card> onFloorCards;
 
     public Round(List<Player> players, int startingPlayerIndex, Suit trumpSuit) {
         this.players = players;
         this.startingPlayerIndex = startingPlayerIndex;
         this.trumpSuit = trumpSuit;
         this.onFloorCards = new ArrayList<>();
+    }
+
+    @Override
+    protected Round clone() throws CloneNotSupportedException {
+        Round cloned = (Round) super.clone();
+        // Perform deep copies of mutable fields if necessary
+        cloned.onFloorCards = new ArrayList<>(this.onFloorCards);
+        for (Card card : this.onFloorCards) {
+            cloned.onFloorCards.add(card.clone()); // Clone each Card if Card supports cloning
+        }
+        cloned.players = new ArrayList<>(this.players.size());
+        for (Player player : this.players) {
+            cloned.players.add((Player) player.clone());
+        }
+        return cloned;
     }
 
     // WHY ALWAYS int 1 return
@@ -153,6 +168,10 @@ public class Round {
 
     public Suit getTrumpSuit() {
         return trumpSuit;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
     }
     
 }
