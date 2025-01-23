@@ -29,7 +29,7 @@ public class Match {
     public Team team1, team2;
     public List<Player> players;
     public int dealerIndex;
-    public static final int WINNING_SCORE = 501; // The score required to win the match
+    public static final int WINNING_SCORE = 101; // The score required to win the match
     public HumanPlayer me;
     public Team winner; // Reference to the winning team 
     public boolean startGame;
@@ -56,8 +56,12 @@ public class Match {
             case START:
                 System.out.println();
                 System.out.println("Match phase: START");
-                if (team1 == null || team2 == null || players == null || !startGame) {
-                    System.out.println("Error: Ensure teams, players, and difficulty are set, and the game is explicitly started. Use setTeamNames(String team1Name, String team2Name), setDifficultyAndPlayers(Difficulty difficulty), and startGame(true) to proceed.");
+                if (team1 == null || team2 == null || players == null) {
+                    System.out.println("Error: Ensure teams, players, and difficulty are set");
+                    break;
+                }
+                if(!startGame) { // Ensure startGame boolean must be true before advancing
+                    System.out.println("Waiting for game to start. Use startGame(true) to proceed.");
                     break;
                 }
                 // Initialize the game when all prerequisites are met
@@ -123,6 +127,7 @@ public class Match {
                 break;
     
             case END_OF_GAME:
+                game.awardGameVictory();
                 System.out.println();
                 System.out.println("Game " + gameCounter + " over!");
                 if (!endGame) { // Ensure endGame boolean must be true before advancing
@@ -274,7 +279,17 @@ public class Match {
         System.out.println("Players initialized: " + players);
     }
 
+    public String getWinnerPrint() {
+        return winner == null ? "no winner yet" : winner.getName();
+    }
 
+    public Team getWinningTeam() {
+        return winner;
+    }
+
+    public Team getPlayerTeam() {
+        return me.getTeam();
+    }
 
     public void currentPhase() {
         System.out.println("Current phase: " + currentPhase);

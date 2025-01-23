@@ -26,6 +26,7 @@ public class Game {
     public final int dealerIndex;
     public int roundStarterIndex;
     public int roundCount;
+    public boolean teamPassed;
     public boolean midRound;
     public Round currentRound;
 
@@ -117,10 +118,7 @@ public class Game {
             }
             roundCount++; // Increment the round count
         }
-
-        awardGameVictory(); // Award points to the winning team
         roundCount = 0; // Reset round count for the next game
-
         return true; // End of all rounds 
     }
 
@@ -134,13 +132,18 @@ public class Game {
 
         // Check if the dealer's team has crossed the win threshold
         if (dealerTeamPoints >= winTreshold) {
+            teamPassed = true;
+            dealerTeam.setAwardedBigs(dealerTeamPoints);
             dealerTeam.addBigs(dealerTeamPoints);
+            otherTeam.setAwardedBigs(otherTeamPoints);
             otherTeam.addBigs(otherTeamPoints);
             System.out.println();
             System.out.println("Dealer's team PASSED!: " + dealerTeamPoints);
             System.out.println("Other team: " + otherTeamPoints);
         } else {
             // Award points to the other team
+            teamPassed = false;
+            otherTeam.setAwardedBigs(otherTeamPoints + dealerTeamPoints);
             otherTeam.addBigs(otherTeamPoints + dealerTeamPoints);
             System.out.println();
             System.out.println("Dealer's team did NOT PASS! Dealer's team: " + dealerTeam.getBigs());
@@ -352,5 +355,8 @@ public class Game {
 
     public int getDealerIndex() {
         return dealerIndex;
+    }
+    public String teamPassed() {
+        return teamPassed ? "YES" : "NO";
     }
 }

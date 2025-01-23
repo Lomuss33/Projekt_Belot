@@ -12,6 +12,7 @@ public class Team {
     private String name;
     private List<Card> wonCards;
     private int bigs; // big score / current score in game
+    private int awardedBigs; // smalls being awarded as bigs
     public int smalls; // small score / points won in the current round
 
     public Team(String teamName) {
@@ -38,6 +39,14 @@ public class Team {
         }
         return teamPlayers;
         
+    }
+
+    public void setAwardedBigs(int points) {
+        this.awardedBigs = points;
+    }
+
+    public int getAwardedBigs() {
+        return awardedBigs;
     }
 
     public List<Card> getWonCards() {
