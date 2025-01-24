@@ -61,7 +61,7 @@ public class Game implements Cloneable {
         // Deep clone zvanjeWin (assuming ZvanjeResult has a clone method)
         clonedGame.zvanjeWin = (zvanjeWin != null) ? zvanjeWin.clone() : null;
         // Update the player reference in the cloned zvanjeWin
-        if (clonedGame.zvanjeWin != null) {
+        if (clonedGame.zvanjeWin != null && clonedGame.zvanjeWin.getTotalPoints() != 0) {
             clonedGame.zvanjeWin.setPlayer(clonedGame.players.get(players.indexOf(zvanjeWin.getPlayer())));
         }
 
@@ -321,7 +321,7 @@ public class Game implements Cloneable {
                     // return choice != null ? choice.getSuit() : null;
             }
 
-            if (i == dealerIndex) {
+            if (i == 3) {
                 System.out.println(currentPlayer.getName() + " MUST choose a trump suit:");                
             }
 

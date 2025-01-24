@@ -5,14 +5,14 @@ public class TurtlePlay {
 
     public Turtle turtle;
     public controllers.Match match;
-    private controllers.Game.Difficulty customDifficulty = controllers.Game.Difficulty.EASY;
+    private controllers.Match.Difficulty customDifficulty = controllers.Match.Difficulty.LEARN;
     private boolean matchStarted = false;
     private String customTeam1Name = "Team 1";
     private String customTeam2Name = "Team 2";
     private String customPlayerName = "You";
     private String customTeamMate = "Teammate"; 
     private String customEnemy1 = "Rival_1"; 
-    private String customEnemy2 = "Rival_1"; 
+    private String customEnemy2 = "Rival_2"; 
 
 
     public TurtlePlay(Turtle turtle) {
@@ -91,11 +91,11 @@ public class TurtlePlay {
         }
     }
 
-    public void settings(controllers.Game.Difficulty difficulty, String team1Name, String team2Name, 
+    public void settings(controllers.Match.Difficulty difficulty, String team1Name, String team2Name, 
                      String playerName, String teamMate, String enemyMate1, String enemyMate2) {
         // Set up the teams
         match.initializeGameSettings(
-            difficulty != null ? difficulty : controllers.Game.Difficulty.EASY,
+            difficulty != null ? difficulty : controllers.Match.Difficulty.LEARN,
             team1Name != null ? team1Name : "Team 1",
             team2Name != null ? team2Name : "Team 2",
             playerName != null ? playerName : "You",
@@ -175,9 +175,9 @@ public class TurtlePlay {
     public void setDifficulty(String difficulty) {
         if (difficulty != null) {
             switch (difficulty.toUpperCase()) {
-            case "EASY" -> this.customDifficulty = controllers.Game.Difficulty.EASY;
-            case "NORMAL" -> this.customDifficulty = controllers.Game.Difficulty.NORMAL;
-            case "HARD" -> this.customDifficulty = controllers.Game.Difficulty.HARD;
+            case "LEARN" -> this.customDifficulty = controllers.Match.Difficulty.LEARN;
+            case "NORMAL" -> this.customDifficulty = controllers.Match.Difficulty.NORMAL;
+            case "PRO" -> this.customDifficulty = controllers.Match.Difficulty.PRO;
             default -> {
                 System.out.println("Invalid difficulty. Please choose EASY, NORMAL, or HARD.");
                 return;

@@ -17,7 +17,7 @@ import services.*;
 public class Match implements Cloneable { // Implement Cloneable{
 
     public enum Difficulty {
-        EASY, NORMAL, HARD, TEST
+        LEARN, NORMAL, PRO,
     }
 
     public enum MatchPhase {
@@ -94,12 +94,7 @@ public class Match implements Cloneable { // Implement Cloneable{
         clonedMatch.endGame = this.endGame;
         clonedMatch.startRound = this.startRound;
         clonedMatch.currentPhase = this.currentPhase;
-
-        // Clone snapshots stack (deep clone all stored Match objects)
-        clonedMatch.snapshots.clear(); // Clear any existing references
-        for (Match snap : this.snapshots) {
-            clonedMatch.snapshots.push(snap.clone());
-        }
+        System.out.println("Clone match snapshot count: " + snapshots.size());
 
         return clonedMatch;
     }
@@ -118,7 +113,6 @@ public class Match implements Cloneable { // Implement Cloneable{
                     break;
                 }
                 // Initialize the game when all prerequisites are met
-                game = new Game(players, team1, team2, dealerIndex);
                 game.initializeGame();
                 assertInitialTeamState(team1);
                 assertInitialTeamState(team2);
@@ -239,7 +233,9 @@ public class Match implements Cloneable { // Implement Cloneable{
     }
 
     private void rotateDealer() {
-        dealerIndex = (dealerIndex + 1) % 4; // Rotate dealer index among 4 players
+        System.out.println("dealer rotated from " + dealerIndex); 
+        System.out.println("dealer rotated to " + (dealerIndex + 1) % 4);
+        this.dealerIndex = (dealerIndex + 1) % 4; // Rotate dealer index among 4 players
     }
     
     private void handleMatchEnd(Team winner) {
@@ -329,7 +325,11 @@ public class Match implements Cloneable { // Implement Cloneable{
     public void saveSnapshot() {
         try {
             Match snapshot = this.clone(); // Clone the match object
+            System.err.println("snapshot: " + snapshot);
+            System.out.println("Not Saved. Current snapshot count: " + snapshots.size());
             snapshots.push(snapshot);
+            System.out.println("Snapshot saved. Current snapshot count: " + snapshots.size());
+            System.err.println("snapshots: " + snapshots);
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("Snapshot saving failed", e);
         }
@@ -340,7 +340,7 @@ public class Match implements Cloneable { // Implement Cloneable{
             System.err.println("Cannot revert to previous snapshot at the start or end of the match!");
             return;
         }
-        if (getDifficulty() == Difficulty.HARD) {
+        if (getDifficulty() == Difficulty.PRO) {
             System.err.println("Reverting to a previous snapshot is not allowed on HARD difficulty!");
             return;
         }
