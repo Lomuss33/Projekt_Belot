@@ -1,3 +1,5 @@
+netstat -ano | findstr :50001
+taskkill /PID [PID_NUMBER] /F
 # Card Game Project: Belot
 
 A Java-based implementation of the classic Belot card game. This project features AI players with varying difficulty levels, undo functionality, Zvanje scoring, and more, all designed for a fun and strategic gameplay experience.
@@ -53,7 +55,7 @@ import controllers.*;
 import services.*;
 import ai.*;
 
-Match y = new Match(Game.Difficulty.EASY);
+Match y = new Match();
 y.play();
 ```
 
