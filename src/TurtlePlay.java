@@ -53,7 +53,7 @@ public class TurtlePlay {
                 drawGameStart(turtle, match);
             }
             case CHOOSING_TRUMP -> {
-                System.err.println("CHOOSING_TRUMP");
+                System.err.println("CHOOSING_TRUMP view");
                 turtle.moveTo(0,400);
                 turtle.text("📗", Font.COURIER, 2000, Font.Align.CENTER);
                 turtleOtherPlayers(turtle, match.players);
@@ -61,7 +61,7 @@ public class TurtlePlay {
                 turtleTrumpChoices(turtle, match.getCurrentGame());
             }
             case SHOW_ZVANJE -> {
-                System.err.println("SHOW_ZVANJE");
+                System.err.println("SHOW_ZVANJE view");
                 turtle.moveTo(0,400);
                 turtle.text("📙", Font.COURIER, 2000, Font.Align.CENTER);
                 turtleZvanjeResult(turtle, match.getCurrentGame());
@@ -123,15 +123,10 @@ public class TurtlePlay {
             System.out.println("Error: You cannot pick a trump at this phase! Current phase: " + match.getCurrentPhase());
             return; // Exit the method without advancing the game
         }
-        System.err.println("///////////////////////////////GameTrump picked: " + match.getCurrentGame().getTrumpSuit());
-        System.err.println("///////////////////////////////Player Trump picked: " + match.me.trumpChoice);
-
         // Proceed with trump selection if phase is valid
         match.pickTrump(choice);
-        // Move the game forward by calling play() to progress to the next phase
-        System.err.println("/////////////////////////////// Game Trump picked: " + match.getCurrentGame().getTrumpSuit());
-        System.err.println("///////////////////////////////Player Trump picked: " + match.me.trumpChoice);
 
+        // Move the game forward by calling play() to progress to the next phase
         this.play();
     }    
 

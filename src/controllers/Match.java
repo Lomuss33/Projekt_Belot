@@ -9,11 +9,9 @@ package controllers;
 
 import ai.HumanPlayer;
 import controllers.Game.Difficulty;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-
 import models.*;
 import services.*;
 
@@ -26,7 +24,7 @@ public class Match implements Cloneable { // Implement Cloneable{
         PLAYING_ROUNDS,
         END_OF_GAME,
         END_OF_MATCH
-        }
+    }
 
     public MatchPhase currentPhase;
     public Game game;
@@ -57,19 +55,49 @@ public class Match implements Cloneable { // Implement Cloneable{
     }    // Override clone for deep copying
 
     
+    // Match class
     @Override
     public Match clone() throws CloneNotSupportedException {
-        Match cloned = (Match) super.clone(); // Perform shallow copy
+        // Create shallow clone of Match instance
+        Match clonedMatch = (Match) super.clone();
 
-        // Deep clone mutable objects
-        cloned.team1 = (team1 != null) ? team1.clone() : null;
-        cloned.team2 = (team2 != null) ? team2.clone() : null;
-        cloned.game = (game != null) ? game.clone() : null;
-        cloned.winner = (winner != null) ? winner.clone() : null;
-        cloned.players = game.players;
-        cloned.me = (HumanPlayer) players.get(0);
+        // Deep clone teams
+        clonedMatch.team1 = (team1 != null) ? team1.clone() : null;
+        clonedMatch.team2 = (team2 != null) ? team2.clone() : null;
 
-        return cloned;       
+        // Deep clone players list (same deep-cloned players list is consistent across all)
+        clonedMatch.players = new ArrayList<>(this.players.size());
+        for (Player player : this.players) {
+            clonedMatch.players.add(player.clone());
+        }
+        // Change the cloned HumanPlayer reference to the cloned players list
+        clonedMatch.me = (HumanPlayer) clonedMatch.players.get(0);
+
+        // Deep clone the game and its internal hierarchy
+        if (game != null) {
+            clonedMatch.game = game.clone(); // Game will propagate the players and Round correctly
+            clonedMatch.game.players = clonedMatch.players;
+            // clonedMatch.game.setPlayers(clonedMatch.players); // Use the shared cloned players in Game
+            if (clonedMatch.game.currentRound != null) {
+                clonedMatch.game.currentRound.setPlayers(clonedMatch.players); // Use the shared cloned players in Round 
+            }
+        }
+
+        // Copy primitive fields and booleans
+        clonedMatch.dealerIndex = this.dealerIndex;
+        clonedMatch.gameCounter = this.gameCounter;
+        clonedMatch.startGame = this.startGame;
+        clonedMatch.endGame = this.endGame;
+        clonedMatch.startRound = this.startRound;
+        clonedMatch.currentPhase = this.currentPhase;
+
+        // Clone snapshots stack (deep clone all stored Match objects)
+        clonedMatch.snapshots.clear(); // Clear any existing references
+        for (Match snap : this.snapshots) {
+            clonedMatch.snapshots.push(snap.clone());
+        }
+
+        return clonedMatch;
     }
 
     public void play() {
@@ -246,9 +274,7 @@ public class Match implements Cloneable { // Implement Cloneable{
             return; // Exit the method without advancing the game
         }
         // Save the current state before proceeding
-        System.out.println("this player: " + me.hashCode());
         saveSnapshot(); 
-        System.out.println("this player: " + me.hashCode());
 
         if (choice < 0 || choice > 4) { // Ensure valid choice
             System.out.println("Invalid choice! Please select a number between 0 and 4.");
@@ -299,9 +325,6 @@ public class Match implements Cloneable { // Implement Cloneable{
     public void saveSnapshot() {
         try {
             Match snapshot = this.clone(); // Clone the match object
-            for (int i = 0; i < players.size(); i++) {
-                snapshot.players.set(i, players.get(i).clone()); // Deep-copy player states
-            }
             snapshots.push(snapshot);
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("Snapshot saving failed", e);
@@ -326,27 +349,12 @@ public class Match implements Cloneable { // Implement Cloneable{
             this.startRound = previousState.startRound;
             this.endGame = previousState.endGame;
     
-            // Reset variables needed for the current phase
-            resetPhaseState();
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("Snapshot restoration failed", e);
         }
-    }
 
-    private void resetPhaseState() {
-        switch (currentPhase) {
-            case CHOOSING_TRUMP:
-                if (me.trumpChoice == null) {
-                    System.out.println("Restoring CHOOSING_TRUMP phase. Waiting for player's trump choice...");
-                }
-                for (Player player : players) {
-                    player.setWaiting(false); // Ensure all players reset their waiting state
-                }
-                break;
-            // Add handling for other phases if needed
-        }
-    }    
-    
+        play(); // Resume the game from the previous state
+    }
 
     public void initializeGameSettings(Difficulty difficulty, String team1Name, String team2Name,  
                         String playerName, String teamMate, String enemyMate1, String enemyMate2) {

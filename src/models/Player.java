@@ -51,8 +51,9 @@ public abstract class Player implements Cloneable {
     @Override
     public Player clone() throws CloneNotSupportedException{ 
             Player cloned = (Player) super.clone(); // Shallow copy first
-            cloned.hand = this.hand.clone(); // Deep copy of the hand
-            cloned.team = this.team.clone(); // Deep copy of the team
+            cloned.hand = (this.hand != null) ? this.hand.clone() : null; // Deep copy of the hand if not null
+            cloned.team = this.team; // Deep copy of the team if not null
+            cloned.playableIndices = (playableIndices != null) ? new ArrayList<>(this.playableIndices) : null; // Deep copy of the playable indices	
             return cloned;
     }
 

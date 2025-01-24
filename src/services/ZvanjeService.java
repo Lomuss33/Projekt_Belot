@@ -21,17 +21,13 @@ public class ZvanjeService {
         }
     }
 
-    public static class ZvanjeResult {
+    public static class ZvanjeResult implements Cloneable {
 
-        private final List<ZvanjeType> zvanjeTypes;
-        private final List<Card> cardsOfZvanje;
-        private final ZvanjeType biggestZvanje;
-        private final Player player;
+        private List<ZvanjeType> zvanjeTypes;
+        private List<Card> cardsOfZvanje;
+        private ZvanjeType biggestZvanje;
+        private Player player;
         private int totalPoints;
-    
-        // public ZvanjeResult(Player player, List<ZvanjeType> zvanjeTypes) {
-        //     this(player, zvanjeTypes, 0, null, null);
-        // }
 
         public ZvanjeResult(Player player, List<ZvanjeType> zvanjeTypes, int totalPoints, ZvanjeType biggestZvanje, List<Card> cardsOfZvanje) {
             this.player = player;
@@ -39,6 +35,35 @@ public class ZvanjeService {
             this.totalPoints = totalPoints;
             this.biggestZvanje = biggestZvanje;
             this.cardsOfZvanje = new ArrayList<>(cardsOfZvanje);;
+        }
+
+        @Override
+        public ZvanjeResult clone() throws CloneNotSupportedException { 
+            try {
+                // Shallow clone ZvanjeResult
+                ZvanjeResult cloned = (ZvanjeResult) super.clone();
+    
+                // Use the *same* Player instance from the original ZvanjeResult
+                cloned.player = this.player; // No deep cloning occurs here
+    
+                // Use mutable deep clones for cards and ZvanjeTypes
+                cloned.cardsOfZvanje = new ArrayList<>();
+                for (Card card : this.cardsOfZvanje) {
+                    cloned.cardsOfZvanje.add(card.clone()); // Assuming Card implements Cloneable
+                }
+    
+                cloned.zvanjeTypes = new ArrayList<>(this.zvanjeTypes); // Enum values don’t need deep cloning
+    
+                // Copy primitive values
+                cloned.totalPoints = this.totalPoints;
+                cloned.biggestZvanje = this.biggestZvanje;
+    
+                return cloned;
+    
+            } catch (CloneNotSupportedException e) {
+                // This should never happen since Cloneable is implemented 
+                throw new AssertionError("Unexpected CloneNotSupportedException", e);
+            }
         }
 
         public List<Card> getCardsOfZvanje() {
@@ -56,10 +81,6 @@ public class ZvanjeService {
         public int getTotalPoints() {
             return totalPoints;
         }
-
-        public void setPoints(int points) {
-            this.totalPoints = points;
-        }
     
         public Player getPlayer() {
             return player;
@@ -68,6 +89,15 @@ public class ZvanjeService {
         public Team getWinningTeam() {
             return player.getTeam();
         }
+
+        public void setPoints(int points) {
+            this.totalPoints = points;
+        }
+
+        public void setPlayer(Player player) {
+            this.player = player;
+        }
+
     }
 
     public static ZvanjeResult biggestZvanje(List<ZvanjeResult> results) {

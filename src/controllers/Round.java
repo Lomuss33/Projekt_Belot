@@ -15,7 +15,7 @@ public class Round implements Cloneable {
     private List<Player> players;
     private Suit trumpSuit;
     private int startingPlayerIndex;
-    public List<Card> onFloorCards;
+    private List<Card> onFloorCards;
 
     public Round(List<Player> players, int startingPlayerIndex, Suit trumpSuit) {
         this.players = players;
@@ -27,15 +27,16 @@ public class Round implements Cloneable {
     @Override
     protected Round clone() throws CloneNotSupportedException {
         Round cloned = (Round) super.clone();
-        // Perform deep copies of mutable fields if necessary
-        cloned.onFloorCards = new ArrayList<>(this.onFloorCards);
-        for (Card card : this.onFloorCards) {
-            cloned.onFloorCards.add(card.clone()); // Clone each Card if Card supports cloning
+        // Shallow clone the players and on-floor cards
+        cloned.players = this.players != null ? new ArrayList<>(this.players) : new ArrayList<>();
+        cloned.onFloorCards = this.onFloorCards != null ? new ArrayList<>(this.onFloorCards) : new ArrayList<>();
+        if (this.onFloorCards != null) {
+            for (Card card : this.onFloorCards) {
+                cloned.onFloorCards.add(card.clone());
+            }
         }
-        cloned.players = new ArrayList<>(this.players.size());
-        for (Player player : this.players) {
-            cloned.players.add((Player) player.clone());
-        }
+        cloned.trumpSuit = this.trumpSuit;
+        cloned.startingPlayerIndex = this.startingPlayerIndex;
         return cloned;
     }
 
@@ -172,6 +173,26 @@ public class Round implements Cloneable {
 
     public List<Player> getPlayers() {
         return players;
+    }
+
+    public Player getPlayer(int index) {
+        return players.get(index);
+    }
+
+    public void setOnFloorCards(List<Card> onFloorCards) {
+        this.onFloorCards = onFloorCards;
+    }
+
+    public void setStartingPlayerIndex(int startingPlayerIndex) {
+        this.startingPlayerIndex = startingPlayerIndex;
+    }
+
+    public void setTrumpSuit(Suit trumpSuit) {
+        this.trumpSuit = trumpSuit;
+    }
+
+    public void setPlayers(List<Player> players) {
+        this.players = players;
     }
     
 }

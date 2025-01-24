@@ -48,35 +48,44 @@ public class Game implements Cloneable {
     }
 
     @Override
-    public Game clone() throws CloneNotSupportedException { 
-        Game clonedGame = (Game) super.clone(); // Create a shallow copy first
+    public Game clone() throws CloneNotSupportedException {
+        // Create shallow copy of Game instance
+        Game clonedGame = (Game) super.clone();
 
-        // Deep clone the teams
-        clonedGame.team1 = (team1 != null) ? team1.clone() : null; // Assuming Team implements proper clone()
+        // Deep clone teams
+        clonedGame.team1 = (team1 != null) ? team1.clone() : null;
         clonedGame.team2 = (team2 != null) ? team2.clone() : null;
 
-        // Deep clone the deck
-        clonedGame.deck = (deck != null) ? deck.clone() : null; // Assuming Deck implements proper clone()
+        // Deep clone players list
+        clonedGame.players = this.players;
 
-        // Deep clone the current round (if applicable)
-        clonedGame.currentRound = (currentRound != null) ? currentRound.clone() : null; // Assuming Round implements proper clone() 
-        if(clonedGame.currentRound != null) {
-            clonedGame.players = clonedGame.currentRound.getPlayers();
-            clonedGame.trumpSuit = clonedGame.currentRound.getTrumpSuit();
-        }else {
-            clonedGame.players = new ArrayList<>(players.size());
-            for (Player player : players) {
-                clonedGame.players.add((Player) player.clone());
-            }
+        // Deep clone deck (assuming Deck has a clone method)
+        clonedGame.deck = (deck != null) ? deck.clone() : null;
+
+        // Deep clone zvanjeWin (assuming ZvanjeResult has a clone method)
+        clonedGame.zvanjeWin = (zvanjeWin != null) ? zvanjeWin.clone() : null;
+        // Update the player reference in the cloned zvanjeWin
+        if (clonedGame.zvanjeWin != null) {
+            clonedGame.zvanjeWin.setPlayer(clonedGame.players.get(players.indexOf(zvanjeWin.getPlayer())));
         }
-        clonedGame.winTreshold = this.winTreshold;
+
+        // Deep clone currentRound
+        clonedGame.currentRound = (currentRound != null) ? currentRound.clone() : null;
+        if (clonedGame.currentRound != null) {
+            clonedGame.currentRound.setPlayers(clonedGame.players); // Update the players reference
+            clonedGame.currentRound.setTrumpSuit(this.trumpSuit); // Update the trump suit reference
+            clonedGame.currentRound.setStartingPlayerIndex(clonedGame.currentRound.getStartingPlayerIndex()); // Update the starting player index
+        }
+
+        // Copy primitive fields and enumerations (here they are immutable, so direct assignment is fine)
+        clonedGame.dealerIndex = this.dealerIndex;
         clonedGame.roundStarterIndex = this.roundStarterIndex;
         clonedGame.roundCount = this.roundCount;
+        clonedGame.winTreshold = this.winTreshold;
+        clonedGame.trumpSuit = this.trumpSuit; // Enums are immutable, so this is directly referenced
         clonedGame.teamPassed = this.teamPassed;
         clonedGame.midRound = this.midRound;
-        clonedGame.dealerIndex = this.dealerIndex;
 
-        // Return the fully deep-cloned object
         return clonedGame;
     }
 
@@ -354,6 +363,54 @@ public class Game implements Cloneable {
         this.trumpSuit = Card.Suit.values()[choice];
     }
 
+    public void setTeam1(Team team1) {
+        this.team1 = team1;
+    }
+
+    public void setTeam2(Team team2) {
+        this.team2 = team2;
+    }
+
+    public void setPlayers(List<Player> players) {
+        this.players = players;
+    }
+
+    public void setZvanjeWin(ZvanjeResult zvanjeWin) {
+        this.zvanjeWin = zvanjeWin;
+    }
+
+    public void setWinTreshold(int winTreshold) {
+        this.winTreshold = winTreshold;
+    }
+
+    public void setDeck(Deck deck) {
+        this.deck = deck;
+    }
+
+    public void setDealerIndex(int dealerIndex) {
+        this.dealerIndex = dealerIndex;
+    }
+
+    public void setRoundStarterIndex(int roundStarterIndex) {
+        this.roundStarterIndex = roundStarterIndex;
+    }
+
+    public void setRoundCount(int roundCount) {
+        this.roundCount = roundCount;
+    }
+
+    public void setTeamPassed(boolean teamPassed) {
+        this.teamPassed = teamPassed;
+    }
+
+    public void setMidRound(boolean midRound) {
+        this.midRound = midRound;
+    }
+
+    public void setCurrentRound(Round currentRound) {
+        this.currentRound = currentRound;
+    }
+
     public Team getTeam1() {
         return team1;
     }
@@ -364,6 +421,10 @@ public class Game implements Cloneable {
 
     public List<Player> getPlayers() {
         return players;
+    }
+    
+    public Player getPlayer(int index) {
+        return players.get(index);
     }
 
     public Player getZvanjeWinner() {

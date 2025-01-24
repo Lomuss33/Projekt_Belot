@@ -41,7 +41,6 @@ public class HumanPlayer extends Player implements Cloneable {
         // Step 2: Clone `trumpChoice` and `cardIndexChoice` fields
         System.err.println("trumpchoice: " + trumpChoice);
         cloned.trumpChoice = this.trumpChoice; // Enum: safe to copy directly
-        System.err.println("trumpchoice: " + trumpChoice);
         System.err.println("this player: " + this.hashCode());
         cloned.cardIndexChoice = this.cardIndexChoice; // Primitive field: safe to copy
 
