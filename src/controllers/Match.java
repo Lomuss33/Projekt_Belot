@@ -8,7 +8,6 @@
 package controllers;
 
 import ai.HumanPlayer;
-import controllers.Game.Difficulty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -16,6 +15,10 @@ import models.*;
 import services.*;
 
 public class Match implements Cloneable { // Implement Cloneable{
+
+    public enum Difficulty {
+        EASY, NORMAL, HARD, TEST
+    }
 
     public enum MatchPhase {
         START,
@@ -38,6 +41,7 @@ public class Match implements Cloneable { // Implement Cloneable{
     public boolean startGame;
     public boolean endGame;
     public boolean startRound;
+    public Difficulty difficulty;
     public final Stack<Match> snapshots = new Stack<>();
 
     public Match() {
@@ -332,6 +336,14 @@ public class Match implements Cloneable { // Implement Cloneable{
     }
 
     public void revertToPreviousSnapshot() { 
+        if (currentPhase == MatchPhase.START || currentPhase == MatchPhase.END_OF_MATCH ) {
+            System.err.println("Cannot revert to previous snapshot at the start or end of the match!");
+            return;
+        }
+        if (getDifficulty() == Difficulty.HARD) {
+            System.err.println("Reverting to a previous snapshot is not allowed on HARD difficulty!");
+            return;
+        }
         if (snapshots.isEmpty()) {
             System.err.println("No previous snapshot to revert to!");
             return;
@@ -358,6 +370,9 @@ public class Match implements Cloneable { // Implement Cloneable{
 
     public void initializeGameSettings(Difficulty difficulty, String team1Name, String team2Name,  
                         String playerName, String teamMate, String enemyMate1, String enemyMate2) {
+
+        // Print difficulty
+        System.out.println("Difficulty set: " + difficulty);
         // Set team names
         this.team1 = new Team(team1Name);
         this.team2 = new Team(team2Name);
@@ -401,5 +416,9 @@ public class Match implements Cloneable { // Implement Cloneable{
 
     public int getGameCounter() {
         return gameCounter;
+    }
+
+    public Difficulty getDifficulty() {
+        return difficulty;
     }
 }

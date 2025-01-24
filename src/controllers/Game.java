@@ -30,10 +30,6 @@ public class Game implements Cloneable {
     public boolean midRound;
     public Round currentRound;
 
-    public enum Difficulty {
-        EASY, NORMAL, HARD, TEST
-    }
-
     public Game(List<Player> players, Team team1, Team team2, int dealerIndex) {
         this.players = players;
         this.team1 = team1;
@@ -129,7 +125,6 @@ public class Game implements Cloneable {
             }
             return true;
         } else {
-            System.out.println("YOU ARE NEXT!");
             return false;
         }
     }
@@ -304,11 +299,7 @@ public class Game implements Cloneable {
                 //     Please make your choice (0-4): 
                 //     """);
                     // Wait for the human player to make a choice or return already made choice
-                    System.err.println("!!!!!!!!!!!!!!!!!!!!!!!humanChoice: " + ((HumanPlayer) currentPlayer).getTrumpChoice());
                     TrumpChoice humanChoice  = ((HumanPlayer) currentPlayer).getTrumpChoice();
-                    System.err.println("!!!!!!!!!!!!!!!!!!!!!!!humanChoice: " + humanChoice);
-                    System.err.println("!!!!!!!!!!!!!!!!!!!!!!!currentPlayer: " + currentPlayer.hashCode());
-                    System.out.println("player: " + currentPlayer.hashCode() + currentPlayer.getName());
                     if (humanChoice != null) { // If the player has made a choice
                         currentPlayer.setWaiting(true);
                         if (humanChoice == TrumpChoice.SKIP) {
@@ -458,6 +449,7 @@ public class Game implements Cloneable {
     public int getDealerIndex() {
         return dealerIndex;
     }
+
     public String teamPassed() {
         return teamPassed ? "YES" : "NO";
     }

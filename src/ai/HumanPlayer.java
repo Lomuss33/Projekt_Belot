@@ -25,10 +25,7 @@ public class HumanPlayer extends Player implements Cloneable {
 
     public HumanPlayer(String name, Team team) {
         super(name, team);
-        System.err.println("trumpchoice: " + trumpChoice);
         this.trumpChoice = null; // No choice made yet
-        System.err.println("trumpchoice: " + trumpChoice);
-        System.err.println("this player: " + this.hashCode());
         this.cardIndexChoice = -1; // No choice made yet
         this.choiceMade = false;
     }
@@ -39,9 +36,7 @@ public class HumanPlayer extends Player implements Cloneable {
         HumanPlayer cloned = (HumanPlayer) super.clone(); // Clone basic Player fields
 
         // Step 2: Clone `trumpChoice` and `cardIndexChoice` fields
-        System.err.println("trumpchoice: " + trumpChoice);
         cloned.trumpChoice = this.trumpChoice; // Enum: safe to copy directly
-        System.err.println("this player: " + this.hashCode());
         cloned.cardIndexChoice = this.cardIndexChoice; // Primitive field: safe to copy
 
         // Step 3: Return the cloned object
@@ -49,8 +44,6 @@ public class HumanPlayer extends Player implements Cloneable {
     }
 
     public TrumpChoice getTrumpChoice() {
-        System.err.println(")))))))))))))))))))))))))))) TRUMP CHOICE: " + trumpChoice);
-        System.err.println("this player: " + this.hashCode());
         return trumpChoice;
     }
 
@@ -89,8 +82,6 @@ public class HumanPlayer extends Player implements Cloneable {
                     return null; // No choice made yet
             }
             TrumpChoice result = trumpChoice; // Save the chosen suit to return
-            System.err.println("§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§ TRUMP CHOICE: " + trumpChoice);
-            System.err.println("this player: " + this.hashCode());
 
             trumpChoice = null; // Reset for the next game
             return result; // Return the choice to the game
@@ -106,9 +97,6 @@ public class HumanPlayer extends Player implements Cloneable {
             case 0 -> Player.TrumpChoice.SKIP;
             default -> throw new IllegalArgumentException("Invalid trump choice.");
         }; // Update the trump choice
-        System.err.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TRUMP CHOICE: " + trumpChoice);
-        System.err.println("this player: " + this.hashCode());
-
     }
 
     // Method called when card input arrives

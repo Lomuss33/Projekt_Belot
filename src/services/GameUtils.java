@@ -1,7 +1,7 @@
 package services;
 
 import ai.*;
-import controllers.Game.Difficulty;
+import controllers.Match.Difficulty;
 import java.util.ArrayList;
 import java.util.List;
 import models.*;
