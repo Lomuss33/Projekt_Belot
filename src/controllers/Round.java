@@ -68,7 +68,7 @@ public class Round implements Cloneable {
         startingPlayerIndex = players.indexOf(winner);
 
         // Award 10 points if this is the 7th round
-            if (i == 7) {
+        if (i == 7) {
             winner.getTeam().addSmalls(10);
             System.out.println("Bonus 10 points awarded to " + winner.getTeam().getName() + " for winning the 7th round!");
         }

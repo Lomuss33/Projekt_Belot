@@ -53,29 +53,25 @@ public class Game implements Cloneable {
         clonedGame.team2 = (team2 != null) ? team2.clone() : null;
 
         // Deep clone players list
-        clonedGame.players = this.players;
+        clonedGame.players = this.players != null ? new ArrayList<>(this.players) : new ArrayList<>();
 
         // Deep clone deck (assuming Deck has a clone method)
         clonedGame.deck = (deck != null) ? deck.clone() : null;
 
         // Deep clone zvanjeWin (assuming ZvanjeResult has a clone method)
         clonedGame.zvanjeWin = (zvanjeWin != null) ? zvanjeWin.clone() : null;
-        // Update the player reference in the cloned zvanjeWin
-        if (clonedGame.zvanjeWin != null && clonedGame.zvanjeWin.getTotalPoints() != 0) {
-            clonedGame.zvanjeWin.setPlayer(clonedGame.players.get(players.indexOf(zvanjeWin.getPlayer())));
-        }
 
-        // Deep clone currentRound
+        // Deep clone currentRound (assuming Round has a clone method)
         clonedGame.currentRound = (currentRound != null) ? currentRound.clone() : null;
         if (clonedGame.currentRound != null) {
-            clonedGame.currentRound.setPlayers(clonedGame.players); // Update the players reference
-            clonedGame.currentRound.setTrumpSuit(this.trumpSuit); // Update the trump suit reference
-            clonedGame.currentRound.setStartingPlayerIndex(clonedGame.currentRound.getStartingPlayerIndex()); // Update the starting player index
+            // Update the cloned round with the cloned players and trump suit
+            clonedGame.currentRound.setStartingPlayerIndex(roundStarterIndex);
+            clonedGame.currentRound.setTrumpSuit(trumpSuit);
         }
 
         // Copy primitive fields and enumerations (here they are immutable, so direct assignment is fine)
         clonedGame.dealerIndex = this.dealerIndex;
-        clonedGame.roundStarterIndex = this.roundStarterIndex;
+        clonedGame.roundStarterIndex = this.roundStarterIndex; 
         clonedGame.roundCount = this.roundCount;
         clonedGame.winTreshold = this.winTreshold;
         clonedGame.trumpSuit = this.trumpSuit; // Enums are immutable, so this is directly referenced
@@ -450,7 +446,15 @@ public class Game implements Cloneable {
         return dealerIndex;
     }
 
+    public Round getCurrentRound() {
+        return currentRound;
+    }
+
     public String teamPassed() {
         return teamPassed ? "YES" : "NO";
+    }
+
+    public Team getTrumpCallTeam() {
+        return players.get(dealerIndex).getTeam();
     }
 }

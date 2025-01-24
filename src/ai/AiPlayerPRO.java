@@ -14,9 +14,9 @@ package ai;
 import java.util.*;
 import models.*;
 
-public class AiPlayerHard extends Player {
+public class AiPlayerPRO extends Player {
 
-    public AiPlayerHard(String name, Team team) {
+    public AiPlayerPRO(String name, Team team) {
         super(name, team);
     }
 

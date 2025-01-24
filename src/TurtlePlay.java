@@ -1,3 +1,6 @@
+import java.util.List;
+
+import models.Player;
 
 Clerk.clear();
 
@@ -5,15 +8,7 @@ public class TurtlePlay {
 
     public Turtle turtle;
     public controllers.Match match;
-    private controllers.Match.Difficulty customDifficulty = controllers.Match.Difficulty.LEARN;
     private boolean matchStarted = false;
-    private String customTeam1Name = "Team 1";
-    private String customTeam2Name = "Team 2";
-    private String customPlayerName = "You";
-    private String customTeamMate = "Teammate"; 
-    private String customEnemy1 = "Rival_1"; 
-    private String customEnemy2 = "Rival_2"; 
-
 
     public TurtlePlay(Turtle turtle) {
         this.turtle = turtle; 
@@ -28,7 +23,7 @@ public class TurtlePlay {
     public void goBack() {
         if(match.getCurrentPhase() == controllers.Match.MatchPhase.START || match.getCurrentPhase() == controllers.Match.MatchPhase.END_OF_MATCH) {
             System.out.println("Cannot go back further than the start of the match.");
-            return;
+            return; 
         }
         match.revertToPreviousSnapshot();
         play();
@@ -45,7 +40,8 @@ public class TurtlePlay {
                 // Initialize with default basic settings
                 if(!matchStarted) {
                     System.out.println("Settings were not changed: Using default settings...");
-                    this.settings(customDifficulty, customTeam1Name, customTeam2Name, customPlayerName, customTeamMate, customEnemy1, customEnemy2);
+                    this.settings(match.difficulty, match.customTeam1Name, match.customTeam2Name, 
+                            match.customPlayerName, match.customTeamMate, match.customEnemy1, match.customEnemy2);
                     matchStarted = true;
                 }
                 turtle.moveTo(0,400);
@@ -57,7 +53,7 @@ public class TurtlePlay {
                 turtle.moveTo(0,400);
                 turtle.text("📗", Font.COURIER, 2000, Font.Align.CENTER);
                 turtleOtherPlayers(turtle, match.players);
-                turtleHand(turtle, match.me.getHand());
+                turtleHand(turtle, match.me);
                 turtleTrumpChoices(turtle, match.getCurrentGame());
             }
             case SHOW_ZVANJE -> {
@@ -70,7 +66,7 @@ public class TurtlePlay {
                 turtle.moveTo(0,400);
                 turtle.text("📗", Font.COURIER, 2000, Font.Align.CENTER);
                 turtleOtherPlayers(turtle, match.players);
-                turtleHand(turtle, match.me.getHand());
+                turtleHand(turtle, match.me);
                 turtleBigScore(turtle, match.players);
                 turtleSmallScore(turtle, match.players);
                 turtleGameInfo(turtle, match.getCurrentGame());
@@ -111,7 +107,7 @@ public class TurtlePlay {
             System.out.println("Error: You cannot start a game at this phase! Current phase: " + match.getCurrentPhase());
             return; // Exit the method without advancing the game
         }
-        match.startGame(true);
+        match.startGame();
         // Move the game forward by calling play() to progress to the next round
         this.play();
     }
@@ -135,7 +131,7 @@ public class TurtlePlay {
             System.out.println("Error: You cannot accept Zvanje at this phase! Current phase: " + match.getCurrentPhase());
             return; // Exit the method without advancing the game
         }
-        match.startRound(true);
+        match.startRound();
         // Move the game forward by calling play() to progress to the next round
         this.play();
     }
@@ -157,7 +153,7 @@ public class TurtlePlay {
             System.out.println("Error: You cannot end the game at this phase! Current phase: " + match.getCurrentPhase());
             return; // Exit the method without advancing the game
         }
-        match.endGame(true);
+        match.endGame();
         // Move the game forward by calling play() to progress to the next round
         this.play();
     }
@@ -169,52 +165,71 @@ public class TurtlePlay {
         }
         this.match = new controllers.Match();
         this.matchStarted = false;
+        match.endMatch();
         drawMatchStart(turtle);
     }
 
-    public void setDifficulty(String difficulty) {
-        if (difficulty != null) {
-            switch (difficulty.toUpperCase()) {
-            case "LEARN" -> this.customDifficulty = controllers.Match.Difficulty.LEARN;
-            case "NORMAL" -> this.customDifficulty = controllers.Match.Difficulty.NORMAL;
-            case "PRO" -> this.customDifficulty = controllers.Match.Difficulty.PRO;
-            default -> {
-                System.out.println("Invalid difficulty. Please choose EASY, NORMAL, or HARD.");
-                return;
-            }
-            }
-            System.out.println("Difficulty set to: " + difficulty);
+    public void setDifficulty(String difficultyName) {
+        try {
+            match.setDifficulty(difficultyName);
+        } catch (Exception e) {
+            System.out.println("Error setting difficulty in turtle: " + e.getMessage());
         }
     }
 
     public void setMyName(String playerName) {
-        if (playerName != null) {
-            this.customPlayerName = playerName;
+        try {
+            match.setMyName(playerName);
+        } catch (Exception e) {
+            System.out.println("Error setting player name in turtle: " + e.getMessage());
         }
     }
 
-    public void setPlayerNames(String playerName, String teamMate, String enemyMate1, String enemyMate2) {
-        if (playerName != null) {
-            this.customPlayerName = playerName;
-        }
-        if (teamMate != null) {
-            this.customTeamMate = teamMate;
-        }
-        if (enemyMate1 != null) {
-            this.customEnemy1 = enemyMate1;
-        }
-        if (enemyMate2 != null) {
-            this.customEnemy2 = enemyMate2;
+    public void setOtherNames(String teamMate, String enemyMate1, String enemyMate2) {
+        try {
+            match.setOtherNames(teamMate, enemyMate1, enemyMate2);
+        } catch (Exception e) {
+            System.out.println("Error setting other names in turtle: " + e.getMessage());
         }
     }
     
     public void setTeamNames(String team1Name, String team2Name) {
-        if (team1Name != null) {
-            this.customTeam1Name = team1Name;
+        try {
+            match.setTeamNames(team1Name, team2Name);
+        } catch (Exception e) {
+            System.out.println("Error setting team names: " + e.getMessage());
         }
-        if (team2Name != null) {
-            this.customTeam2Name = team2Name;
-        }
+    }
+
+    public void drawMatchStart(Turtle turtle) { 
+        turtle.moveTo(0,400);
+        turtle.text("📗", Font.COURIER, 2000, Font.Align.CENTER);
+        turtle.moveTo(300, 60);
+        turtle.text("Welcome to Bela!", Font.COURIER, 30, Font.Align.CENTER);
+        turtle.backward(60);
+        turtle.text("Game Settings", Font.COURIER, 20, Font.Align.CENTER);
+        turtle.moveTo(300, 390);
+        turtle.text("Start playing: play()", Font.COURIER, 25, Font.Align.CENTER);
+        turtle.moveTo(40, 150);
+        turtle.text("setDifficulty(String: LEARN | NORMAL | PRO)", Font.COURIER, 15, Font.Align.LEFT);
+        turtle.backward(20);
+        turtle.text("setMyName(String: Player name)", Font.COURIER, 15, Font.Align.LEFT);
+        turtle.backward(20);
+        turtle.text("setOtherNames(String: Teammate, Rival_1, Rival_2)", Font.COURIER, 15, Font.Align.LEFT);
+        turtle.backward(20);
+        turtle.text("setTeamNames(String: myTeam, rivalTeam)", Font.COURIER, 15, Font.Align.LEFT);
+        turtle.backward(20);
+        turtle.text("🔹Difficulty: " + match.difficulty.toString(), Font.COURIER, 15, Font.Align.LEFT);
+        turtle.backward(20);
+        turtle.text("🔹My Team name: " + match.customTeam1Name, Font.COURIER, 15, Font.Align.LEFT);
+        turtle.backward(20);
+        turtle.text("🔹My Team players: " + match.customPlayerName + " (you), " + match.customTeamMate, Font.COURIER, 15, Font.Align.LEFT);
+        turtle.backward(20);
+        turtle.text("🔹Rival Team name: " + match.customTeam2Name, Font.COURIER, 15, Font.Align.LEFT);
+        turtle.backward(20);
+        turtle.text("🔹Rival Team players: " + match.customEnemy1 + ", " + match.customEnemy2, Font.COURIER, 15, Font.Align.LEFT);
+        turtle.backward(20);
+
     }
 }
 
@@ -245,7 +260,7 @@ public void drawEndGame(Turtle turtle, controllers.Match match) {
     turtle.moveTo(300, 100);
     turtle.text("Game #" + (match.getGameCounter() + 1) + " ended!", Font.COURIER, 20, Font.Align.CENTER);
     turtle.penUp().backward(40);
-    turtle.text("Trump team passed? " + match.getCurrentGame().teamPassed(), Font.COURIER, 20, Font.Align.CENTER);
+    turtle.text("Trump team" + match.getCurrentGame().getTrumpCallTeam() + "passed? " + match.getCurrentGame().teamPassed(), Font.COURIER, 18, Font.Align.CENTER);
     turtle.backward(50);
     turtle.text("Points earned:", Font.COURIER, 20, Font.Align.CENTER);
     turtle.backward(30);
@@ -266,25 +281,6 @@ public void drawGameStart(Turtle turtle, controllers.Match match) {
     turtle.backward(120);
     turtle.text("Start this game with startGame()", Font.COURIER, 20, Font.Align.CENTER);
     turtlePlayerInfo(turtle, match);
-}
-
-public void drawMatchStart(Turtle turtle) { 
-    turtle.moveTo(0,400);
-    turtle.text("📗", Font.COURIER, 2000, Font.Align.CENTER);
-    turtle.moveTo(300, 60);
-    turtle.text("Welcome to Bela!", Font.COURIER, 25, Font.Align.CENTER);
-    turtle.backward(60);
-    turtle.text("Game starts with: play()", Font.COURIER, 25, Font.Align.CENTER);
-    turtle.backward(60);
-    turtle.text("Edit Game Settings or leave defaults:", Font.COURIER, 20, Font.Align.CENTER);
-    turtle.moveTo(40, 250);
-    turtle.text("🔹setDifficulty(String: EASY | NORMAL | HARD)", Font.COURIER, 15, Font.Align.LEFT);
-    turtle.backward(25);
-    turtle.text("🔹setMyName(String: Player name)", Font.COURIER, 15, Font.Align.LEFT);
-    turtle.backward(25);
-    turtle.text("🔹setPlayerNames(String: Player, Teammate, Rival_1, Rival_2)", Font.COURIER, 15, Font.Align.LEFT);
-    turtle.backward(25);
-    turtle.text("🔹setTeamNames(String: myTeam, rivalTeam)", Font.COURIER, 15, Font.Align.LEFT);
 }
 
 public void turtleZvanjeResult(Turtle turtle, controllers.Game game) {
@@ -463,8 +459,9 @@ public void turtleOnFloor(Turtle turtle, controllers.Round round) {
     }
 }
 
-void turtleHand(Turtle turtle, models.Hand yourHand) {
-    int handSize = yourHand.getSize();
+void turtleHand(Turtle turtle, models.Player player) {
+    int handSize = player.getHand().getSize(); 
+    System.out.println("player.getPlayableIndices(): " + player.getPlayableIndices());
     // Calculate the total width of the entire hand
     // Starting from "middle of the first card",
     int totalHandWidth = (handSize - 1) * (10 * 5 + 10);  // Total gaps & card widths AFTER the first card.
@@ -475,9 +472,17 @@ void turtleHand(Turtle turtle, models.Hand yourHand) {
     // Start drawing cards
     for (int i = 0; i < handSize; i++) {
         // Move to position of each card
+        System.out.println("player.getPlayableIndices(): " + player.getPlayableIndices());
+        if (player.getPlayableIndices() != null && player.getPlayableIndices().contains(i)) {
+            startingHeight = turtle.height - 20; // Adjust height for playable cards
+            turtle.color(0, 0, 0); // Black for playable cards
+        } else {
+            startingHeight = turtle.height - 5; // Normal height for non-playable cards
+            turtle.color(2, 2, 2); // Grey for non-playable cards
+        }
         turtle.moveTo(startingWidth + i * (10 * 5 + 10), startingHeight);
         // Draw the card at the current position
-        turtleCard(turtle, yourHand.getCard(i));
+        turtleCard(turtle, player.getHand().getCard(i));
     }
 }
 

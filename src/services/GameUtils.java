@@ -20,19 +20,19 @@ public class GameUtils {
         // Create AI players based on difficulty
         switch (difficulty) {
             case LEARN:
-                players.add(new AiPlayerEasy(enemyMate1, team2)); // Bot 1 in Team 2
-                players.add(new AiPlayerEasy(teamMate, team1)); // Bot 2 in Team 1
-                players.add(new AiPlayerEasy(enemyMate2, team2)); // Bot 3 in Team 2
+                players.add(new AiPlayerLEARN(enemyMate1, team2)); // Bot 1 in Team 2
+                players.add(new AiPlayerLEARN(teamMate, team1)); // Bot 2 in Team 1
+                players.add(new AiPlayerLEARN(enemyMate2, team2)); // Bot 3 in Team 2
                 break;
             case NORMAL:
-                players.add(new AiPlayerNormal(enemyMate1, team2));
-                players.add(new AiPlayerNormal(teamMate, team1));
-                players.add(new AiPlayerNormal(enemyMate2, team2));
+                players.add(new AiPlayerNORMAL(enemyMate1, team2));
+                players.add(new AiPlayerNORMAL(teamMate, team1));
+                players.add(new AiPlayerNORMAL(enemyMate2, team2));
                 break;
             case PRO:
-                players.add(new AiPlayerHard(enemyMate1, team2));
-                players.add(new AiPlayerHard(teamMate, team1));
-                players.add(new AiPlayerHard(enemyMate2, team2));
+                players.add(new AiPlayerPRO(enemyMate1, team2));
+                players.add(new AiPlayerPRO(teamMate, team1));
+                players.add(new AiPlayerPRO(enemyMate2, team2));
                 break;
         }
         return players;
