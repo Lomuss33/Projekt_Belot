@@ -67,9 +67,6 @@ public class AiPlayerNORMAL extends Player {
         System.out.println(name + " chooses " + strongestSuit);
         return Player.TrumpChoice.valueOf(strongestSuit.name());
     }
-    
-    
-
 
     // Group cards by suit
     private Map<Card.Suit, List<Card>> groupBySuit(List<Card> cards) {

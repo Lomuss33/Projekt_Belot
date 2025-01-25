@@ -29,21 +29,25 @@ public class Match implements Cloneable { // Implement Cloneable{
         END_OF_MATCH
     }
 
-    public MatchPhase currentPhase;
+    public static final int WINNING_SCORE = 1001; // The score required to win the match
+    private MatchPhase currentPhase;
+    public final Stack<Match> snapshots = new Stack<>();
     public Game game;
     public int gameCounter;
+    public Difficulty difficulty;    
+
     public Team team1, team2;
     public List<Player> players;
-    public int dealerIndex;
-    public static final int WINNING_SCORE = 101; // The score required to win the match
     public HumanPlayer me;
-    public Team winner; // Reference to the winning team 
+    public Team winner;
+    public int dealerIndex;
+
     public boolean startGame;
     public boolean endGame;
     public boolean startRound;
     public boolean endMatch;
-    public Difficulty difficulty; // Default difficulty
-    public final Stack<Match> snapshots = new Stack<>();
+
+    public Difficulty customDifficulty = Difficulty.LEARN; 
     public String customTeam1Name = "Team 1";
     public String customPlayerName = "You";
     public String customTeamMate = "Teammate"; 
@@ -51,72 +55,15 @@ public class Match implements Cloneable { // Implement Cloneable{
     public String customEnemy2 = "Rival_2"; 
     public String customTeam2Name = "Team 2";
 
+    // Match constructor
     public Match() {
-        this.team1 = null;  // Initialize as placeholders
-        this.team2 = null;
-        this.players = null;
-        this.game = null;
-        this.me = null;
-        this.dealerIndex = 3;  // Default to player 0 as dealer initially
-        this.currentPhase = MatchPhase.START; // Initial phase
-        this.gameCounter = 0; // No games played yet
-        this.startGame = false; // Phase progression is off initially
+        this.currentPhase = MatchPhase.START;
+        this.gameCounter = 0;
+        this.dealerIndex = 3;  // Default HumanPlayer starts the game
+        this.startGame = false;
         this.endGame = false;
-        this.startRound = false;
+        this.startRound = false; 
         this.endMatch = false;
-        this.difficulty = Difficulty.LEARN;
-    }    // Override clone for deep copying
-
-    @Override
-    public Match clone() throws CloneNotSupportedException {
-        // Create shallow clone of Match instance
-        Match clonedMatch = (Match) super.clone();
-
-        // Deep clone teams
-        clonedMatch.team1 = (team1 != null) ? team1.clone() : null;
-        clonedMatch.team2 = (team2 != null) ? team2.clone() : null;
-
-        // Deep clone players list (same deep-cloned players list is consistent across all)
-        clonedMatch.players = new ArrayList<>(this.players.size());
-        for (Player player : this.players) {
-            clonedMatch.players.add(player.clone());
-        }
-        // Change the cloned HumanPlayer reference to the cloned players list
-        clonedMatch.me = (HumanPlayer) clonedMatch.players.get(0);
-
-        // Deep clone the game and its internal hierarchy
-        makeGameClone(clonedMatch);
-
-        // Deep clone currentRound
-        clonedMatch.game.currentRound = (game.currentRound != null) ? game.getCurrentRound().clone() : null;
-        if (clonedMatch.game.currentRound != null) {
-            clonedMatch.game.currentRound.setPlayers(clonedMatch.players); // Update the players reference
-        }
-        // Copy primitive fields and booleans
-        clonedMatch.dealerIndex = this.dealerIndex;
-        clonedMatch.gameCounter = this.gameCounter;
-        clonedMatch.currentPhase = this.currentPhase;
-        clonedMatch.difficulty = this.difficulty;
-
-        System.out.println("Clone match snapshot count: " + snapshots.size());
-        return clonedMatch;
-    }
-
-    private void makeGameClone(Match clonedMatch) throws CloneNotSupportedException {
-        if (game != null) {
-            clonedMatch.game = game.clone(); // Game will propagate the players and Round correctly
-            clonedMatch.game.players = clonedMatch.players;
-            clonedMatch.game.setTeam1(clonedMatch.team1);
-            clonedMatch.game.setTeam2(clonedMatch.team2);
-            // clonedMatch.game.setPlayers(clonedMatch.players); // Use the shared cloned players in Game
-            if (clonedMatch.game.currentRound != null) {
-                clonedMatch.game.currentRound.setPlayers(clonedMatch.players); // Use the shared cloned players in Round 
-            }
-                // Update the player reference in the cloned game zvanjeWin
-            if (clonedMatch.game.zvanjeWin != null && clonedMatch.game.zvanjeWin.getTotalPoints() != 0) {
-                clonedMatch.game.zvanjeWin.setPlayer(clonedMatch.game.players.get(players.indexOf(game.zvanjeWin.getPlayer())));
-            }
-        }
     }
 
     // Play method to advance the game through different phases of the match
@@ -166,7 +113,7 @@ public class Match implements Cloneable { // Implement Cloneable{
     private void checkSettings() {
 
         if (difficulty == null) {
-            this.difficulty = Difficulty.LEARN;
+            this.difficulty = customDifficulty;
         }
         if (team1 == null || team2 == null) {
             this.team1 = new Team(customTeam1Name);
@@ -603,5 +550,59 @@ public class Match implements Cloneable { // Implement Cloneable{
 
     public Difficulty getDifficulty() {
         return difficulty;
+    }
+
+    // Clone the Match object to save snapshots
+    @Override
+    public Match clone() throws CloneNotSupportedException {
+        // Create shallow clone of Match instance
+        Match clonedMatch = (Match) super.clone();
+
+        // Deep clone teams
+        clonedMatch.team1 = (team1 != null) ? team1.clone() : null;
+        clonedMatch.team2 = (team2 != null) ? team2.clone() : null;
+
+        // Deep clone players list (same deep-cloned players list is consistent across all)
+        clonedMatch.players = new ArrayList<>(this.players.size());
+        for (Player player : this.players) {
+            clonedMatch.players.add(player.clone());
+        }
+        // Change the cloned HumanPlayer reference to the cloned players list
+        clonedMatch.me = (HumanPlayer) clonedMatch.players.get(0);
+
+        // Deep clone the game and its internal hierarchy
+        makeGameClone(clonedMatch);
+
+        // Deep clone currentRound
+        clonedMatch.game.currentRound = (game.currentRound != null) ? game.getCurrentRound().clone() : null;
+        if (clonedMatch.game.currentRound != null) {
+            clonedMatch.game.currentRound.setPlayers(clonedMatch.players); // Update the players reference
+        }
+        // Copy primitive fields and booleans
+        clonedMatch.dealerIndex = this.dealerIndex;
+        clonedMatch.gameCounter = this.gameCounter;
+        clonedMatch.currentPhase = this.currentPhase;
+        clonedMatch.difficulty = this.difficulty;
+
+        System.out.println("Clone match snapshot count: " + snapshots.size());
+        return clonedMatch;
+    }
+
+    // Deep clone the game and its internal hierarchy
+    private void makeGameClone(Match clonedMatch) throws CloneNotSupportedException {
+        if (game != null) {
+            clonedMatch.game = game.clone(); // Game will propagate the players and Round correctly
+            clonedMatch.game.players = clonedMatch.players;
+            clonedMatch.game.setTeam1(clonedMatch.team1);
+            clonedMatch.game.setTeam2(clonedMatch.team2);
+            // clonedMatch.game.setPlayers(clonedMatch.players); // Use the shared cloned players in Game
+            if (clonedMatch.game.currentRound != null) {
+                clonedMatch.game.currentRound.setPlayers(clonedMatch.players); // Use the shared cloned players in Round 
+            }
+                // Update the player reference in the cloned game zvanjeWin
+            if (clonedMatch.game.zvanjeWin != null && clonedMatch.game.zvanjeWin.getTotalPoints() != 0) {
+                clonedMatch.game.zvanjeWin.setPlayer(clonedMatch.game.players.get(players.indexOf(game.zvanjeWin.getPlayer())));
+            }
+        }
     }
 }

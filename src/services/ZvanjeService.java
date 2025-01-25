@@ -37,35 +37,6 @@ public class ZvanjeService {
             this.cardsOfZvanje = new ArrayList<>(cardsOfZvanje);;
         }
 
-        @Override
-        public ZvanjeResult clone() throws CloneNotSupportedException { 
-            try {
-                // Shallow clone ZvanjeResult
-                ZvanjeResult cloned = (ZvanjeResult) super.clone();
-    
-                // Use the *same* Player instance from the original ZvanjeResult
-                cloned.player = this.player; // No deep cloning occurs here
-    
-                // Use mutable deep clones for cards and ZvanjeTypes
-                cloned.cardsOfZvanje = new ArrayList<>();
-                for (Card card : this.cardsOfZvanje) {
-                    cloned.cardsOfZvanje.add(card.clone()); // Assuming Card implements Cloneable
-                }
-    
-                cloned.zvanjeTypes = new ArrayList<>(this.zvanjeTypes); // Enum values don’t need deep cloning
-    
-                // Copy primitive values
-                cloned.totalPoints = this.totalPoints;
-                cloned.biggestZvanje = this.biggestZvanje;
-    
-                return cloned;
-    
-            } catch (CloneNotSupportedException e) {
-                // This should never happen since Cloneable is implemented 
-                throw new AssertionError("Unexpected CloneNotSupportedException", e);
-            }
-        }
-
         public List<Card> getCardsOfZvanje() {
             return cardsOfZvanje;
         }
@@ -96,6 +67,35 @@ public class ZvanjeService {
 
         public void setPlayer(Player player) {
             this.player = player;
+        }
+
+        @Override
+        public ZvanjeResult clone() throws CloneNotSupportedException { 
+            try {
+                // Shallow clone ZvanjeResult
+                ZvanjeResult cloned = (ZvanjeResult) super.clone();
+    
+                // Use the *same* Player instance from the original ZvanjeResult
+                cloned.player = this.player; // No deep cloning occurs here
+    
+                // Use mutable deep clones for cards and ZvanjeTypes
+                cloned.cardsOfZvanje = new ArrayList<>();
+                for (Card card : this.cardsOfZvanje) {
+                    cloned.cardsOfZvanje.add(card.clone()); // Assuming Card implements Cloneable
+                }
+    
+                cloned.zvanjeTypes = new ArrayList<>(this.zvanjeTypes); // Enum values don’t need deep cloning
+    
+                // Copy primitive values
+                cloned.totalPoints = this.totalPoints;
+                cloned.biggestZvanje = this.biggestZvanje;
+    
+                return cloned;
+    
+            } catch (CloneNotSupportedException e) {
+                // This should never happen since Cloneable is implemented 
+                throw new AssertionError("Unexpected CloneNotSupportedException", e);
+            }
         }
 
     }
