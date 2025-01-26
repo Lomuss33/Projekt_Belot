@@ -119,48 +119,40 @@ public class ZvanjeService {
         // Choose the result closest to dealer (who got their result first)
         return topResults.get(0);
     }
-    
 
+    // detectPlayerZvanje
     // Detect all Zvanje types for a player
     public static ZvanjeResult detectPlayerZvanje(Player player, Card.Suit trumpSuit) {
         if (player == null || player.getHand() == null || player.getHand().getCards().isEmpty()) {
             return new ZvanjeResult(player, Collections.emptyList(), 0, null, Collections.emptyList());
         }
-    
         List<Card> cards = player.getHand().getCards();
-    
         List<ZvanjeType> detectedZvanjeTypes = new ArrayList<>();
         Map<ZvanjeType, List<Card>> cardsUsedForZvanjeMap = new HashMap<>(); // New map to track cards used for Zvanje
-    
         // Detect four-of-a-kind Zvanje
         detectFourOfAKind(groupByRank(cards), detectedZvanjeTypes, cardsUsedForZvanjeMap);
-    
         // Detect sequences
         groupBySuit(cards).values().forEach(suitCards ->
             detectSequences(suitCards, detectedZvanjeTypes, cardsUsedForZvanjeMap)
         );
-    
         // Detect special combinations like BELA
         detectBela(cards, trumpSuit, detectedZvanjeTypes, cardsUsedForZvanjeMap);
-    
         // Combine all cards used for Zvanje
         List<Card> cardsUsedForZvanje = cardsUsedForZvanjeMap.values()
             .stream()
             .flatMap(Collection::stream)
             .distinct()
             .collect(Collectors.toList());
-    
         // Calculate total points and determine the biggest Zvanje
         int totalPoints = detectedZvanjeTypes.stream()
             .mapToInt(ZvanjeType::getPoints)
             .sum();
-    
         ZvanjeType biggestZvanje = detectedZvanjeTypes.stream()
             .max(Comparator.comparingInt(ZvanjeType::getPoints))
             .orElse(null);
-    
         return new ZvanjeResult(player, detectedZvanjeTypes, totalPoints, biggestZvanje, cardsUsedForZvanje);
     }
+    // detectPlayerZvanje
     
     // Group cards by rank
     private static Map<Card.Rank, List<Card>> groupByRank(List<Card> cards) {
@@ -171,8 +163,6 @@ public class ZvanjeService {
     private static Map<Card.Suit, List<Card>> groupBySuit(List<Card> cards) {
         return cards.stream().collect(Collectors.groupingBy(Card::getSuit));
     }
-
-
 
     private static void detectFourOfAKind(Map<Card.Rank, List<Card>> rankGroups, List<ZvanjeType> zvanjeTypes, Map<ZvanjeType, List<Card>> cardsUsedForZvanjeMap) {
         rankGroups.forEach((rank, groupedCards) -> {

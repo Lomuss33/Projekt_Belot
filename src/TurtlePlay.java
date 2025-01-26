@@ -1,9 +1,3 @@
-import java.util.List;
-
-import models.Player;
-
-Clerk.clear();
-
 public class TurtlePlay {
 // turtle tree
     public Turtle turtle;
@@ -17,16 +11,6 @@ public class TurtlePlay {
         this.match = new controllers.Match(); 
         System.out.println("TurtlePlay initialized. Please call settings() to customize the match.");
         drawMatchStart(turtle); // Draws the initial start screen
-    }
-    
-    // If user wants to go back one step, just call:
-    public void goBack() {
-        if(match.getCurrentPhase() == controllers.Match.MatchPhase.START || match.getCurrentPhase() == controllers.Match.MatchPhase.END_OF_MATCH) {
-            System.out.println("Cannot go back further than the start of the match.");
-            return; 
-        }
-        match.revertToPreviousSnapshot();
-        play();
     }
 
     public void play() {
@@ -45,7 +29,7 @@ public class TurtlePlay {
                     matchStarted = true;
                 }
                 turtle.moveTo(0,400);
-                turtle.text("📓", Font.COURIER, 2500, Font.Align.CENTER);
+                turtle.text("📙", Font.COURIER, 2500, Font.Align.CENTER);
                 drawGameStart(turtle, match);
             }
             case CHOOSING_TRUMP -> {
@@ -67,8 +51,13 @@ public class TurtlePlay {
                 turtle.text("📗", Font.COURIER, 2000, Font.Align.CENTER);
                 turtleOtherPlayers(turtle, match.players);
                 turtleHand(turtle, match.me);
-                turtleBigScore(turtle, match.players);
-                turtleSmallScore(turtle, match.players);
+                if (match.difficulty == GameUtils.Difficulty.NORMAL) {
+                    turtleBigScore(turtle, match.players);
+                } else if (match.difficulty == GameUtils.Difficulty.LEARN) {
+                    turtleBigScore(turtle, match.players);
+                    turtleSmallScore(turtle, match.players);
+                    turtleGameZvanje(turtle, match.getCurrentGame());
+                }
                 turtleGameInfo(turtle, match.getCurrentGame());
                 turtleOnFloor(turtle, match.getCurrentRound());
                 turtleStartingPlayer(turtle, match.getCurrentRound());
@@ -87,11 +76,11 @@ public class TurtlePlay {
         }
     }
 
-    public void settings(controllers.Match.Difficulty difficulty, String team1Name, String team2Name, 
+    public void settings(GameUtils.Difficulty difficulty, String team1Name, String team2Name, 
                      String playerName, String teamMate, String enemyMate1, String enemyMate2) {
         // Set up the teams
         match.initializeGameSettings(
-            difficulty != null ? difficulty : controllers.Match.Difficulty.LEARN,
+            difficulty != null ? difficulty : GameUtils.Difficulty.LEARN, 
             team1Name != null ? team1Name : "Team 1",
             team2Name != null ? team2Name : "Team 2",
             playerName != null ? playerName : "You",
@@ -99,6 +88,16 @@ public class TurtlePlay {
             enemyMate1 != null ? enemyMate1 : "Enemy 1",
             enemyMate2 != null ? enemyMate2 : "Enemy 2"
         );
+    }
+
+    // If user wants to go back one step, just call:
+    public void goBack() {
+        if(match.getCurrentPhase() == controllers.Match.MatchPhase.START || match.getCurrentPhase() == controllers.Match.MatchPhase.END_OF_MATCH) {
+            System.out.println("Cannot go back further than the start of the match.");
+            return; 
+        }
+        match.goBack();
+        play();
     }
 
     // Method to be called from the GUI when the human player accepts the zvanje
@@ -275,10 +274,12 @@ public void drawEndGame(Turtle turtle, controllers.Match match) {
 
 public void drawGameStart(Turtle turtle, controllers.Match match) { 
     turtle.moveTo(300, 100);
-    turtle.text("Game #" + (match.getGameCounter() + 1) + " starting!", Font.COURIER, 20, Font.Align.CENTER);
+    turtle.text("Game #" + (match.getGameCounter() + 1) + " starting!", Font.COURIER, 25, Font.Align.CENTER);
     turtle.penUp().backward(80);
     turtle.text("🃏", Font.COURIER, 60, Font.Align.CENTER);
     turtle.backward(120);
+    turtle.text("Difficulty: " + match.customDifficulty.toString(), Font.COURIER, 15, Font.Align.CENTER);
+    turtle.backward(60);
     turtle.text("Start this game with startGame()", Font.COURIER, 20, Font.Align.CENTER);
     turtlePlayerInfo(turtle, match);
 }
@@ -389,14 +390,13 @@ public void turtleStartingPlayer(Turtle turtle, controllers.Round round) {
 
 public void turtleGameInfo(Turtle turtle, controllers.Game game) {
     // Display the trump suit for the round
-    turtle.moveTo(600, 20);
-    turtle.text("Trump: " + game.getTrumpSuit().getSymbol(), Font.COURIER, 20, Font.Align.RIGHT);
-    turtle.backward(20);
-    if(game.getZvanjePoints() != 0) {
-        turtle.text("Zvanje: " + game.getZvanjePoints() + "pts " + game.getZvanjeWinner(), Font.COURIER, 20, Font.Align.RIGHT);
-    } else {
-        turtle.text("Zvanje: None", Font.COURIER, 20, Font.Align.RIGHT);
-    }
+    turtle.moveTo(600, 15);
+    turtle.text("Trump: " + game.getTrumpSuit().getSymbol(), Font.COURIER, 15, Font.Align.RIGHT);
+    turtle.backward(15);
+    turtle.backward(15);
+    turtle.text("Dealer: " + game.getDealer(), Font.COURIER, 15, Font.Align.RIGHT);
+    turtle.backward(15);
+    turtle.text("Difficulty: " + game.getDifficulty().toString(), Font.COURIER, 15, Font.Align.RIGHT);
 }
 
 public void turtleTrumpChoices(Turtle turtle, controllers.Game game) {
@@ -524,23 +524,26 @@ public void turtleBigScore(Turtle turtle, List<models.Player> players) {
     for (int i = 0; i < teamCount; i++) {
         models.Team team = players.get(i).getTeam();
         turtle.text(team.getName() + " bigs: " + team.getBigs(), Font.COURIER, 10, Font.Align.LEFT);
-        turtle.backward(1 * 10);
+        turtle.backward(10);
     }
 }
 
 // Print the small scores for each team
 public void turtleSmallScore(Turtle turtle, List<models.Player> players) {
     int teamCount = 2;
-    turtle.moveTo(10, 50);
+    turtle.moveTo(10, 40);
     for (int i = 0; i < teamCount; i++) {
         models.Team team = players.get(i).getTeam();
         turtle.text(team.getName() + " smalls: " + team.getSmalls(), Font.COURIER, 10, Font.Align.LEFT);
-        turtle.backward(1 * 10);
+        turtle.backward(10);
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// TURTLE PLAY
-/// 
-Turtle t = new Turtle(600, 400);
-TurtlePlay x = new TurtlePlay(t);
+public void turtleGameZvanje(Turtle turtle, controllers.Game game) {
+    turtle.moveTo(10, 60);
+    if(game.getZvanjePoints() != 0) {
+        turtle.text("Zvanje: " + game.getZvanjePoints() + "pts " + game.getZvanjeWinner(), Font.COURIER, 10, Font.Align.LEFT);
+    } else {
+        turtle.text("Zvanje: None", Font.COURIER, 10, Font.Align.LEFT);
+    }
+}

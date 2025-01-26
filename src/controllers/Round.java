@@ -9,6 +9,7 @@ package controllers;
 import java.util.*;
 import models.*;
 import models.Card.Suit;
+import services.GameUtils.Difficulty;
 import services.RoundUtils;
 
 public class Round implements Cloneable {
@@ -16,11 +17,13 @@ public class Round implements Cloneable {
     private Suit trumpSuit;
     private int startingPlayerIndex;
     private List<Card> onFloorCards;
+    private Difficulty difficulty;
 
-    public Round(List<Player> players, int startingPlayerIndex, Suit trumpSuit) {
+    public Round(List<Player> players, int startingPlayerIndex, Suit trumpSuit, Difficulty difficulty) {
         this.players = players;
         this.startingPlayerIndex = startingPlayerIndex;
         this.trumpSuit = trumpSuit;
+        this.difficulty = difficulty;
         this.onFloorCards = new ArrayList<>();
     }
 
@@ -40,33 +43,26 @@ public class Round implements Cloneable {
         return cloned;
     }
 
-    // WHY ALWAYS int 1 return
     // Return winner index of round, if HumanPlayer hast played returns -1
     public int playTurns(int i) {
-
         for (int turn = 0; turn < players.size(); turn++) { // Resume from the current turn
             Player currentPlayer = players.get((startingPlayerIndex + turn) % 4);
             // Skip the player if he has already made a decision
-            if(currentPlayer.isWaiting()) {
-                continue;
-            } 
+            if(currentPlayer.isWaiting()) continue;
             // Calculate playable card indexes and let the player choose one
             int cardBeingPlay = throwCard(currentPlayer);
-
             if (cardBeingPlay == -1) { // HumanPlayer has not made a choice yet
                 printOnFloorCards(startingPlayerIndex);
                 System.err.println("Playable Indexes: " + currentPlayer.getPlayableIndices());
                 currentPlayer.displayHand(); // Print the hand of the player
                 return -1;
             }
-
         }
         printOnFloorCards(startingPlayerIndex);
         System.out.println();
         // Determine the round winner
         Player winner = returnWinner(startingPlayerIndex);
         startingPlayerIndex = players.indexOf(winner);
-
         // Award 10 points if this is the 7th round
         if (i == 7) {
             winner.getTeam().addSmalls(10);
@@ -79,14 +75,22 @@ public class Round implements Cloneable {
         onFloorCards.clear();
         // Return the index of the next starting player
         return players.indexOf(winner);
-        
     }
 
     // INFO: getPlayableIndices() resets
     private List<Integer> calcPlayableIndices(Player currentPlayer) {
-        // Get playable card indexes
-        List<Integer> playableIndexes = RoundUtils.findPlayableCardIndexes(
-            currentPlayer.getHand().getCards(), onFloorCards, trumpSuit);
+        List<Integer> playableIndexes;
+        if (difficulty == Difficulty.LEARN || difficulty == Difficulty.PRO) {
+            // If difficulty is LEARN, all indices from hand size are playable
+            playableIndexes = new ArrayList<>();
+            for (int i = 0; i < currentPlayer.getHand().getSize(); i++) {
+                playableIndexes.add(i);
+            }
+        } else {
+            // Get playable card indexes
+            playableIndexes = RoundUtils.findPlayableCardIndexes(
+                currentPlayer.getHand().getCards(), onFloorCards, trumpSuit);
+        }
 
         // Set the playable card indexes for the player
         currentPlayer.setPlayableIndices(playableIndexes);
@@ -105,6 +109,7 @@ public class Round implements Cloneable {
         }
  
         // Choose a card to play
+        
         int chosenIndex = currentPlayer.chooseCardToPlay(playableIndexes);
 
         if(chosenIndex == -1) { // Keep waiting until a valid choice is made
@@ -194,5 +199,9 @@ public class Round implements Cloneable {
     public void setPlayers(List<Player> players) {
         this.players = players;
     }
+
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
+    } 
     
 }

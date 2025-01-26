@@ -28,22 +28,16 @@ public class HumanPlayer extends Player implements Cloneable {
         this.trumpChoice = null; // No choice made yet
         this.cardIndexChoice = -1; // No choice made yet
         this.choiceMade = false;
-    }
+        }
 
     @Override
     public HumanPlayer clone() throws CloneNotSupportedException {
-        // Step 1: Perform shallow copy using `super.clone()`
-        HumanPlayer cloned = (HumanPlayer) super.clone(); // Clone basic Player fields
-
-        // Step 2: Clone `trumpChoice` and `cardIndexChoice` fields
-        cloned.trumpChoice = this.trumpChoice; // Enum: safe to copy directly
-        cloned.cardIndexChoice = this.cardIndexChoice; // Primitive field: safe to copy
-
-        // Step 3: Return the cloned object
-        return cloned;
+        // Perform shallow copy using `super.clone()`
+        return (HumanPlayer) super.clone(); // Clone basic Player fields
     }
 
     public TrumpChoice getTrumpChoice() {
+        System.err.println("GETTING TRUMP CHOICE");
         return trumpChoice;
     }
 

@@ -122,6 +122,7 @@ Falls beide Teams 1.001 Punkte in derselben Spiel erreichen, gewinnt das Team mi
 Belot: Eine reine Java-Implementierung mit JShell-Steuerung
 ===============	
 
+### Übersicht
 >Die `Match`-Klasse in Java bildet das Gerüst für die Bela-Spielsimulation.  
 Sie steuert den Spielablauf durch einen Zustandsautomaten, der verschiedene Phasen 
 (Start, Trumpfauswahl, Zvanje, Rundenspiel, Spielende, Matchende) definiert.  
@@ -136,8 +137,7 @@ den Spielverlauf zu speichern und bei Bedarf auf vorherige Zustände zurückzuse
  
 
 
-Steuerung
-===============	
+## Steuerung
 
 >Die Interaktion mit dem Bela-Spiel erfolgt über die JShell in der Command Prompt (kein PowerShell). 
 Der Benutzer steuert die Match-Instanz mittels einfacher Befehle. 
@@ -145,6 +145,19 @@ Wichtig ist dabei die korrekte Konsolenkodierung: chcp 65001 stellt UTF-8 sicher
 Die Ausführung der Datei run.jsh (mit /open) importiert notwendige Bibliotheken und konfiguriert die Konsolenausgabe für UTF-8 
 (System.setOut(...)), um korrekte Sonderzeichen anzuzeigen für die Konsole-Ansicht.
 
+
+### Tutorial
+
+1. Neues Command Prompt-Fenster öffnen in Projektverzeichnis.
+ > `cd src` navigiert zum Quellcode-Verzeichnis.
+2. Konsolenkodierung auf UTF-8 Codepage einstellen.
+ > chcp 65001
+3. Das Projekt kompilieren und die .class-Dateien in das out-Verzeichnis speichern.
+  > javac -d out models/*.java controllers/*.java services/*.java ai/*.java
+4. JShell mit aktiviertem Preview-Modus und dem out-Verzeichnis als Klassenpfad starten
+  > jshell --class-path out --enable-preview
+5. Die Datei run.jsh öffnen, um das Spiel laden und lvp zu aktivieren unter http://localhost:50001.
+  > /open run.jsh
 
 Die wesentlichen Kommandos sind:
 
@@ -157,6 +170,7 @@ Befehl | Bedeutung
 `pickCard(int x)` | Spielt eine Karte aus der Hand, wobei `x` die Position der Karte angibt.
 `endGame()` | Beendet die aktuelle Runde und bereitet die Punktevergabe vor.
 `endMatch()` | Beendet das gesamte Match und zeigt die Endergebnisse an.
+`goBack()` | Geht zu einem vorherigen Spielzustand zurück (Undo-Funktion).
 
 Spielstart
 ===============	
@@ -239,72 +253,114 @@ Ablauf | Phase | Bedeutung | Aktion in der Phase
 ${Play}
 ```
 
-
 ### Phasendurchlauf
 
-**1. START:**
 
-*   `initializeGameSettings()` richtet Spieler, Teams und Schwierigkeit ein.
-*   `startGame()` startet das Spiel und führt die notwendigen Prüfungen durch.
+**1. START:**  -> **match.startGame()**
+
+The `runStartPhase` method:
+
+1. Checks settings and prints the start message.
+2. Exits if `startGame` is false, prompting the user to start.
+3. Initializes a new game if it doesn't already exist.
+4. Sets the initial state for both teams.
+5. Advances to the `CHOOSING_TRUMP` phase and resets `startGame`.
+
+**2. CHOOSING_TRUMP:** -> **match.pickTrump(int x)**
+
+The `runChoosingTrumpPhase` method:
+
+1. Prints the current phase.
+2. If `game.trumpSelection()` fails (meaning trump suit wasn't chosen), it prompts the user to choose a suit (or skip).
+3. If trump selection was successful, it proceeds to `SHOW_ZVANJE` phase and finds the `zvanje`.
+4. Returns `true` to signal successful phase completion.
+
+**3. SHOW_ZVANJE:** -> **match.startRound()**
+
+The `runShowZvanjePhase` method:
+
+1. Prints the Anruf (Zvanje) Result.
+2. Checks if `startRound` is true; if not, it waits for the zvanje to be accepted and returns `false`.
+3. If `startRound` is true, it resets `startRound` to `false`.
+4. Transitions to the `PLAYING_ROUNDS` phase and returns `true`.
+
+**4. PLAYING_ROUNDS:** -> **match.pickCard(int x)**
+
+The `runPlayingRoundsPhase` method:
+
+1. Prints that the game is in the `PLAYING_ROUNDS` phase.
+2. Calls `game.playRounds()`. If this returns `false`, it means rounds are still being played, and the user is prompted to play a card.  The method then returns `false`.
+3. If `game.playRounds()` returns `true` (meaning all rounds are finished), it prints "End of game", transitions to the `END_OF_GAME` phase, and returns `true`.
+
+**5.  END_OF_GAME:** -> **match.endGame()**
+
+The `runEndOfGamePhase` method handles the end of a game within a match:
+
+1. It prints the current phase ("END_OF_GAME").
+2. It checks if `endGame` is true; if not, it waits for the game to end and returns `false`.
+3. If `endGame` is true, it resets `endGame` to `false`.
+4. It determines the winner using `matchWinner()`.
+5. It prints the end-game results using `printEndGame(winner)`.
+6. If there's a winner, the phase changes to `END_OF_MATCH`.
+7. Otherwise (no overall match winner yet), the game resets for the next round via `resetForNextGame()`, the game counter increments, and the phase returns to `START`.
+
+**6.  END_OF_MATCH:** -> **match.endMatch()**
+
+The `runEndOfMatchPhase` method handles the conclusion of an entire match:
+
+1. It prints the match end results using `printMatchEnd(winner)`.
+2. It checks if `endMatch` is true; if false, it waits for confirmation to end the match and returns `false`.
+3. If `endMatch` is true, it resets `endMatch` to false.
+4. It resets the match state using `resetMatch()`.
+5. It sets the current phase back to `START`, preparing for a new match.
+6. Finally, it returns `true`.
+
+## Snapshot-Verwaltung und Spielzustand im Java-Code
+
+Der Java-Code implementiert ein System zur Speicherung und Wiederherstellung von Spielzuständen (Snapshots), 
+um dem Spieler das Zurücksetzen von Spielzügen zu ermöglichen.  Dies wird hauptsächlich über die Methoden `saveSnapshot()`, `revertToPreviousSnapshot()`, und die Verwendung der `clone()`-Methode realisiert.
+
+**1. `saveSnapshot()`:**
+
+Diese Methode erstellt eine Kopie des aktuellen Spielzustands.  Sie verwendet die `clone()`-Methode, um ein 
+tiefes Klonen des `Match`-Objekts zu gewährleisten.  Dies bedeutet, dass nicht nur Referenzen kopiert werden, 
+sondern auch alle enthaltenen Objekte (wie Teams, Spieler, und Spielrunden) dupliziert werden.  
+Der so erstellte Snapshot wird auf einem Stapel (`snapshots`) gespeichert.  
+Snapshots werden nur für die Schwierigkeitsgrade `LEARN` (Spiel übergreifend) und `NORMAL`(Spiel begrenzt) erstellt; im `PRO`-Modus ist diese Funktion deaktiviert.
+
+**2. `clone()`-Methode:**
+
+Die `clone()`-Methode ist essentiell für die Snapshot-Funktionalität. Sie implementiert ein tiefes Klonen 
+des `Match`-Objekts und aller seiner Komponenten.  Dies verhindert, dass Änderungen an einem Snapshot den 
+ursprünglichen Spielzustand beeinflussen, oder umgekehrt. Die Implementierung umfasst das rekursive Klonen 
+von `Team`-, `Player`- und `Game`-Objekten um Konsistenz zu gewährleisten.  `CloneNotSupportedException` wird 
+abgefangen, um das Programm stabil zu halten.
+
+**3. `match.goBack()`:**
+
+Diese Methode ermöglicht es, zu einem zuvor gespeicherten Snapshot zurückzukehren.  
+Sie entfernt den letzten Snapshot vom Stapel (`snapshots`) und setzt den aktuellen Spielzustand auf 
+den Inhalt des Snapshots `restoreSnapshot(Match previousState)`.  Ähnlich wie bei `saveSnapshot()` wird ein tiefes Klonen verwendet. 
+Falls kein Snapshot vorhanden ist, oder die ist unverfügbar da 
+die Schwierigkeit `PRO` ist or da im Normalmodus bis zum Anfang von letzten Spiel ist, 
+wird eine entsprechende Meldung ausgegeben. 
+
+**4.  `resetMatch()`:**
+
+Diese Methode dient zum vollständigen Zurücksetzen des Spiels.  Im Gegensatz zu `goBack()`, 
+welches nur den Spielzustand auf einen vorherigen Punkt zurücksetzt, löscht `resetMatch()` den gesamten Spielzustand,
+einschließlich der gespeicherten Snapshots, und bereitet das Spiel für einen komplett neuen Match vor.
 
 
-**2. CHOOSING_TRUMP:**
-
-*   Die `Spiel`-Klasse (nicht vollständig gezeigt) würde das Verteilen von sechs Karten an jeden Spieler übernehmen (`dealCards()`-Methode, angenommen).
-*   `runChoosingTrumpPhase()` verwaltet die Trumpfauswahl. Eine Methode innerhalb von `Spiel` (z. B. `trumpfAuswahl()`) würde die Spielerentscheidungen verarbeiten und die Trumpffarbe bestimmen.
-
-
-**3. SHOW_ZVANJE:**
-
-*   Eine neue Methode, z. B. `verarbeiteAnsagen()`, würde der `Spiel`-Klasse hinzugefügt.
-*   Diese Methode würde die Hände der Spieler (`Spieler.getHand()`) analysieren, um Ansagen (Belot, Bela, Vierlinge usw.) zu identifizieren.
-*   Die Punktevergabe für jede Ansage würde innerhalb der `verarbeiteAnsagen()`-Methode gehandhabt.
+>Dieses System ermöglicht es dem Spieler, Fehler zu korrigieren oder alternative Spielzüge auszuprobieren, 
+ohne das Spiel neu starten zu müssen, jedoch mit Einschränkungen bezüglich der Schwierigkeit 
+und der Phase des Spiels.
 
 
-**4. PLAYING_ROUNDS:**
+# Die TurtleView und Funktions
 
-*   `runPlayingRoundsPhase()` verwaltet die Phase des Rundenspiels.
-*   `Spiel.spieleRunden()` iteriert durch acht Runden.
-*   Die `Runde`-Klasse (angenommen) handhabt das Kartenlegen und bestimmt den Rundensieger basierend auf Farbe und Rang (`Karte`-Klasse angenommen).
-*   Die `Runde`-Klasse (angenommen) addiert die Punkte der Runde zu den Teamwerten (Smalls).
-
-
-**5.  END_OF_GAME:**
-
-*   In der `Runde`-Klasse (angenommen) addiert eine `berechneRundenpunkte()`- oder ähnliche Methode Punkte (Smalls) zum siegreichen Team. Ein Bonus von +10 Punkten könnte für die letzte Runde hinzugefügt werden.
-
-
-**6.  END_OF_MATCH:**
-
-*   `runEndOfGamePhase()` verarbeitet das Spielende.
-*   `spiel.trumpfTeamErfolgreich()` würde prüfen, ob das Trumpfteam die Punktzahlanforderung erfüllt hat. Wenn nicht, werden die Punkte dem Gegner gutgeschrieben.
-*   `spielGewinner()` prüft, ob eines der Teams 1001 Punkte erreicht hat und erklärt den Spielgewinner.
-*   `setzeFürNächstesSpielZurück()` setzt Smalls zurück und rotiert den Geber (`rotateDealer()` bereits vorhanden).
-
-
-**7.  Matchende:**
-
-*   `runEndOfMatchPhase()` verwaltet das Matchende.
-*   `printMatchEnd()` zeigt die Endergebnisse an.
-*   `setzeMatchZurück()` setzt den gesamten Spielzustand zurück.
-
-**Wichtige Überlegungen:**
-
-*   Die Klassen `Spiel`, `Runde`, `Spieler`, `Karte` und `Team` sind entscheidend und werden im bereitgestellten Code-Snippet nicht vollständig gezeigt. Diese Klassen enthalten den größten Teil der Spiellogik (Kartenwerte, Punkteberechnung usw.).
-*   Die Fehlerbehandlung (ungültige Spieleraktionen) muss in der `Match`-Klasse und ihren abhängigen Klassen gründlich implementiert werden.
-*   Der `snapshots`-Mechanismus und die `clone()`-Methode verarbeiten das Speichern und Wiederherstellen des Spielzustands und unterstützen die Rückgängig-Funktionalität.
-
-Diese detaillierte Aufschlüsselung verdeutlicht, wie die Bela-Spielregeln in der `Match`-Klasse implementiert werden können, vorausgesetzt, dass die Hilfsklassen existieren und die spezifischen Details der Kartenspielmechanik handhaben.
-  
-
-
-
-
-```java
-int x = 1;
-```
+## Bitte die File BelaView.java öffnen und die TurtleView.java
 
 """, Map.of("Match", Text.cutOut("./controllers/Match.java", "// Match constructor"),
-"CheckSettings", Text.cutOut("./controllers/Match.java", "// Check Settings"), 
-"Play", Text.cutOut("./controllers/Match.java", "// Play"),
-"x", Text.cutOut("./controllers/Match.java", "// Check Settings"))));
+"CheckSettings", Text.cutOut("./controllers/Match.java", "// Settings"), 
+"Play", Text.cutOut("./controllers/Match.java", "// Play"))));

@@ -14,7 +14,6 @@ package models;
 import java.util.ArrayList;
 import java.util.List;
 
-// IDEA: maybe create a unique hashcode for backtracing the hand of the player
 public abstract class Player implements Cloneable {
     
     protected String name;

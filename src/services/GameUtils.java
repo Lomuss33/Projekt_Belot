@@ -1,13 +1,17 @@
 package services;
 
 import ai.*;
-import controllers.Match.Difficulty;
 import java.util.ArrayList;
 import java.util.List;
 import models.*;
 import services.ZvanjeService.ZvanjeResult;
 
 public class GameUtils {
+
+    // Enum for the difficulty levels of the AI players
+    public enum Difficulty {
+        LEARN, NORMAL, PRO,
+    }
     
     // Initialize players and assign them to the given teams
     public static List<Player> initializePlayers(Difficulty difficulty, Team team1, Team team2, 
@@ -59,7 +63,7 @@ public class GameUtils {
 
     // Calculate the threshold for winning the game
     public static int calculateWinThreshold(ZvanjeResult zvanjeWin) {
-        int basePoints = 162; // Base points for a "čista igra"
+        int basePoints = 162; // Base points for a "clean game"
         int zvanjePoints = (zvanjeWin != null) ? zvanjeWin.getTotalPoints() : 0;
         int totalPoints = basePoints + zvanjePoints;
         // Threshold to pass is half the total points plus 1

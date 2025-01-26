@@ -12,11 +12,13 @@ import java.util.*;
 import models.*;
 import models.Player.TrumpChoice;
 import services.*;
+import services.GameUtils.Difficulty;
 import services.ZvanjeService.ZvanjeResult;
 import services.ZvanjeService.ZvanjeType;
 
 public class Game implements Cloneable {
 
+    public Difficulty difficulty;
     public Team team1, team2;
     public List<Player> players;
     public ZvanjeResult zvanjeWin;
@@ -30,57 +32,17 @@ public class Game implements Cloneable {
     public boolean midRound;
     public Round currentRound;
 
-    public Game(List<Player> players, Team team1, Team team2, int dealerIndex) {
+    public Game(List<Player> players, Team team1, Team team2, int dealerIndex, GameUtils.Difficulty difficulty) {
+        this.difficulty = difficulty;
         this.players = players;
         this.team1 = team1;
         this.team2 = team2;
         this.deck = new Deck();
-        this.zvanjeWin = null;
         this.dealerIndex = dealerIndex;    
         this.roundStarterIndex = (dealerIndex + 1) % 4; // Player next to the dealer starts    
         this.roundCount = 0;
         this.midRound = false;
-        this.currentRound = null;
     }
-
-    @Override
-    public Game clone() throws CloneNotSupportedException {
-        // Create shallow copy of Game instance
-        Game clonedGame = (Game) super.clone();
-
-        // Deep clone teams
-        clonedGame.team1 = (team1 != null) ? team1.clone() : null;
-        clonedGame.team2 = (team2 != null) ? team2.clone() : null;
-
-        // Deep clone players list
-        clonedGame.players = this.players != null ? new ArrayList<>(this.players) : new ArrayList<>();
-
-        // Deep clone deck (assuming Deck has a clone method)
-        clonedGame.deck = (deck != null) ? deck.clone() : null;
-
-        // Deep clone zvanjeWin (assuming ZvanjeResult has a clone method)
-        clonedGame.zvanjeWin = (zvanjeWin != null) ? zvanjeWin.clone() : null;
-
-        // Deep clone currentRound (assuming Round has a clone method)
-        clonedGame.currentRound = (currentRound != null) ? currentRound.clone() : null;
-        if (clonedGame.currentRound != null) {
-            // Update the cloned round with the cloned players and trump suit
-            clonedGame.currentRound.setStartingPlayerIndex(roundStarterIndex);
-            clonedGame.currentRound.setTrumpSuit(trumpSuit);
-        }
-
-        // Copy primitive fields and enumerations (here they are immutable, so direct assignment is fine)
-        clonedGame.dealerIndex = this.dealerIndex;
-        clonedGame.roundStarterIndex = this.roundStarterIndex; 
-        clonedGame.roundCount = this.roundCount;
-        clonedGame.winTreshold = this.winTreshold;
-        clonedGame.trumpSuit = this.trumpSuit; // Enums are immutable, so this is directly referenced
-        clonedGame.teamPassed = this.teamPassed;
-        clonedGame.midRound = this.midRound;
-
-        return clonedGame;
-    }
-
 
     public Team lookForWinner() {
         // Check if a team has crossed the win threshold
@@ -138,113 +100,137 @@ public class Game implements Cloneable {
     public boolean playRounds() {
         for (int i = roundCount; i < 8; i++) { // Resume from saved round count
             System.out.println("Round " + (i + 1));
+            displayScores();
             // Start a new round and get the winner's index
             System.out.println("Round starts: " + players.get(roundStarterIndex).getName());
-            if (!midRound) currentRound = new Round(players, roundStarterIndex, trumpSuit); // Start a new round
+            if (!midRound) currentRound = new Round(players, roundStarterIndex, trumpSuit, difficulty); // Start a new round
             int winnerIndex = currentRound.playTurns(i); // Start the round and find its winner 
             if(winnerIndex == -1) {
                 midRound = true; 
                 return false; // If the round is not over, HumanPlayer is playing
             }
             roundStarterIndex = winnerIndex; // Winner starts the next round
-            for(Player player : players) { // Reset all players' waiting status
-            player.setWaiting(false);
-            }
+            resetPlayersWaitingStatus();
             roundCount++; // Increment the round count
         }
+        awardGameVictory(); // Award the game victory to the winning team
         roundCount = 0; // Reset round count for the next game
         return true; // End of all rounds 
     }
 
-    public void awardGameVictory() {
-        // Check if the dealer's team has crossed the win threshold
-        Team dealerTeam = players.get(dealerIndex).getTeam();
-        Team otherTeam = (dealerTeam == team1) ? team2 : team1;
-
-        int dealerTeamPoints = GameUtils.calculateGamePoints(dealerTeam, zvanjeWin);
-        int otherTeamPoints = GameUtils.calculateGamePoints(otherTeam, zvanjeWin);
-
-        // Check if the dealer's team has crossed the win threshold
-        if (dealerTeamPoints >= winTreshold) {
-            teamPassed = true;
-            dealerTeam.setAwardedBigs(dealerTeamPoints);
-            dealerTeam.addBigs(dealerTeamPoints);
-            otherTeam.setAwardedBigs(otherTeamPoints);
-            otherTeam.addBigs(otherTeamPoints);
-            System.out.println();
-            System.out.println("Dealer's team PASSED!: " + dealerTeamPoints);
-            System.out.println("Other team: " + otherTeamPoints);
-        } else {
-            // Award points to the other team
-            teamPassed = false;
-            otherTeam.setAwardedBigs(otherTeamPoints + dealerTeamPoints);
-            otherTeam.addBigs(otherTeamPoints + dealerTeamPoints);
-            System.out.println();
-            System.out.println("Dealer's team did NOT PASS! Dealer's team: " + dealerTeam.getBigs());
-            System.out.println("Other team GETS ALL: " + otherTeam.getBigs());
+    private void displayScores() {
+        if (difficulty == GameUtils.Difficulty.LEARN) { 
+            System.out.println(team1 + " - Bigs: " + team1.getBigs() + ", Smalls: " + team1.getSmalls());
+            System.out.println(team2 + " - Bigs: " + team2.getBigs() + ", Smalls: " + team2.getSmalls());
+        } else if (difficulty == GameUtils.Difficulty.NORMAL) {
+            System.out.println(team1 + " - Bigs: " + team1.getBigs());
+            System.out.println(team2 + " - Bigs: " + team2.getBigs());
         }
     }
 
+    private void resetPlayersWaitingStatus() {
+        for(Player player : players) { // Reset all players' waiting status
+            player.setWaiting(false);
+        }
+    }
+
+    private void awardGameVictory() {
+        Team dealerTeam = players.get(dealerIndex).getTeam();
+        Team otherTeam = (dealerTeam == team1) ? team2 : team1;
+        int dealerTeamPoints = GameUtils.calculateGamePoints(dealerTeam, zvanjeWin);
+        int otherTeamPoints = GameUtils.calculateGamePoints(otherTeam, zvanjeWin);
+
+        if (dealerTeamPoints >= winTreshold) {
+            handleDealerTeamVictory(dealerTeam, otherTeam, dealerTeamPoints, otherTeamPoints);
+        } else {
+            handleOtherTeamVictory(dealerTeam, otherTeam, dealerTeamPoints, otherTeamPoints);
+        }
+    }
+
+    private void handleDealerTeamVictory(Team dealerTeam, Team otherTeam, int dealerTeamPoints, int otherTeamPoints) {
+        teamPassed = true;
+        dealerTeam.setAwardedBigs(dealerTeamPoints);
+        dealerTeam.addBigs(dealerTeamPoints);
+        otherTeam.setAwardedBigs(otherTeamPoints);
+        otherTeam.addBigs(otherTeamPoints);
+        System.out.println();
+        System.out.println("Dealer's team PASSED!: " + dealerTeamPoints);
+        System.out.println("Other team: " + otherTeamPoints);
+    }
+
+    private void handleOtherTeamVictory(Team dealerTeam, Team otherTeam, int dealerTeamPoints, int otherTeamPoints) {
+        teamPassed = false;
+        otherTeam.setAwardedBigs(otherTeamPoints + dealerTeamPoints);
+        otherTeam.addBigs(otherTeamPoints + dealerTeamPoints);
+        System.out.println();
+        System.out.println("Dealer's team did NOT PASS! Dealer's team: " + dealerTeam.getBigs());
+        System.out.println("Other team GETS ALL: " + otherTeam.getBigs());
+    }
+
     private ZvanjeResult reportZvanje(Card.Suit trumpSuit, int dealerIndex) {
+        List<ZvanjeResult> zvanjeResults = detectAllZvanje(trumpSuit, dealerIndex);
+        printZvanjeResults(zvanjeResults);
+
+        ZvanjeResult winningZvanjeResult = ZvanjeService.biggestZvanje(zvanjeResults);
+        if (winningZvanjeResult == null) {
+            System.out.println("No Zvanje detected for any player.");
+            return null;
+        }
+
+        updateWinningZvanjeResult(winningZvanjeResult, zvanjeResults);
+        printWinningZvanjeResult(winningZvanjeResult, zvanjeResults);
+
+        return winningZvanjeResult;
+    }
+
+    private List<ZvanjeResult> detectAllZvanje(Card.Suit trumpSuit, int dealerIndex) {
         List<ZvanjeResult> zvanjeResults = new ArrayList<>();
-    
         int numPlayers = players.size();
         for (int i = 0; i < numPlayers; i++) {
-            // Calculate the current player's index, starting from dealerIndex and wrapping around
             int currentIndex = (dealerIndex + i + 1) % numPlayers;
             Player player = players.get(currentIndex);
-
             ZvanjeResult result = ZvanjeService.detectPlayerZvanje(player, trumpSuit);
             zvanjeResults.add(result);
-
-            // Print player's cards
-            System.out.println();
             player.displayHand();
         }
-        ////////////////////////////////////////////////////
+        return zvanjeResults;
+    }
+
+    private void printZvanjeResults(List<ZvanjeResult> zvanjeResults) {
         System.out.println();
         for (ZvanjeResult result : zvanjeResults) {
             System.out.println(result.getPlayer().getName() + "'s ZvanjeTypes: " + result.getZvanjeTypes());
         }
         System.out.println();
-        // Find the player with the highest Zvanje
-        ZvanjeResult winningZvanjeResult = ZvanjeService.biggestZvanje(zvanjeResults);
-    
-        // If no Zvanje is detected for any player, return null
-        if (winningZvanjeResult == null) {
+    }
 
-            System.out.println("No Zvanje detected for any player.");
-
-            return null;
-        }
-    
+    private void updateWinningZvanjeResult(ZvanjeResult winningZvanjeResult, List<ZvanjeResult> zvanjeResults) {
         Player winningPlayer = winningZvanjeResult.getPlayer();
         Team winningTeam = winningPlayer.getTeam();
-    
-        // Calculate total points for the winning player's team
         int totalPoints = calculateTotalZvanjePoints(winningTeam, zvanjeResults);
-        // Update the winning ZvanjeResult with the total points
         winningZvanjeResult.setPoints(totalPoints);
+    }
 
+    private void printWinningZvanjeResult(ZvanjeResult winningZvanjeResult, List<ZvanjeResult> zvanjeResults) {
+        Player winningPlayer = winningZvanjeResult.getPlayer();
+        Team winningTeam = winningPlayer.getTeam();
+        int totalPoints = winningZvanjeResult.getTotalPoints();
 
-        // Print results
         if (winningZvanjeResult.getBiggestZvanje() != null) {
             System.out.println("Player with the highest Zvanje: " + winningPlayer.getName());
             System.out.println("Winning Team: " + winningTeam.getName());
             System.out.println("Total Zvanje Points: " + totalPoints);
-            // Print ZvanjeTypes for the winning team
             System.out.println("Zvanje types of the winning team:");
             zvanjeResults.stream()
-                    .filter(result -> result.getPlayer().getTeam() == winningTeam)
-                    .flatMap(result -> result.getZvanjeTypes().stream())
-                    .forEach(System.out::println);
+                .filter(result -> result.getPlayer().getTeam() == winningTeam)
+                .flatMap(result -> result.getZvanjeTypes().stream())
+                .forEach(System.out::println);
         } else {
             System.out.println("No Zvanje detected for any player.");
         }
         System.out.println();
-        return winningZvanjeResult;
     }
-    
+
     // Method to calculate total Zvanje points for a given team
     private int calculateTotalZvanjePoints(Team team, List<ZvanjeResult> zvanjeResults) {
         // Filter ZvanjeResults for the given team and sum up the points
@@ -269,76 +255,75 @@ public class Game implements Cloneable {
         }
     }
 
-    // Method to choose the trump suit by going around the table and forcing a choice if all players skip (Human com: trumpChoice(int choice))
+    // Method to choose the trump suit
     private Card.Suit chooseTrumpSuit(int dealerIndex) {
-        int currentIndex  = (dealerIndex + 1) % players.size(); // Player next to the dealer
+        int currentIndex = (dealerIndex + 1) % players.size();
         TrumpChoice finalChoice = null;
-
+    
         for (int i = 0; i < players.size(); i++) {
             Player currentPlayer = players.get(currentIndex);
-            // Skip players who have already made a decision
-            if(currentPlayer.isWaiting() && i != 3) {
-                currentIndex = (currentIndex + 1) % players.size(); // Move to the next player
-                continue;
-            }
+    
             System.out.println(currentPlayer.getName() + "'s turn to choose trump suit.");
-            // Handle human player 
-            if(currentPlayer instanceof HumanPlayer) {
-                // System.out.println("""
-                //     Choose Your Trump Suit Option:
-                //     0. Skip Trump Selection
-                //     1. Spades
-                //     2. Hearts
-                //     3. Diamonds
-                //     4. Clubs
-                //     -> Match.pickTrump(int choice)
-                //     Please make your choice (0-4): 
-                //     """);
-                    // Wait for the human player to make a choice or return already made choice
-                    TrumpChoice humanChoice  = ((HumanPlayer) currentPlayer).getTrumpChoice();
-                    if (humanChoice != null) { // If the player has made a choice
-                        currentPlayer.setWaiting(true);
-                        if (humanChoice == TrumpChoice.SKIP) {
-                            if (i == dealerIndex) { // If last player, return null
-                                System.out.println(currentPlayer.getName() + " must pick!");
-                                return null;
-                            }
-                            System.out.println(currentPlayer.getName() + " skipped.");
-                            continue;
-                        } else {
-                            finalChoice = humanChoice; // Real trump choice
-                            System.out.println(currentPlayer.getName() + " chose " + finalChoice);
-                            break;
-                        }        
-                    } else {
-                        return null; // Give the human player a chance to choose
-                    }
-                    // currentPlayer.setDecisionMade(true);
-                    // return choice != null ? choice.getSuit() : null;
-            }
-
-            if (i == 3) {
-                System.out.println(currentPlayer.getName() + " MUST choose a trump suit:");                
-            }
-
-            TrumpChoice playerChoice = currentPlayer.chooseTrumpOrSkip(i);
-            currentPlayer.setWaiting(true);
-
-            // Skip if the player chooses to skip
-            if (playerChoice != TrumpChoice.SKIP) {
-                finalChoice = playerChoice;
-                System.out.println(currentPlayer.getName() + " chose " + finalChoice);
-                break;
+    
+            if (currentPlayer instanceof HumanPlayer) {
+                TrumpChoice humanChoice = handleHumanPlayerChoice((HumanPlayer) currentPlayer, i);
+                if (humanChoice == null) return null;
+                if (humanChoice != TrumpChoice.SKIP) {
+                    finalChoice = humanChoice;
+                    break;
+                }
             } else {
-                System.out.println(currentPlayer.getName() + " skipped.");
+                finalChoice = handleComputerPlayerChoice(currentPlayer, i);
+                if (finalChoice != null) break; // Break if a choice (other than skip) is made
             }
-            
-            currentIndex = (currentIndex + 1) % players.size(); // Move to the next player
+    
+            currentIndex = (currentIndex + 1) % players.size();
+            // Skip is handled implicitly by the continue statement in handleHumanPlayerChoice.
         }
-        // After all players have made a choice, return the final choice
+    
         return finalChoice != null ? finalChoice.getSuit() : null;
     }
-
+    
+    // Method to handle human player's choice of trump suit
+    private TrumpChoice handleHumanPlayerChoice(HumanPlayer player, int round) {
+        TrumpChoice humanChoice = player.getTrumpChoice();
+        
+        if (humanChoice == null) return null;
+        
+        player.setWaiting(true);
+        
+        if (humanChoice == TrumpChoice.SKIP) {
+            if (round == 3) {
+                System.out.println(player.getName() + " must pick!");
+                return null;
+            }
+            System.out.println(player.getName() + " skipped.");
+        } else {
+            System.out.println(player.getName() + " chose " + humanChoice);
+        }
+        
+        return humanChoice;
+    }
+    
+    // Method to handle computer player's choice of trump suit
+    private TrumpChoice handleComputerPlayerChoice(Player player, int round) {
+        if (round == 3) {
+            System.out.println(player.getName() + " MUST choose a trump suit:");
+        }
+    
+        TrumpChoice playerChoice = player.chooseTrumpOrSkip(round);
+        player.setWaiting(true);
+    
+        if (playerChoice != TrumpChoice.SKIP) {
+            System.out.println(player.getName() + " chose " + playerChoice);
+            return playerChoice;
+        } else {
+            System.out.println(player.getName() + " skipped.");
+            return null;
+        }
+    }
+    
+    
     // Sort all players' hands by suit and rank
     public static void sortAllPlayersHands(List<Player> players) {
         for (Player player : players) {
@@ -398,6 +383,10 @@ public class Game implements Cloneable {
         this.currentRound = currentRound;
     }
 
+    public void setDifficulty(GameUtils.Difficulty difficulty) {
+        this.difficulty = difficulty;
+    }
+
     public Team getTeam1() {
         return team1;
     }
@@ -446,6 +435,10 @@ public class Game implements Cloneable {
         return dealerIndex;
     }
 
+    public Player getDealer() {
+        return players.get(dealerIndex);
+    }
+
     public Round getCurrentRound() {
         return currentRound;
     }
@@ -457,4 +450,51 @@ public class Game implements Cloneable {
     public Team getTrumpCallTeam() {
         return players.get(dealerIndex).getTeam();
     }
+
+    public GameUtils.Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    @Override
+    public Game clone() throws CloneNotSupportedException {
+        // Create shallow copy of Game instance
+        Game clonedGame = (Game) super.clone();
+
+        clonedGame.difficulty = (difficulty != null) ? difficulty : null;
+
+        // Deep clone teams
+        clonedGame.team1 = (team1 != null) ? team1.clone() : null;
+        clonedGame.team2 = (team2 != null) ? team2.clone() : null;
+
+        // Deep clone players list
+        clonedGame.players = this.players != null ? new ArrayList<>(this.players) : new ArrayList<>();
+
+        // Deep clone deck (assuming Deck has a clone method)
+        clonedGame.deck = (deck != null) ? deck.clone() : null;
+
+        // Deep clone zvanjeWin (assuming ZvanjeResult has a clone method)
+        clonedGame.zvanjeWin = (zvanjeWin != null) ? zvanjeWin.clone() : null;
+
+        // Deep clone currentRound (assuming Round has a clone method)
+        clonedGame.currentRound = (currentRound != null) ? currentRound.clone() : null;
+        if (clonedGame.currentRound != null) {
+            // Update the cloned round with the cloned players and trump suit
+            clonedGame.currentRound.setStartingPlayerIndex(roundStarterIndex);
+            clonedGame.currentRound.setTrumpSuit(trumpSuit);
+            clonedGame.currentRound.setPlayers(clonedGame.players);
+            clonedGame.currentRound.setDifficulty(difficulty); 
+        }
+
+        // Copy primitive fields and enumerations (here they are immutable, so direct assignment is fine)
+        clonedGame.dealerIndex = this.dealerIndex;
+        clonedGame.roundStarterIndex = this.roundStarterIndex; 
+        clonedGame.roundCount = this.roundCount;
+        clonedGame.winTreshold = this.winTreshold;
+        clonedGame.trumpSuit = this.trumpSuit; // Enums are immutable, so this is directly referenced
+        clonedGame.teamPassed = this.teamPassed;
+        clonedGame.midRound = this.midRound;
+
+        return clonedGame;
+    }
+
 }

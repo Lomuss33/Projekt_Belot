@@ -16,10 +16,6 @@ import services.*;
 
 public class Match implements Cloneable { // Implement Cloneable{
 
-    public enum Difficulty {
-        LEARN, NORMAL, PRO,
-    }
-
     public enum MatchPhase {
         START,
         CHOOSING_TRUMP,
@@ -29,12 +25,12 @@ public class Match implements Cloneable { // Implement Cloneable{
         END_OF_MATCH
     }
 
-    public static final int WINNING_SCORE = 1001; // The score required to win the match
+    public static final int WINNING_SCORE = 101; // The score required to win the match
     private MatchPhase currentPhase;
     public final Stack<Match> snapshots = new Stack<>();
     public Game game;
     public int gameCounter;
-    public Difficulty difficulty;    
+    public GameUtils.Difficulty difficulty;    
 
     public Team team1, team2;
     public List<Player> players;
@@ -47,7 +43,7 @@ public class Match implements Cloneable { // Implement Cloneable{
     public boolean startRound;
     public boolean endMatch;
 
-    public Difficulty customDifficulty = Difficulty.LEARN; 
+    public GameUtils.Difficulty customDifficulty = GameUtils.Difficulty.LEARN; 
     public String customTeam1Name = "Team 1";
     public String customPlayerName = "You";
     public String customTeamMate = "Teammate"; 
@@ -113,24 +109,6 @@ public class Match implements Cloneable { // Implement Cloneable{
     }
     // Play
 
-    // Check Settings
-    // Check Settings is called after the match is started - after play(), if settings are not set, default values are used. 
-    private void checkSettings() {
-        if (difficulty == null) {
-            this.difficulty = customDifficulty;
-        }
-        if (team1 == null || team2 == null) {
-            this.team1 = new Team(customTeam1Name);
-            this.team2 = new Team(customTeam2Name);
-        }
-        if (players == null) {
-            this.players = GameUtils.initializePlayers(difficulty, team1, team2, 
-                            customPlayerName, customTeamMate, customEnemy1, customEnemy2);
-            this.me = (HumanPlayer) players.get(0); // Player 0 is the human
-        }
-    }
-    // Check Settings
-
     private void printStart() {
         System.out.println("Match phase: START");
         System.out.println("Match started!");
@@ -141,14 +119,15 @@ public class Match implements Cloneable { // Implement Cloneable{
     }
 
     private boolean runStartPhase() {
-        checkSettings();
+        initializeGameSettings(difficulty, customTeam1Name, customTeam2Name, 
+                       customPlayerName, customTeamMate, customEnemy1, customEnemy2);
         printStart();
         if(!startGame) { // Ensure startGame boolean must be true before advancing
             System.out.println("Waiting for game to start. Use startGame(true) to proceed.");
             return false; // Exit the method without advancing the game
         }
         if(game == null) {
-            game = new Game(players, team1, team2, dealerIndex);
+            game = new Game(players, team1, team2, dealerIndex, difficulty);
         }
         // Initialize the game when all prerequisites are met
         game.initializeGame();
@@ -212,7 +191,6 @@ public class Match implements Cloneable { // Implement Cloneable{
         }
         // Reset boolean immediately after it's used
         endGame = false;
-
         // Check if the match is over
         winner = matchWinner();
         printEndGame(winner);
@@ -225,19 +203,6 @@ public class Match implements Cloneable { // Implement Cloneable{
             currentPhase = MatchPhase.START;
         }
         return true;
-    }
-
-    private void printEndGame(Team winner) {
-        System.out.println("End of game!");
-        System.out.println("Trump team passed? " + game.teamPassed());
-        System.out.println("Team 2: " + team2.getName() + " - " + team2.getBigs());
-        System.out.println("Game counter: " + gameCounter);
-        if(winner != null) {
-            System.out.println("We have a winner" + winner.getName());
-        }else {
-            System.out.println("No winner yet... another game?");
-        }
-        System.out.println("Use endGame() to proceed.");
     }
 
     private boolean runEndOfMatchPhase() {
@@ -312,13 +277,12 @@ public class Match implements Cloneable { // Implement Cloneable{
         System.out.println("Match ended. Winner: " + winner.getName());
     }
 
-    // Settings
     public void setDifficulty(String difficultyName) {
         if (difficultyName != null) {
             switch (difficultyName.toUpperCase()) {
-            case "LEARN" -> this.difficulty = Difficulty.LEARN;
-            case "NORMAL" -> this.difficulty = Difficulty.NORMAL;
-            case "PRO" -> this.difficulty = Difficulty.PRO;
+            case "LEARN" -> this.difficulty = GameUtils.Difficulty.LEARN;
+            case "NORMAL" -> this.difficulty = GameUtils.Difficulty.NORMAL;
+            case "PRO" -> this.difficulty = GameUtils.Difficulty.PRO;
             default -> {
                 System.out.println("Invalid difficulty. Please choose String LEARN, NORMAL, or PRO.");
                 return;
@@ -361,7 +325,6 @@ public class Match implements Cloneable { // Implement Cloneable{
         }
         System.out.println("Team names set: " + this.customTeam1Name + " vs " + this.customTeam2Name);
     }
-    // Settings
 
     // Method to be called from the GUI when the human player accepts the zvanje
     public void startGame() {
@@ -392,12 +355,12 @@ public class Match implements Cloneable { // Implement Cloneable{
             System.out.println("Invalid choice! Please select a number between 0 and 4.");
             return;
         }
-        if (difficulty == Difficulty.NORMAL) {
+        if (difficulty == GameUtils.Difficulty.NORMAL) {
             snapshots.clear();
             System.out.println("Snapshots cleared for new Game due to NORMAL difficulty.");
         }
         // Save the current state before proceeding
-        if (difficulty != Difficulty.PRO) {
+        if (difficulty != GameUtils.Difficulty.PRO) {
             saveSnapshot();
         }
 
@@ -419,14 +382,14 @@ public class Match implements Cloneable { // Implement Cloneable{
         this.play();
     }
 
-    // Method to be called from the GUI when the human player chooses a card to play
+    // pickCard
     public void pickCard(int choice) {
         if (currentPhase != MatchPhase.PLAYING_ROUNDS) {
             System.out.println("Error: You cannot play a card at this phase! Current phase: " + currentPhase);
             return; // Exit the method without advancing the game
         }
         // Save the current state before proceeding
-        if (difficulty != Difficulty.PRO) {
+        if (difficulty != GameUtils.Difficulty.PRO) {
             saveSnapshot();
         }
         // Proceed with card play if phase is valid
@@ -434,6 +397,7 @@ public class Match implements Cloneable { // Implement Cloneable{
         // Move the game forward by calling play() to progress to the next round
         this.play();
     }    
+    // pickCard
 
     public void endGame() { 
         if (currentPhase != MatchPhase.END_OF_GAME) {
@@ -455,6 +419,7 @@ public class Match implements Cloneable { // Implement Cloneable{
         this.play();
     }
 
+    // saveSnapshot
     public void saveSnapshot() {
         try {
             Match snapshot = this.clone(); // Clone the match object
@@ -467,60 +432,74 @@ public class Match implements Cloneable { // Implement Cloneable{
             throw new IllegalStateException("Snapshot saving failed", e);
         }
     }
-    
-    public void revertToPreviousSnapshot() { 
-        if (difficulty == Difficulty.PRO) {
+    // saveSnapshot
+
+    // goBack
+    public void goBack() {
+        if (difficulty == GameUtils.Difficulty.PRO) {
             System.err.println("Reverting to a previous snapshot is not allowed on PRO difficulty!");
             return;
         }
-        if (currentPhase == MatchPhase.START || currentPhase == MatchPhase.END_OF_MATCH ) {
+        if (currentPhase == MatchPhase.START || currentPhase == MatchPhase.END_OF_MATCH) {
             System.err.println("Cannot revert to previous snapshot at the start or end of the match!");
-            return;
-        }
-        if (getDifficulty() == Difficulty.PRO) {
-            System.err.println("Reverting to a previous snapshot is not allowed on HARD difficulty!");
             return;
         }
         if (snapshots.isEmpty()) {
             System.err.println("No previous snapshot to revert to!");
             return;
         }
+        restoreSnapshot(snapshots.pop());
+        play(); // Resume the game from the previous state
+    }
+
+    private void restoreSnapshot(Match previousState) {
         try {
-            Match previousState = snapshots.pop();
             this.game = previousState.game.clone();
             this.currentPhase = previousState.currentPhase;
             this.team1 = game.getTeam1();
             this.team2 = game.getTeam2();
             this.players = new ArrayList<>(previousState.players);
             this.dealerIndex = game.getDealerIndex();
-            this.me = (HumanPlayer) players.get(0); 
+            this.me = (HumanPlayer) players.get(0);
             this.startGame = previousState.startGame;
             this.startRound = previousState.startRound;
             this.endGame = previousState.endGame;
-    
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("Snapshot restoration failed", e);
         }
-
-        play(); // Resume the game from the previous state
     }
+    // goBack
 
-    public void initializeGameSettings(Difficulty difficulty, String team1Name, String team2Name,  
+    // Settings
+    public void initializeGameSettings(GameUtils.Difficulty difficulty, String team1Name, String team2Name,  
                         String playerName, String teamMate, String enemyMate1, String enemyMate2) {
 
-        // Print difficulty
-        System.out.println("Difficulty set: " + difficulty);
-        // Set team names
-        this.team1 = new Team(team1Name);
-        this.team2 = new Team(team2Name);
-        System.out.println("Team names set: " + team1.getName() + " vs " + team2.getName());
+        if (difficulty == null) {
+            this.difficulty = customDifficulty;
+        }
+        if (team1 == null || team2 == null) {
+            this.team1 = new Team(customTeam1Name);
+            this.team2 = new Team(customTeam2Name);
+        }
+        if (players == null) {
+            this.players = GameUtils.initializePlayers(difficulty, team1, team2, 
+                            customPlayerName, customTeamMate, customEnemy1, customEnemy2);
+            this.me = (HumanPlayer) players.get(0); // Player 0 is the human
+        }
+    }
+    // Settings
 
-        // Initialize players using GameUtils
-        this.players = GameUtils.initializePlayers(difficulty, team1, team2, playerName, teamMate, enemyMate1, enemyMate2);
-
-        // Assign the human player
-        this.me = (HumanPlayer) this.players.get(0); // Assume Player 0 is the human
-        System.out.println("Players initialized: " + players);
+    private void printEndGame(Team winner) {
+        System.out.println("End of game!");
+        System.out.println("Trump team passed? " + game.teamPassed());
+        System.out.println("Team 2: " + team2.getName() + " - " + team2.getBigs());
+        System.out.println("Game counter: " + gameCounter);
+        if(winner != null) {
+            System.out.println("We have a winner" + winner.getName());
+        }else {
+            System.out.println("No winner yet... another game?");
+        }
+        System.out.println("Use endGame() to proceed.");
     }
 
     public String getWinnerPrint() {
@@ -555,14 +534,14 @@ public class Match implements Cloneable { // Implement Cloneable{
         return gameCounter;
     }
 
-    public Difficulty getDifficulty() {
+    public GameUtils.Difficulty getDifficulty() {
         return difficulty;
     }
 
     // Clone the Match object to save snapshots
     @Override
     public Match clone() throws CloneNotSupportedException {
-        // Create shallow clone of Match instance
+        // Create shallow clone of Match instance 
         Match clonedMatch = (Match) super.clone();
 
         // Deep clone teams
@@ -577,14 +556,11 @@ public class Match implements Cloneable { // Implement Cloneable{
         // Change the cloned HumanPlayer reference to the cloned players list
         clonedMatch.me = (HumanPlayer) clonedMatch.players.get(0);
 
-        // Deep clone the game and its internal hierarchy
+        // Deep clone the game
         makeGameClone(clonedMatch);
-
-        // Deep clone currentRound
-        clonedMatch.game.currentRound = (game.currentRound != null) ? game.getCurrentRound().clone() : null;
-        if (clonedMatch.game.currentRound != null) {
-            clonedMatch.game.currentRound.setPlayers(clonedMatch.players); // Update the players reference
-        }
+        // Deep clone the current round 
+        makeRoundClone(clonedMatch);
+        
         // Copy primitive fields and booleans
         clonedMatch.dealerIndex = this.dealerIndex;
         clonedMatch.gameCounter = this.gameCounter;
@@ -595,10 +571,20 @@ public class Match implements Cloneable { // Implement Cloneable{
         return clonedMatch;
     }
 
+    private void makeRoundClone(Match clonedMatch) throws CloneNotSupportedException { 
+        // Deep clone currentRound
+        clonedMatch.game.currentRound = (game.currentRound != null) ? game.getCurrentRound().clone() : null; 
+        if (clonedMatch.game.currentRound != null) {
+            clonedMatch.game.currentRound.setPlayers(clonedMatch.players); // Update the players reference 
+            clonedMatch.game.currentRound.setDifficulty(difficulty);
+        }
+    }
+
     // Deep clone the game and its internal hierarchy
     private void makeGameClone(Match clonedMatch) throws CloneNotSupportedException {
         if (game != null) {
             clonedMatch.game = game.clone(); // Game will propagate the players and Round correctly
+            clonedMatch.game.setDifficulty(difficulty);
             clonedMatch.game.players = clonedMatch.players;
             clonedMatch.game.setTeam1(clonedMatch.team1);
             clonedMatch.game.setTeam2(clonedMatch.team2);

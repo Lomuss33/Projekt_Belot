@@ -12,6 +12,7 @@
 package ai;
 
 import java.util.*;
+import services.GameUtils.Difficulty;
 import models.*;
 
 public class AiPlayerPRO extends Player {
@@ -57,39 +58,12 @@ public class AiPlayerPRO extends Player {
     }
 
     // Choose the trump suit based on the best scoring mechanism
+    // chooseTrumpOrSkip 
     @Override
     public TrumpChoice chooseTrumpOrSkip(int turnForChoosingTrump) {
         Map<Card.Suit, Integer> suitScores = new HashMap<>();
-        boolean hasJackAndNineCombo = false;
-        Card.Suit bestSuit = null;
-    
-        // Evaluate hand to find potential trump suits
-        for (Card card : hand.getCards()) {
-            Card.Suit suit = card.getSuit();
-    
-            // Update suit scores, excluding EIGHT and SEVEN cards for final selection
-            if (card.getRank() != Card.Rank.EIGHT && card.getRank() != Card.Rank.SEVEN) {
-                int score = card.getStrength(suit, null); // Calculate strength assuming this suit as trump
-                suitScores.put(suit, suitScores.getOrDefault(suit, 0) + score);
-            }
-    
-            // Check if the suit contains both JACK and NINE
-            boolean hasJack = hand.getCards().stream().anyMatch(c -> c.getSuit() == suit && c.getRank() == Card.Rank.JACK);
-            boolean hasNine = hand.getCards().stream().anyMatch(c -> c.getSuit() == suit && c.getRank() == Card.Rank.NINE);
-    
-            if (hasJack && hasNine) {
-                long supportingCards = hand.getCards().stream()
-                    .filter(c -> (c.getSuit() == suit && c.getRank() != Card.Rank.JACK && c.getRank() != Card.Rank.NINE) || 
-                                 (c.getRank() == Card.Rank.ACE && c.getSuit() != suit))
-                    .count();
-    
-                if (supportingCards >= 2) {
-                    hasJackAndNineCombo = true;
-                    bestSuit = suit;
-                }
-            }
-        }
-    
+        Card.Suit bestSuit = evaluateHandForTrump(suitScores);
+
         // If turnForChoosingTrump is 3, MUST choose a suit
         if (turnForChoosingTrump == 3) {
             if (bestSuit == null) {
@@ -104,17 +78,52 @@ public class AiPlayerPRO extends Player {
                 return Player.TrumpChoice.valueOf(bestSuit.name());
             }
         }
-    
+
         // Skip unless there is a valid JACK and NINE combo
-        if (!hasJackAndNineCombo) {
+        if (bestSuit == null) {
             System.out.println(name + " chooses to skip.");
             return Player.TrumpChoice.SKIP;
         }
-    
+
         // Return the trump choice corresponding to the best suit
         System.out.println(name + " chooses " + bestSuit);
         return Player.TrumpChoice.valueOf(bestSuit.name());
     }
+
+    private Card.Suit evaluateHandForTrump(Map<Card.Suit, Integer> suitScores) {
+        boolean hasJackAndNineCombo = false;
+        Card.Suit bestSuit = null;
+
+        // Evaluate hand to find potential trump suits
+        for (Card card : hand.getCards()) {
+            Card.Suit suit = card.getSuit();
+
+            // Update suit scores, excluding EIGHT and SEVEN cards for final selection
+            if (card.getRank() != Card.Rank.EIGHT && card.getRank() != Card.Rank.SEVEN) {
+                int score = card.getStrength(suit, null); // Calculate strength assuming this suit as trump
+                suitScores.put(suit, suitScores.getOrDefault(suit, 0) + score);
+            }
+
+            // Check if the suit contains both JACK and NINE
+            boolean hasJack = hand.getCards().stream().anyMatch(c -> c.getSuit() == suit && c.getRank() == Card.Rank.JACK);
+            boolean hasNine = hand.getCards().stream().anyMatch(c -> c.getSuit() == suit && c.getRank() == Card.Rank.NINE);
+
+            if (hasJack && hasNine) {
+                long supportingCards = hand.getCards().stream()
+                    .filter(c -> (c.getSuit() == suit && c.getRank() != Card.Rank.JACK && c.getRank() != Card.Rank.NINE) || 
+                                 (c.getRank() == Card.Rank.ACE && c.getSuit() != suit))
+                    .count();
+
+                if (supportingCards >= 2) {
+                    hasJackAndNineCombo = true;
+                    bestSuit = suit;
+                }
+            }
+        }
+
+        return hasJackAndNineCombo ? bestSuit : null;
+    }
+    // chooseTrumpOrSkip
 
     // Call Zvanje by detecting high-value combinations
     @Override

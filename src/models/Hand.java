@@ -80,6 +80,10 @@ public class Hand implements Cloneable {
         return cards.isEmpty();
     }
 
+    public int size() {
+        return cards.size();
+    }
+
     // Display the hand as a string
     @Override
     public String toString() {
