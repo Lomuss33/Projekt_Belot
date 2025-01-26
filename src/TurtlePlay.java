@@ -219,7 +219,7 @@ public class TurtlePlay {
         turtle.backward(20);
         turtle.text("setTeamNames(String: myTeam, rivalTeam)", Font.COURIER, 15, Font.Align.LEFT);
         turtle.backward(20);
-        turtle.text("🔹Difficulty: " + match.difficulty.toString(), Font.COURIER, 15, Font.Align.LEFT);
+        turtle.text("🔹Difficulty: " + match.customDifficulty.toString(), Font.COURIER, 15, Font.Align.LEFT);
         turtle.backward(20);
         turtle.text("🔹My Team name: " + match.customTeam1Name, Font.COURIER, 15, Font.Align.LEFT);
         turtle.backward(20);
@@ -472,7 +472,6 @@ void turtleHand(Turtle turtle, models.Player player) {
     // Start drawing cards
     for (int i = 0; i < handSize; i++) {
         // Move to position of each card
-        System.out.println("player.getPlayableIndices(): " + player.getPlayableIndices());
         if (player.getPlayableIndices() != null && player.getPlayableIndices().contains(i)) {
             startingHeight = turtle.height - 20; // Adjust height for playable cards
             turtle.color(0, 0, 0); // Black for playable cards

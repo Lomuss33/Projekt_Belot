@@ -40,183 +40,112 @@ Zypern | Pilotta
 
 Quelle: [Wikipedia](https://en.wikipedia.org/wiki/Belote)
 
+---
+
 Implementierte Version
 ===============	
+
 ## Die Brišnik Bela
----
 >Eine Belot-Variante, die seit der napoleonischen Zeit in Dalmatien an der Adriaküste
 von Soldaten auf dem Dinara Gebirge Gebiet populär wurde und sich unter Männern etablierte. 
 Nach über 200 Jahren haben sich die Regeln vereinfacht, oft abhängig von den Mitspielern. 
 Meine Beschreibung basiert auf der Spielweise innerhalb meines Freundeskreises.
 
-## Spielregeln
 ---
-### Grundlegende Informationen
+## Spielablauf
 
-- **Spieleranzahl:** Klassisches Bela wird **mit vier Spielern** gespielt. Es existieren Varianten mit drei oder zwei Spielern, die jedoch meist weniger unterhaltsam sind.
-- **Ziel des Spiels:** Das Spiel endet, sobald ein Team **1.001 Punkte** erreicht hat, was in der Regel **in weniger als 10 Runden** geschieht.
-- **Kartenanzahl:** Bela wird mit einem **32-Karten-Deck** gespielt.
-  - Die Kartenfarben sind: **Kreuz (♣), Karo (♦), Pik (♠), Herz (♥)**.
-  - Pro Farbe gibt es folgende Karten: **7, 8, 9, 10, Bube (Jack), Dame (Queen), König (King) und Ass (Ace)**.
+#### 1. **Vorbereitung**
+- Das Spiel wird mit vier Spielern und einem 32-Karten-Deck gespielt.
+- Jedes Team besteht aus zwei Spielern, die sich gegenüber sitzen.
+- Es werden so viele Spiele gespielt, bis ein Team 1.001 Punkte erreicht.
+- Es werden 8 Runden pro Spiel gespielt.
+- Ruden verdienen Punkte, die am Ende des Spiels gezählt werden und möglich verloren gehen. - Kleine (Smalls) Punkte
+- Wir unterscheiden die unfeste im Runden gesammelte Punkte kleine Punkte (Smalls) 
+- und feste nach einen Spiel bestätigte große Punkte (Bigs)
+- Ziel: Ein Team muss **1.001 Punkte** erreichen, um zu gewinnen. 
+Falls beide Teams 1.001 Punkte in derselben Spiel erreichen, gewinnt das Team mit den meisten Punkten. 
 
-### Spielstart
+#### 2. **Kartenverteilung & Trump bestimmung**
+- Der Geber teilt jedem Spieler **sechs Karten** aus.
+- Basierend auf diesen Karten wird die **Trumpffarbe** (Adut) bestimmt. Spieler entscheiden reihum, beginnend mit dem rechten Nachbarn des Gebers. 
+  - Ein Spieler kann eine bestimmte Trumpffarbe ansagen oder „Weiter“ sagen.
+  - Der Geber entscheidet zuletzt und muss eine Farbe wählen, wenn alle anderen Spieler „Weiter“ gesagt haben.
+- Nachdem die Trumpffarbe festgelegt wurde, nimmt jeder Spieler die **verbleibenden zwei Karten** auf.
 
-1. **Kartenverteilung:**
-   - Jede*r Spieler*in erhält **sechs Karten** ausgeteilt.
-   - Anschließend wird entschieden, welche Farbe Trumpf wird.
+#### 3. **Ansagephase (Zvanje)**
+- Spieler prüfen ihre Karten auf Kombinationen, um Punkte für ihr Team anzusagen.
+- **Mögliche Ansagen und Punkte:**
+  - **Belot** (alle Karten einer Farbe): 1001 Punkte.
+  - **Bela** (Dame + König der Trumpffarbe): 20 Punkte.
+  - **Vier Karten desselben Rangs**: 
+    - 4 Buben: 200 Punkte, 4 Neunen: 150 Punkte, 
+    - 4 Asse, 4 Zehnen, 4 Könige oder 4 Damen: 100 Punkte.
+  - **Folgen derselben Farbe**:
+    - 7 Karten: 100 Punkte, 6 Karten: 100 Punkte,
+    - 5 Karten: 100 Punkte, 4 Karten: 50 Punkte, 
+    - 3 Karten: 20 Punkte.
+- **Regeln zur Punktevergabe:**
+  - Nur das Team mit der stärksten Ansage erhält die Punkte. Bei Gleichstand gewinnt das Team näher am Geber.
+  - Spieler, die eine Ansage machen, zeigen die Karten, ohne ihre ganze Hand zu offenbaren.
 
-2. **Ansage der Trumpffarbe:**
-   - Basierend auf den sechs erhaltenen Karten entscheiden die Spieler*innen reihum, ob sie eine bestimmte Farbe als **Trumpffarbe (Adut)** ansagen.  
-   - Der Spieler rechts von der Person, die die Karten gibt, beginnt mit der Entscheidung.
-   - Alternativ kann ein Spieler „Weiter“ sagen, wodurch der nächste Spieler entscheidet.
-   - Sobald eine Farbe angesagt wurde, ist sie als Trumpf festgelegt. Danach dürfen alle Spieler*innen die **verbleibenden zwei Karten** ihrer Hand ansehen.
+#### 4. **Start des Runden**
+- Der Spieler rechts vom Geber legt die erste Karte ab.
+- Gespielt wird gegen Uhrzeigersinn. Alle Spieler legen pro Runde eine Karte.
+- Es werden 8 Runden für 8 Karten gespielt.
 
-3. **Start der Runde:**
-   - Die Person rechts vom Dealer spielt die **erste Karte der Partie**.
+#### 5. **Regeln beim Kartenlegen**
+- **Farbregel:** Die erste gespielte Karte bestimmt die führende Farbe der Runde. Diese Farbe behaltet die standard stärke, restliche 2 Farben sind kraftloss.
+- **Stärkeregel:** Spieler müssen, wenn möglich, eine Karte legen, die stärker ist als die aktuelle höchste Karte am Tisch.
 
----
-### Zvanje (Ansagen) im Spiel und ihre Punkte
+#### 6. **Ende der Runde**
+- Sobald alle vier Spieler je eine Karte abgelegt haben, endet die Runde.
+- **Rundengewinner:** Der Spieler mit der stärksten Karte gewinnt die Runde.
+- **Belohnung:** Die Werte aller gespielten Karten in der Runde werden seinen Team in Smalls addiert, falls es die letzte Runde ist +10 Punkte.
+- Rundengewinner startet die neuer Runde mit ersten kartenwurf.
 
-Nach dem Aufnehmen aller Karten prüfen die Spieler*innen, ob sie bestimmte Kartenkombinationen haben, um diese beim Team anzusagen. Diese Ansagephase kann dem Team zusätzliche Punkte einbringen. Die möglichen Ansagen und deren Punktewert sind wie folgt:
+#### 7. **Spielende**
+- Das Team, das den Trumpf gewählt hat, muss mindestens **die Hälfte der Gesamtpunkte + 1** erreichen (z. B. mindestens 82 Punkte in einer Standardspiel).
+- Wenn das Trumpf-Team diese Punktzahl nicht erreicht, erhält das gegnerische Team **alle** Punkte der Runde.
+- Hat das Trumpf-Team die nötigen Punkte erreicht, werden die erzielten Punkte normal zwischen den Teams aufgeteilt.
+- Smalls werden reset und Bigs werden mit dem Gewinn addiert.
 
-#### Kombinationen:
-
-- **Belot:** Alle Karten derselben Farbe (automatischer Sieg; das Spiel endet sofort).
-- **4 Karten des gleichen Rangs:**
-  - 4 Buben: **200 Punkte**
-  - 4 Neunen: **150 Punkte**
-  - 4 Asse, 4 Zehnen, 4 Könige oder 4 Damen: **100 Punkte**
-- **Folgen von Karten derselben Farbe:**
-  - 7 aufeinanderfolgende Karten: **100 Punkte**
-  - 6 aufeinanderfolgende Karten: **100 Punkte**
-  - 5 aufeinanderfolgende Karten: **100 Punkte**
-  - 4 aufeinanderfolgende Karten: **50 Punkte**
-  - 3 aufeinanderfolgende Karten: **20 Punkte**
-- **Besonderheit:** 4 Siebenen oder 4 Achtern bringen **keine Punkte**.
-
-#### Besondere Regel zur Ansage „Bela“:
-- „Bela“ bringt **zusätzliche 20 Punkte**.  
-- Bedingungen für Bela:
-  - Der Spieler muss **Dame** und **König in der Trumpffarbe** besitzen.
-  - Bela wird während des Spiels angesagt.
-
-### Regelungen für Ansagen und Punktevergabe
-
-- Punkte für Ansagen werden **nur einem Team zugeordnet**:
-  - Das Team mit der **stärkeren Ansage** erhält Punkte.
-  - Das andere Team geht leer aus. Ausnahme: Wenn beide Teams **Punkte durch identische Ansagen** haben, erhält das Team näher am Geber die Punkte.
-  
-- Stärkere Ansagen eines Teams:
-  - **Stärkere Karten** haben Vorrang:
-    - Beispiel:
-      - Team A hat eine Folge bis zur Zehn (8, 9, 10).
-      - Team B hat eine Folge bis zur Dame (9, Bube, Dame).
-      - **Team B** erhält die Punkte.
-  - Kommt es innerhalb eines Teams zu mehreren Ansagen, werden deren Werte **addiert**.
-
-### Zusätzliche Regeln für Zvanje
-
-1. Wenn ein Spieler Ansagen bis zum Ass (höchste Karte) und ein anderer bis zur Neun hat, werden die Ansagen dem Spieler mit der stärkeren Kombination **zugeschrieben**.
-2. Wenn Spieler eines Teams mehrere Ansagen von geringem Wert haben (z. B. zwei 20-Punkte-Ansagen) und das gegnerische Team eine einzelne höhere Ansage hat (z. B. 20 Punkte bis zur Dame), werden die Punkte automatisch dem Team mit der **stärkeren Einzelansage** zugeordnet.  
-   - Beispiel:
-     - Team A hat zwei Ansagen bis zur Neun (20+20 = 40 Punkte).
-     - Team B hat eine Ansage bis zur Dame (20 Punkte).
-     - Punkte werden **Team B** zugeschrieben.
-
-3. Spieler, deren Ansagen anerkannt wurden, **zeigen die betreffenden Karten** vor, jedoch nicht ihre komplette Hand.
-
-Das Spiel wird auf diese Weise Runde für Runde fortgeführt, bis ein Team die 1.001 Punkte erreicht, wodurch es den Sieg erringt. 
+#### 9. **Spielende**
+- Solange kein Team **1.001 Punkte** erreicht, werden neue Spiele angefagen.
+- Als nächster Geber wird der Spieler rechts vom vorherigen Geber bestimmt.
+- Der Geber mischt und teilt die Karten erneut aus, und das Spiel beginnt von vorne.
 
 ---
-
-## Kartenlegen: Der Spielverlauf
-
-Nachdem die **Trumpffarbe** gewählt wurde, alle Spieler die **zwei verbleibenden Karten aufgenommen** haben, ihre **acht Karten auf der Hand halten** und potenzielle Ansagen überprüft wurden, kann das eigentliche Spiel beginnen.
-
 ---
 
-### Reihenfolge und Regeln des Kartenlegens
-
-1. **Startspieler:**
-   - Der erste Spieler, der rechts vom Geber sitzt, **legt die erste Karte ab.**
-   - Jede*r Spieler*in legt dann **eine Karte** pro Runde ab, wobei sich die Reihenfolge im Uhrzeigersinn bewegt.
-
-2. **Regeln beim Ablegen:**
-   Beim Kartenlegen gelten zwei wichtige Regeln, die das Spielgeschehen bestimmen:
-   
-   - **Die Farbregel:**  
-     Die Farbe der **ersten gespielten Karte** bestimmt die sogenannte **führende Farbe** der Runde.  
-     - Jeder Spieler ist verpflichtet, Karten der führenden Farbe zu spielen, sofern er welche auf der Hand hat.  
-     - Sind keine Karten der führenden Farbe vorhanden, können **Trumpfkarten** gespielt werden.
-     - Falls der Spieler weder Karten der führenden Farbe noch Trümpfe hat, darf er **eine beliebige Karte** ablegen.
-   
-   - **Die Stärkeregel:**  
-     Jeder Spieler muss, falls möglich, **eine höhere Karte** legen als die derzeit höchste Karte auf dem Tisch.  
-     - Wenn der Spieler keine Karte hat, die stärker ist, darf er auch eine **niedrigere oder beliebige Karte** abspielen.
-
----
-
-### Auswertung der Runde und Punktevergabe
-
-1. **Rundenende:**
-   Die Runde endet, sobald alle Spieler jeweils eine Karte abgelegt haben. Danach wird geprüft, wer die Runde gewonnen hat:
-   - Der Spieler mit der **höchsten Karte der führenden Farbe** gewinnt die Runde,  
-   - oder, falls Trumpfkarten gespielt wurden, der Spieler mit der **höchsten Trumpfkarte.**
-
-2. **Rundenpunkte zählen:**
-   - Die Werte der gespielten Karten werden addiert.  
-   - Eine **Standardpartie ohne Ansagen** hat insgesamt **162 Punkte.**  
-   - Für Spiele mit Ansagen wird der Wert der Punkte entsprechend angepasst (z. B. eine 20-Punkte-Ansage erhöht dies auf **182 Punkte** usw.).
-
-3. **Siegbedingungen während der Runde:**
-   - Das Team, das den **Trumpf gewählt** hat, versucht, die Runde zu gewinnen.  
-   - Für einen Runden-Sieg muss es **mehr als die Hälfte der Gesamtpunkte + 1 Punkt** erzielen.  
-     - Beispiel: In einer Standardpartie ohne Ansagen müssen sie mindestens **82 Punkte** sammeln (161/2 + 1).
-   
-   - **Wird die Punktgrenze nicht überschritten**, erhält das **gegnerische Team** sämtliche Punkte der Runde.  
-   - Wenn das Team, das den Trumpf auswählte, die Punkte erreicht, erhält **jedes Team nur die Punkte, die es innerhalb der Runde erspielt hat.**
-
----
-
-### Ablauf der nächsten Runde
-
-- Der Spieler, der die vorangegangene Runde **erster begonnen hat (erste Karte ablegte)**, wird der Geber der darauffolgenden Runde.  
-- Der Geber mischt und teilt die Karten an alle Spieler aus, bevor die nächste Runde beginnt.
-
----
-Mit diesen Regeln wird die Partie Bela fortgeführt, bis ein Team die **Zielsiegpunktzahl von 1.001 Punkte** erreicht und das Spiel beendet wird. 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
----
-Belot Kartenspiel im Match-Format
+Belot: Eine reine Java-Implementierung mit JShell-Steuerung
 ===============	
 
-Im Spiel Bela Belot treten zwei Teams in einem 2-gegen-2-Format gegeneinander an, wobei jeder Spieler strategische Entscheidungen trifft, um Punkte zu sammeln. 
-Die Spielmechanik wird über die Klasse Match.java gesteuert, die verschiedene Phasen wie Spielstart, Trumpfwahl und Runden spielt. 
-Zunächst wählen die Spieler eine Trumpfkarte, gefolgt von der Anzeige der Zvanje, bevor die Runden beginnen.
-Punkte werden in Echtzeit verfolgt, und ein Team gewinnt, wenn es als erstes 1001 Punkte erreicht. 
-Das Spiel bietet außerdem die Möglichkeit, durch eine Rückgängig-Funktion Züge zu revidieren und damit strategische Optionen zu berücksichtigen.
+>Die `Match`-Klasse in Java bildet das Gerüst für die Bela-Spielsimulation.  
+Sie steuert den Spielablauf durch einen Zustandsautomaten, der verschiedene Phasen 
+(Start, Trumpfauswahl, Zvanje, Rundenspiel, Spielende, Matchende) definiert.  
+Jede Phase wird durch Methoden der `Match`-Klasse abgearbeitet, die wiederum auf die Funktionalität der `Game`-Klasse 
+(für Spiellogik) und der `Round`-Klasse (für einzelnen Runden) zugreifen.  
+Der Spieler interagiert über JShell, indem er Methoden wie `pickTrump()` oder `pickCard()` aufruft;  
+das Spiel wartet auf Benutzereingaben und hält an, wenn diese fehlen.  
+Nach dem Abschluss einer Runde oder eines Spiels wird der Spielzustand entsprechend aktualisiert 
+und die nächste Phase initiiert,  wobei sich der Zyklus aus Phasen und Runden wiederholt, 
+bis ein Team die benötigten Punkte erreicht und das Match gewinnt.  Der Mechanismus der Snapshots ermöglicht es, 
+den Spielverlauf zu speichern und bei Bedarf auf vorherige Zustände zurückzusetzen.
+ 
 
----
-Steuerung - JShell
+
+Steuerung
 ===============	
 
-Die Interaktion mit dem Spiel erfolgt über die JShell, wo Benutzer einfache Befehle eingeben, um die Match Instanz zu steuern. 
+>Die Interaktion mit dem Bela-Spiel erfolgt über die JShell in der Command Prompt (kein PowerShell). 
+Der Benutzer steuert die Match-Instanz mittels einfacher Befehle. 
+Wichtig ist dabei die korrekte Konsolenkodierung: chcp 65001 stellt UTF-8 sicher.
+Die Ausführung der Datei run.jsh (mit /open) importiert notwendige Bibliotheken und konfiguriert die Konsolenausgabe für UTF-8 
+(System.setOut(...)), um korrekte Sonderzeichen anzuzeigen für die Konsole-Ansicht.
+
+
 Die wesentlichen Kommandos sind:
 
 Befehl | Bedeutung
@@ -229,14 +158,10 @@ Befehl | Bedeutung
 `endGame()` | Beendet die aktuelle Runde und bereitet die Punktevergabe vor.
 `endMatch()` | Beendet das gesamte Match und zeigt die Endergebnisse an.
 
-Kartenspiel - die Logik
+Spielstart
 ===============	
 
-Um das Spiel und die Java-Logik zu verstehen, spiele ein Spiel mit mir:
-
-### Beispiel Spielablauf
-
-1. **Match-Erstellung**: 
+## 1. **Match-Erstellung**: 
 
 ```java
 Match match = new Match();
@@ -249,7 +174,7 @@ und weist den anfänglichen MatchPhase den Wert START zu.
 Außerdem werden alle boolesche Phase-Flags 
 (`startGame`, `endGame`, `startRound` und `endMatch`) auf false gesetzt. 
 
-2. **Einstellungen**:
+## 2. **Einstellungen**:
 - Eigenen Namen einstellen:
 ```java
 match.setMyName(String playerName);
@@ -276,7 +201,11 @@ Difficulty | Bedeutung
 `NORMAL` | Wählt Karten zufällig aus spielbaren Optionen und hat eine einfache Logik für die Trumpfwahl, die lediglich die Gesamtstärke der Farben berücksichtigt.
 `PRO` | Nutzt eine strategische Analyse, um die beste Karte basierend auf Gewinnchancen auszuwählen, und wählt die Trumpffarbe gezielt, basierend auf komplexeren Kriterien wie der Kombination von Karten und weiteren strategischen Überlegungen.
 
-3. **Spielbeginn**: 
+```java
+${CheckSettings}
+```
+
+## 3. **Spielbeginn**: 
 
 ```java
 match.play();
@@ -290,30 +219,83 @@ werden standardmäßige (Default-)Werte für die nicht konfigurierten Parameter 
 um sicherzustellen, dass das Spiel starten kann und für einen schnellen Start.
 
 ```java
-public Difficulty customDifficulty = Difficulty.LEARN; 
-public String customTeam1Name = "Team 1";
-public String customPlayerName = "You";
-public String customTeamMate = "Teammate"; 
-public String customEnemy1 = "Rival_1"; 
-public String customEnemy2 = "Rival_2"; 
-public String customTeam2Name = "Team 2";
+${Match}
 ```
 
-4. **Phasenwechsel**: 
-   - Wenn `play()` aufgerufen wird, was nach jeder Aktion des Spielers erfolgt,
-    wechselt das Spiel durch die verschiedenen Phasen:
+## 4. **Phasenwechsel und Interaktionen**: 
+- Wenn `play()` aufgerufen wird, was nach am Start jeder Aktion des Spielers erfolgt,
+wechselt das Spiel durch die verschiedenen Phasen:
 
-    Ablauf | Phase | Bedeutung | Aktion in der Phase
-    ------|------|-----------|---------
-    1 | **START** | Übernimmt die Einstellungen und bereitet das Spiel vor. | `match.startGame()`
-    2 | **CHOOSING_TRUMP** | Die Spieler wählen die Trumpfkarte. | `match.pickTrump(int x)`
-    3 |**SHOW_ZVANJE** | Der Zvanje wird angezeigt und dessen Punkte ausgewertet. | `match.startRound()`
-    4 |**PLAYING_ROUNDS** | Die Runden werden gespielt, wobei jeder Spieler Karten ausspielen kann. | `match.pickCard(int x`
-    5 |**END_OF_GAME** | Am Ende jeder Runde werden die Punkte vergeben und geprüft, ob ein Team das Spiel gewonnen hat. | `match.endGame()`
-    6 |**END_OF_MATCH** | Das gesamte Match wird beendet, und die endgültigen Ergebnisse werden angezeigt. | `match.endMatch()`
+Ablauf | Phase | Bedeutung | Aktion in der Phase
+------|------|-----------|---------
+1 | **START** | Übernimmt die Einstellungen und bereitet das Spiel vor. | `match.startGame()`
+2 | **CHOOSING_TRUMP** | Die Spieler wählen die Trumpfkarte. | `match.pickTrump(int x)`
+3 |**SHOW_ZVANJE** | Der Zvanje wird angezeigt und dessen Punkte ausgewertet. | `match.startRound()`
+4 |**PLAYING_ROUNDS** | Die Runden werden gespielt, wobei jeder Spieler Karten ausspielen kann. | `match.pickCard(int x)`
+5 |**END_OF_GAME** | Am Ende jeder Runde werden die Punkte vergeben und geprüft, ob ein Team das Spiel gewonnen hat. | `match.endGame()`
+6 |**END_OF_MATCH** | Das gesamte Match wird beendet, und die endgültigen Ergebnisse werden angezeigt. | `match.endMatch()`
+
+```java
+${Play}
+```
 
 
+### Phasendurchlauf
 
+**1. START:**
+
+*   `initializeGameSettings()` richtet Spieler, Teams und Schwierigkeit ein.
+*   `startGame()` startet das Spiel und führt die notwendigen Prüfungen durch.
+
+
+**2. CHOOSING_TRUMP:**
+
+*   Die `Spiel`-Klasse (nicht vollständig gezeigt) würde das Verteilen von sechs Karten an jeden Spieler übernehmen (`dealCards()`-Methode, angenommen).
+*   `runChoosingTrumpPhase()` verwaltet die Trumpfauswahl. Eine Methode innerhalb von `Spiel` (z. B. `trumpfAuswahl()`) würde die Spielerentscheidungen verarbeiten und die Trumpffarbe bestimmen.
+
+
+**3. SHOW_ZVANJE:**
+
+*   Eine neue Methode, z. B. `verarbeiteAnsagen()`, würde der `Spiel`-Klasse hinzugefügt.
+*   Diese Methode würde die Hände der Spieler (`Spieler.getHand()`) analysieren, um Ansagen (Belot, Bela, Vierlinge usw.) zu identifizieren.
+*   Die Punktevergabe für jede Ansage würde innerhalb der `verarbeiteAnsagen()`-Methode gehandhabt.
+
+
+**4. PLAYING_ROUNDS:**
+
+*   `runPlayingRoundsPhase()` verwaltet die Phase des Rundenspiels.
+*   `Spiel.spieleRunden()` iteriert durch acht Runden.
+*   Die `Runde`-Klasse (angenommen) handhabt das Kartenlegen und bestimmt den Rundensieger basierend auf Farbe und Rang (`Karte`-Klasse angenommen).
+*   Die `Runde`-Klasse (angenommen) addiert die Punkte der Runde zu den Teamwerten (Smalls).
+
+
+**5.  END_OF_GAME:**
+
+*   In der `Runde`-Klasse (angenommen) addiert eine `berechneRundenpunkte()`- oder ähnliche Methode Punkte (Smalls) zum siegreichen Team. Ein Bonus von +10 Punkten könnte für die letzte Runde hinzugefügt werden.
+
+
+**6.  END_OF_MATCH:**
+
+*   `runEndOfGamePhase()` verarbeitet das Spielende.
+*   `spiel.trumpfTeamErfolgreich()` würde prüfen, ob das Trumpfteam die Punktzahlanforderung erfüllt hat. Wenn nicht, werden die Punkte dem Gegner gutgeschrieben.
+*   `spielGewinner()` prüft, ob eines der Teams 1001 Punkte erreicht hat und erklärt den Spielgewinner.
+*   `setzeFürNächstesSpielZurück()` setzt Smalls zurück und rotiert den Geber (`rotateDealer()` bereits vorhanden).
+
+
+**7.  Matchende:**
+
+*   `runEndOfMatchPhase()` verwaltet das Matchende.
+*   `printMatchEnd()` zeigt die Endergebnisse an.
+*   `setzeMatchZurück()` setzt den gesamten Spielzustand zurück.
+
+**Wichtige Überlegungen:**
+
+*   Die Klassen `Spiel`, `Runde`, `Spieler`, `Karte` und `Team` sind entscheidend und werden im bereitgestellten Code-Snippet nicht vollständig gezeigt. Diese Klassen enthalten den größten Teil der Spiellogik (Kartenwerte, Punkteberechnung usw.).
+*   Die Fehlerbehandlung (ungültige Spieleraktionen) muss in der `Match`-Klasse und ihren abhängigen Klassen gründlich implementiert werden.
+*   Der `snapshots`-Mechanismus und die `clone()`-Methode verarbeiten das Speichern und Wiederherstellen des Spielzustands und unterstützen die Rückgängig-Funktionalität.
+
+Diese detaillierte Aufschlüsselung verdeutlicht, wie die Bela-Spielregeln in der `Match`-Klasse implementiert werden können, vorausgesetzt, dass die Hilfsklassen existieren und die spezifischen Details der Kartenspielmechanik handhaben.
+  
 
 
 
@@ -322,7 +304,7 @@ public String customTeam2Name = "Team 2";
 int x = 1;
 ```
 
-""", Map.of("match", Text.cutOut("./logo.java", "// Match constructor"),
-"tree", Text.cutOut("./logo.java", "// tree"))));
-
-// myFirstTurtle
+""", Map.of("Match", Text.cutOut("./controllers/Match.java", "// Match constructor"),
+"CheckSettings", Text.cutOut("./controllers/Match.java", "// Check Settings"), 
+"Play", Text.cutOut("./controllers/Match.java", "// Play"),
+"x", Text.cutOut("./controllers/Match.java", "// Check Settings"))));

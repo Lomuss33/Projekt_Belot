@@ -65,8 +65,10 @@ public class Match implements Cloneable { // Implement Cloneable{
         this.startRound = false; 
         this.endMatch = false;
     }
+    // Match constructor
 
     // Play method to advance the game through different phases of the match
+    // Play
     public void play() {
         switch (currentPhase) {
             case START -> {
@@ -109,9 +111,11 @@ public class Match implements Cloneable { // Implement Cloneable{
             default -> throw new IllegalStateException("Unexpected value: " + currentPhase);
         }
     }
+    // Play
 
+    // Check Settings
+    // Check Settings is called after the match is started - after play(), if settings are not set, default values are used. 
     private void checkSettings() {
-
         if (difficulty == null) {
             this.difficulty = customDifficulty;
         }
@@ -122,9 +126,10 @@ public class Match implements Cloneable { // Implement Cloneable{
         if (players == null) {
             this.players = GameUtils.initializePlayers(difficulty, team1, team2, 
                             customPlayerName, customTeamMate, customEnemy1, customEnemy2);
-            this.me = (HumanPlayer) players.get(0); // Assume Player 0 is the human
+            this.me = (HumanPlayer) players.get(0); // Player 0 is the human
         }
     }
+    // Check Settings
 
     private void printStart() {
         System.out.println("Match phase: START");
@@ -307,6 +312,7 @@ public class Match implements Cloneable { // Implement Cloneable{
         System.out.println("Match ended. Winner: " + winner.getName());
     }
 
+    // Settings
     public void setDifficulty(String difficultyName) {
         if (difficultyName != null) {
             switch (difficultyName.toUpperCase()) {
@@ -355,6 +361,7 @@ public class Match implements Cloneable { // Implement Cloneable{
         }
         System.out.println("Team names set: " + this.customTeam1Name + " vs " + this.customTeam2Name);
     }
+    // Settings
 
     // Method to be called from the GUI when the human player accepts the zvanje
     public void startGame() {

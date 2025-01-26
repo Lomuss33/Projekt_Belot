@@ -54,12 +54,20 @@ public class HumanPlayer extends Player implements Cloneable {
     // Choose a card index to play
     @Override
     public int chooseCardToPlay(List<Integer> playableIndexes) {
-            if (cardIndexChoice == -1) { // Keep waiting until a valid choice is made
-                    return -1; // No choice made yet
-                }
-            int chosenCardIndex = trumpChoice.ordinal(); // Use the ordinal value as the chosen card index
-            cardIndexChoice = -1; // Reset for the next round
-            return chosenCardIndex; // Return the chosen index to the game
+        if (playableIndexes == null || playableIndexes.isEmpty()) {
+            System.out.println("No playable cards available.");
+            return -1; // No playable cards
+        }
+        if (cardIndexChoice == -1) { // Keep waiting until a valid choice is made
+            return -1; // No choice made yet
+        }
+        if (!playableIndexes.contains(cardIndexChoice)) {
+            System.out.println("Chosen card is not playable.");
+            return -1; // Chosen card is not in the list of playable cards
+        }
+        int chosenCardIndex = cardIndexChoice; // Use the chosen card index
+        cardIndexChoice = -1; // Reset for the next round
+        return chosenCardIndex; // Return the chosen index to the game
     }
 
     // Get selected cards from index to go check Zvanje
