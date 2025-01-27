@@ -9,6 +9,7 @@ Clerk.markdown(
 
 # BELA TURTLE PLAY
 > Falls das Turtle-Objekt nicht sichtbar ist, bitte die file erneut starten.
+---
 """));
 
 Turtle turtle = new Turtle(600, 400);
@@ -19,109 +20,245 @@ Clerk.markdown(
 """
 ### Nutzen sie dieses Fenster und die ` x ` Instanz. um ein eigenes Spiel im Jshell zu spielen.
 
+---
+---
 # Funktionsversprechen: Belot (Bela) Kartenspiel
+---
+
+## Szenario 1 – Spielerstellung und Ablauf 
+---
+
+### **Einen neuen Match starten**
+
+Um einen neuen Match zu starten, erstellen Sie einfach eine Instanz der `Match`-Klasse:
+
+```java
+Match m = new Match();
+```
+
+### **Einen neuen Match mit TurtleView starten**
+
+Falls Sie eine TurtleView für die grafische Darstellung des Matches nutzen möchten, 
+initialisieren Sie zuerst eine `Turtle`-Instanz mit den gewünschten Abmessungen (Breite und Höhe). 
+Anschließend übergeben Sie diese an ein `TurtlePlay`-Objekt der die Match-Instanz erstellt und Logik steuert:
+
+```java
+Turtle turtle = new Turtle(600, 400); // Erstellt ein Turtle-Fenster mit 600x400 Pixeln
+TurtlePlay x = new TurtlePlay(turtle); // Verknüpft die Turtle mit TurtlePlay
+```
+
+
+### **Match Klasse Übersicht**
+Der `Match`-Konstruktor und die zugehörigen Variablen steuern den gesamten Zustand und Ablauf eines Matches.
+
+#### **Wichtige Variablen**
+- **Spielzustand und Phasenmanagement**:
+  - `MatchPhase currentPhase`: Verfolgt die aktuelle Phase des Matches (z. B. START, PLAYING_ROUNDS).
+  - `Stack<Match> snapshots`: Ermöglicht das Speichern von Spielzuständen (z. B. für Undo-Funktionalität).
+- **Teams und Spieler**:
+  - `Team team1, team2`: Repräsentiert die beiden Teams.
+  - `List<Player> players`: Enthält alle Spieler des Matches.
+  - `HumanPlayer me`: Referenz auf den Menschen als Spieler.
+- **Spielstatus** (Lifecycle Flags):
+  - `startGame`, `endGame`, `startRound`, `endMatch`: Flags, die den Fortschritt des Spiels markieren.
+- **Anpassungen**:
+  - Benutzerspezifische Namen (für Teams und Spieler), sowie Schwierigkeitsstufe (`customDifficulty`).
+
+#### **Konstruktor**
+Der Konstruktor initialisiert die Hauptparameter:
+- `currentPhase`: Startet das Spiel in der `START`-Phase.
+- `gameCounter`: Zählt die Anzahl gespielter Spiele (startet bei 0).
+- `dealerIndex`: Setzt den Dealer so das der Spieler anfängt (Index 3).
+- Alle Flags (`startGame`, `endGame`, etc.) werden auf `false` gesetzt.
+
+
+### **Kommandozeilen der Anpassungen**:
+- Eigenen Namen einstellen:
+```java
+match.setMyName(String playerName);
+```	
+
+- Namen der Spieler einstellen:
+```java
+match.setPlayerNames(String teamMate, String enemyMate1, String enemyMate2);
+```
+
+- Namen der Teams einstellen:
+```java
+match.setTeamNames(String myTeamName, String enemyTeamName);
+```
+
+- Spielregeln (Difficulty) einstellen:
+```java
+match.setDifficulty(String learn | normal | pro);
+```
+### Die Match Klasse mit Konstruktor und Einstellungen:
+
+```java
+${Match}
+``` 
 
 ---
-## Szenario 1 – Spiel Start / Ansagen
 
-Mit `x.play()` beginnt das Spiel im **START**-Modus, wo die ausgewählten Einstellungen initialisiert werden. Der Befehl `startGame()` startet das erste Spiel.  Der Ablauf durch die verschiedenen Spielphasen wird durch einen Zustandsautomaten gesteuert, der mit einem `enum MatchPhase` implementiert wurde.
+### Die Methode `play()`
+`play()` steuert den Ablauf des Spiels durch die verschiedenen Phasen. Sie nutzt eine rekursive Zustandsmaschine für einen flüssigen Spielfluss und berücksichtigt Unterbrechungen.
 
-- **START-Phase:** Jeder Spieler erhält 6 Karten und sieht nur seine eigene verdeckte Hand.
-- **CHOOSING_TRUMP-Phase:** Die Spieler wählen ihre Trumpffarbe (Adut).
-- Nach der Wahl erhalten alle Spieler 2 weitere Karten, womit das vollständige Blatt verteilt wird.
-- **SHOW_ZVANJE-Phase:** Ansagen (Zvanje) werden angezeigt, und der Spieler bestätigt diese mit `startRound()`.
-- **PLAYING_ROUNDS:** Die Runde beginnt, und Spieler können abwechselnd Karten ausspielen.
+#### Funktionsweise:
+1. **Phasen-Handling**: Je nach aktueller Phase (`MatchPhase`) wird die spezifische Logik ausgeführt (`runPhase()`).
+2. **Zwischenprüfung (`runPhase`)**: Jeder Phase wird innerhalb der eigenen `runPhase` Methode abgeschlossen, 
+die `true` zurückgibt, wenn die Phase beendet ist. Ist dies nicht der Fall, wird der Spielfluss unterbrochen. 
+Nach Abschluss einer Phase wird zur nächsten Phase gewechselt und `play()` erneut aufgerufen
+   ```java
+       public void play() {
+        switch (currentPhase) {
+            case START -> {
+                if (!runStartPhase()) { // Run Phase and check if it's finished
+                    return; // Exit the play method
+                }
+                this.play(); // Proceed to the next phase
+            }
+    ...
+   ```
+3. **Rekursion für Phase-Wechsel**: :
+   ```java
+   currentPhase = MatchPhase.END_OF_MATCH;
+   this.play();
+   ```
+4. **Flags zur Steuerung**: Spieleraktionen (z. B. `pickCard()`) setzen bestimmte Flags. Beim nächsten Durchlauf merkt dies `play()` und erkennt, dass die Voraussetzung für den Phasenabschluss erfüllt wurde.
 
-Der Übergang zwischen den Phasen erfolgt innerhalb der Zustandsmaschine, gesteuert durch die `MatchPhase`-Enumeration und entsprechende Methodenaufrufe.
- 
+#### Unterbrechung & Fortsetzung:
+Während `play()` pausiert (z. B. bis ein Spieler eine Karte spielt), werden Statusvariablen wie der aktuelle Spieler oder die Trumpffarbe **persistiert**. Mit gesetzten Flags kann `play()` an derselben Stelle wieder fortgesetzt werden.
 
-1. **Spiel starten:** `x.play()`
-
-![nach ausfuhrung von play()](./imgs/img1START.png)
-
-2. **Game 1 starten :** `x.startGame()`
-
-![nach ausfuhrung von startGame()](./imgs/img2CHOOSING_TRUMP.png)
-
-3. **Trumpf wählen:** `x.pickTrump(0)` (0 = Herz, 1 = Karo, 2 = Pik, 3 = Kreuz)
-
-![nach ausfuhrung von pickTrump(0)](./imgs/img2CHOOSING_TRUMP.png)
-
-4. **Runde starten:** `x.startRound()`
-
-![nach ausfuhrung von startRound()](./imgs/img3SHOW_ZVANJE.png)
-
-5. **Karte ausspielen:** `x.pickCard(3)` (0 = erste Karte, 1 = zweite Karte, ...)
-
-![nach ausfuhrung von pickCard(0)](./imgs/img4PLAYING_ROUNDS.png)
-
-6. **Spiel beenden:** `x.endGame()`
-
-![nach ausfuhrung von endGame()](./imgs/img5END_OF_GAME.png)
-
-7. **Match beenden:** `x.endMatch()`
-
-![nach ausfuhrung von endMatch()](./imgs/img6END_OF_MATCH.png)
+#### Thread-Mechanismus:
+- **Unterbrechbarkeit**: `play()` kann pausieren, ohne den Thread zu stoppen.
+- **Fortsetzung**: Aktionen von Spielern triggern die Weiterführung der Methode.
+- **Thread-Sicherheit**: Synchronisation sorgt für konsistente Zustandsverwaltung.
 
 ---
+
 ##  Szenario 2 – [ Zug machen / letzten Zug zürucknehmen ] 
+---
 
-Okay, hier ist eine Beschreibung der Implementierung, aufgeteilt nach Methoden, sodass Sie den eigentlichen Code darunter einfügen können:
+Ablauf | Phase | Bedeutung | Aktion in der Phase
+------|------|-----------|---------
+1 | **START** | Übernimmt die Einstellungen und bereitet das Spiel vor. | `match.startGame()`
+2 | **CHOOSING_TRUMP** | Die Spieler wählen die Trumpffarbe (Adut). | `match.pickTrump(int x)`
+3 |**SHOW_ZVANJE** | Der Zvanje wird angezeigt und dessen Punkte ausgewertet. | `match.startRound()` & `match.goBack()`
+4 |**PLAYING_ROUNDS** | Die Runden werden gespielt, wobei jeder Spieler Karten ausspielen kann. | `match.pickCard(int x)` & `match.goBack()`
+5 |**END_OF_GAME** | Am Ende jeder Runde werden die Punkte vergeben und geprüft, ob ein Team das Spiel gewonnen hat. | `match.endGame()` & `match.goBack()`
+6 |**END_OF_MATCH** | Das gesamte Match wird beendet, und die endgültigen Ergebnisse werden angezeigt. | `match.endMatch()`
 
 
-**1. `saveSnapshot()`**
+### Zug machen / Spielablauf
+
+1. **Match starten `x.play()` zum START** 
+
+![nach ausfuhrung von play()](./DocuImgs/img1START.png)
+
+2. **Game 1 starten `x.startGame()` zum CHOOSING_TRUMP** 
+
+![nach ausfuhrung von startGame()](./DocuImgs/img2CHOOSING_TRUMP.png)
+
+3. **Trumpf wählen `x.pickTrump(0)` zum SHOW_ZVANJE**  <br>
+0 = Skip, 1 = Herz (♥), 2 = Karo (♦), 3 = Kreuz(♣), 4 = Pik (♠)
+
+![nach ausfuhrung von pickTrump(0)](./DocuImgs/img2CHOOSING_TRUMP.png)
+
+4. **Runde starten `x.startRound()` zum PLAYING_ROUNDS**
+
+![nach ausfuhrung von startRound()](./DocuImgs/img3SHOW_ZVANJE.png)
+
+5. **Karte ausspielen `x.pickCard(3)` zum END_OF_GAME** (0 = erste Karte, 1 = zweite Karte, ...)
+
+![nach ausfuhrung von pickCard(0)](./DocuImgs/img4PLAYING_ROUNDS.png)
+
+6. **Spiel beenden `x.endGame()` zum END_OF_GAME**
+
+![nach ausfuhrung von endGame()](./DocuImgs/img5END_OF_GAME.png)
+
+7. **Match beenden `x.endMatch()` zum END_OF_MATCH**
+
+![nach ausfuhrung von endMatch()](./DocuImgs/img6END_OF_MATCH.png)
+
+---
+
+### Letzten Zug zürucknehmen / Reset-Funktionen
+
+- **`saveSnapshot()`**
 
 Diese Methode speichert den aktuellen Spielzustand, indem sie eine tiefe Kopie des `Match`-Objekts erstellt und diese auf einen Stack (`snapshots`) legt.  Die tiefe Kopie ist entscheidend, um sicherzustellen, dass Änderungen an der kopierten Spielsituation die Originalversion nicht beeinflussen. Diese tiefe Kopie wird nur durchgeführt, wenn der Schwierigkeitsgrad des Spiels nicht auf "PRO" eingestellt ist.
 ```java
 ${saveSnapshot}
 ```
 
-**2. `pickCard()`**
-
-Diese Methode verarbeitet den Zug eines Spielers (die Auswahl einer Karte). Bevor der Zug verarbeitet wird, prüft sie die Schwierigkeitseinstellung. Wenn sie nicht "PRO" ist, ruft sie `saveSnapshot()` auf, um den Spielzustand *vor* dem Ausspielen der Karte zu speichern. Dann wird die gewählte Karte verarbeitet und die `play()`-Methode bringt das Spiel in die nächste Phase.
-```java
-${pickCard}
-```
-
-**3. `goBack()`**
+- **`goBack()`**
 
 Diese Methode ermöglicht es einem Spieler, seinen letzten Zug rückgängig zu machen. Sie prüft zuerst, ob das Rückgängigmachen erlaubt ist (Schwierigkeit ist nicht "PRO" und das Spiel befindet sich nicht am Anfang oder Ende). Wenn erlaubt und ein vorheriger Zustand existiert (`snapshots` ist nicht leer), ruft sie den letzten Spielzustand vom `snapshots`-Stack ab. Der abgerufene Zustand wird dann wiederhergestellt, wodurch das Spiel effektiv auf den Punkt vor dem letzten Zug zurückgesetzt wird.  Anschließend wird `play()` aufgerufen, um fortzufahren.
 ```java
 ${goBack}
 ``` 
 
+- **`pickCard()`**
+
+Diese Methode verarbeitet den Zug eines Spielers (die Auswahl einer Karte). Bevor der Zug verarbeitet wird, prüft sie die Schwierigkeitseinstellung. Wenn sie nicht "PRO" ist, ruft sie `saveSnapshot()` auf, um den Spielzustand *vor* dem Ausspielen der Karte zu speichern. Dann wird die gewählte Karte verarbeitet und die `play()`-Methode bringt das Spiel in die nächste Phase.
+```java
+${pickCard}
+```
+
 ---
 ##  Szenario 3 – [ Punkteverfolgung ]
 
-**1. Akkumulation von "Smalls":**
+### **Szenario 3 – Punkteverfolgung**
 
-* **Wann:** Die "Smalls"-Punkte werden während des gesamten Spiels gesammelt, wahrscheinlich innerhalb der `Round`-Klasse (die Sie nicht gezeigt haben). Jedes Mal, wenn ein Team eine Runde gewinnt, erhöht sich sein "Smalls"-Punktestand. Der genaue Mechanismus, wie viele Punkte pro gewonnenen Runde hinzugefügt werden, ist nicht im bereitgestellten Code enthalten und in der Implementierung der `Round`-Klasse verborgen.
+#### **1. Akkumulation von "Smalls":**
 
-* **Wie:** Die "Smalls"-Punkte werden von der `Team`-Klasse mithilfe von Methoden wie `addSmalls()` verwaltet (die Sie nicht gezeigt haben). Diese Methoden sind im gegebenen `GameUtils`-Code nicht sichtbar.
+**Wann:**  
+"Smalls"-Punkte werden während des gesamten Spiels gesammelt. Jedes Mal, wenn ein Team eine Runde gewinnt, erhöht sich dessen "Smalls"-Punktestand. Der genaue Mechanismus, wie viele Punkte pro gewonnener Runde hinzugefügt werden, ist in der `Round`-Klasse implementiert, die nicht im Detail verfügbar ist.
+
+**Wie:**  
+Die Verwaltung der "Smalls"-Punkte erfolgt über die `Team`-Klasse mithilfe von Methoden wie `addSmalls()`. Diese Methode erhöht die Punktzahl des Teams basierend auf den Kartenwerten. Die Details dieser Methode liegen in der Implementierung, auf die nicht vollständig zugegriffen werden kann.
+
+---
+
+#### **2. Berechnung der Zvanje-Punkte:**
+
+**Wann:**  
+Zvanje-Punkte werden *einmal* berechnet, nachdem die Trumpffarbe ausgewählt wurde, aber bevor die Runden beginnen. Diese Berechnung erfolgt, um zusätzliche Punkte basierend auf speziellen Kartenkombinationen zu vergeben.
+
+**Wie:**  
+Die `ZvanjeService`-Klasse spielt hier eine zentrale Rolle. Mit `ZvanjeService.detectPlayerZvanje()` werden die Karten jedes Spielers überprüft, um gültige Zvanje-Kombinationen (z. B. Sequenzen, spezielle Kartenpaare) zu identifizieren. Die Punkte werden dann entsprechend den Regeln zugewiesen.
+
+---
+
+#### **3. Berechnung der Gesamt-Punkte:**
+
+**Wann:**  
+Die Gesamt-Punkte eines Teams werden am Ende jeder Runde und zusätzlich am Ende des Spiels berechnet. Diese ermöglichen es, den aktuellen Siegesstand oder den endgültigen Gewinner zu ermitteln.
+
+**Wie:**  
+Mithilfe von `GameUtils.calculateGamePoints()` werden die Gesamtergebnisse eines Teams berechnet. Dabei werden die "Smalls"-Punkte aus der `Team`-Klasse und die zuvor bestimmten Zvanje-Punkte kombiniert. Somit ergibt sich die Gesamtpunktzahl eines Teams.
+
+---
+
+#### **4. Gewinnbedingung:**
+
+**Wann:**  
+Das Überprüfen der Gewinnbedingung erfolgt am Ende jeder Runde (mit `GameUtils.findGameWinner()`) und nach Beendigung des gesamten Spiels.
+
+**Wie:**  
+Die Gewinnbedingung wird ermittelt, indem geprüft wird, ob ein Team die Gesamtpunktzahl erreicht hat, die den `winThreshold` überschreitet. Dieser Schwellenwert wird mit der Methode `GameUtils.calculateWinThreshold()` berechnet und entspricht mindestens 50 % plus 1 Punkt.
+
+---
+
+#### **Zusammenfassung:**
+1. "Smalls"-Punkte werden schrittweise während der Runden gesammelt.  
+2. Zvanje-Punkte werden einmalig nach Auswahl der Trumpffarbe berechnet.  
+3. Die Gesamt-Punkte kombinieren die "Smalls" und Zvanje-Punkte, um den Spiel- und Matchstand zu ermitteln.  
+4. Ein Team gewinnt, wenn seine Gesamt-Punkte den errechneten `winThreshold` überschreiten (entspricht meist 50 % + 1 Punkt).
+
+Ohne detaillierten Zugriff auf den Code der Klassen `Team` und `Round` bleibt die genaue Implementierung teils offen.
 
 
-**2. Berechnung der Zvanje-Punkte:**
-
-* **Wann:** Die Zvanje-Punkte werden *einmal* berechnet, nachdem die Trumpffarbe ausgewählt wurde, aber *bevor* die Runden beginnen. Diese Berechnung findet in der `Game`-Klasse (die Sie nicht gezeigt haben) statt, indem `ZvanjeService.detectPlayerZvanje()` für jeden Spieler aufgerufen wird.
-
-* **Wie:** Die `ZvanjeService`-Klasse ermittelt die Zvanje-Punkte basierend auf den Karten in der Hand jedes Spielers und der Trumpffarbe. Die Methode `ZvanjeService.detectPlayerZvanje()` verwendet komplexe Regeln, um verschiedene Zvanje-Kombinationen zu identifizieren und ihnen entsprechend Punkte zuzuweisen.
-
-
-**3. Berechnung der Gesamt-Punkte:**
-
-* **Wann:** Die Gesamt-Punkte werden am Ende jeder Runde *und* am Ende des Spiels berechnet, um den Gewinner zu ermitteln.
-
-* **Wie:** Die Gesamt-Punkte werden mit der Funktion `GameUtils.calculateGamePoints()` berechnet. Diese Funktion summiert die "Smalls" des Teams (erhalten von der `Team`-Klasse) und addiert die Zvanje-Punkte, falls das Team das Zvanje gewonnen hat.
-
-
-**4. Gewinnbedingung:**
-
-* **Wann:** Die Gewinnbedingung wird am Ende jeder Runde von `GameUtils.findGameWinner()` und nach dem Ende des Spiels überprüft.
-
-* **Wie:** Die Gewinnbedingung wird ermittelt, indem geprüft wird, ob die Gesamt-Punkte eines Teams (Smalls + Zvanje-Punkte, falls zutreffend) den `winThreshold` (berechnet mit `GameUtils.calculateWinThreshold()`) überschreiten.
-
-
-Kurz gesagt: "Smalls" werden inkrementell während jeder Runde gesammelt. Zvanje-Punkte werden einmal vor Beginn der Runden berechnet. Die Gesamt-Punkte für jedes Team werden am Ende jeder Runde (und des Spiels) berechnet, indem "Smalls" und Zvanje-Punkte kombiniert werden. Das Gewinnerteam ist dasjenige, das zuerst den berechneten `winThreshold` (50% + 1 Punkt) überschreitet. Ohne den Code für `Team` und `Round` bleibt diese Erklärung etwas unvollständig.
 ```java
 ${detectPlayerZvanje}
 ``` 
@@ -176,12 +313,11 @@ ${chooseTrumpOrSkip}
 ``` 
 
 """, Map.of(
+    "Match", Text.cutOut("./controllers/Match.java", "// Match"), 
     "pickCard", Text.cutOut("./controllers/Match.java", "// pickCard"),
     "goBack", Text.cutOut("./controllers/Match.java", "// goBack"), 
     "saveSnapshot", Text.cutOut("./controllers/Match.java", "// saveSnapshot"),
     "chooseTrumpOrSkip", Text.cutOut("./ai/AiPlayerPRO.java", "// chooseTrumpOrSkip"), 
-    "findPlayableCardIndexes", Text.cutOut("./services/RoundUtils.java", "// findPlayableCardIndexes"), 
-    "detectPlayerZvanje", Text.cutOut("./services/ZvanjeService.java", "// detectPlayerZvanje")
+    "findPlayableCardIndexes", Text.cutOut("./controllers/Round.java", "// findPlayableCardIndexes"), 
+    "detectPlayerZvanje", Text.cutOut("./controllers/ZvanjeService.java", "// detectPlayerZvanje")
     )));
-
-

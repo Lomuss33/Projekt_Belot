@@ -58,12 +58,9 @@ public abstract class Player implements Cloneable {
 
     // Abstract method to choose trump
     public abstract TrumpChoice chooseTrumpOrSkip(int turnForChoosingTrump);
-
-    // Abstract method to call zvanje
-    public abstract List<Card> callZvanje(List<Integer> selectedIndices);
     
     // Abstract method to choose a card to be played
-    public abstract int chooseCardToPlay(List<Integer> playableIndices);
+    public abstract int chooseCardToPlay(List<Integer> playableIndexes, List<Card> onFloor, Card.Suit trump);
 
     public final Card playCard(int index) {
         if (index < 0 || index >= hand.getCards().size()) {

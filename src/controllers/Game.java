@@ -8,17 +8,15 @@
 package controllers;
 
 import ai.HumanPlayer;
+import controllers.ZvanjeService.ZvanjeResult;
+import controllers.ZvanjeService.ZvanjeType;
 import java.util.*;
 import models.*;
 import models.Player.TrumpChoice;
-import services.*;
-import services.GameUtils.Difficulty;
-import services.ZvanjeService.ZvanjeResult;
-import services.ZvanjeService.ZvanjeType;
 
 public class Game implements Cloneable {
 
-    public Difficulty difficulty;
+    public Match.Difficulty difficulty;
     public Team team1, team2;
     public List<Player> players;
     public ZvanjeResult zvanjeWin;
@@ -29,10 +27,11 @@ public class Game implements Cloneable {
     public int roundStarterIndex;
     public int roundCount;
     public boolean teamPassed;
+    public Team trumpTeam;
     public boolean midRound;
     public Round currentRound;
 
-    public Game(List<Player> players, Team team1, Team team2, int dealerIndex, GameUtils.Difficulty difficulty) {
+    public Game(List<Player> players, Team team1, Team team2, int dealerIndex, Match.Difficulty difficulty) {
         this.difficulty = difficulty;
         this.players = players;
         this.team1 = team1;
@@ -43,18 +42,6 @@ public class Game implements Cloneable {
         this.roundCount = 0;
         this.midRound = false;
     }
-
-    public Team lookForWinner() {
-        // Check if a team has crossed the win threshold
-        Team winner = GameUtils.findGameWinner(team1, team2, zvanjeWin, winTreshold);
-        if (winner != null) {
-            System.out.println("Game over! Winner: " + winner.getName()); 
-        } else {
-            System.out.println("Game continues. Current scores: " + team1.getName() + " - " + team1.getBigs() + ", " + team2.getName() + " - " + team2.getBigs());
-        }
-        return winner;
-    }
-
 
     public void initializeGame() {
         // Shuffle the deck in front of players
@@ -93,7 +80,7 @@ public class Game implements Cloneable {
         deck.dealAllHands(players, 2);
         sortAllPlayersHands(players);        
         zvanjeWin = reportZvanje(trumpSuit, dealerIndex);
-        winTreshold = GameUtils.calculateWinThreshold(zvanjeWin);
+        winTreshold = calculateWinThreshold(zvanjeWin);
     }
 
     // Play 8 rounds and check for a winner after each round
@@ -119,10 +106,10 @@ public class Game implements Cloneable {
     }
 
     private void displayScores() {
-        if (difficulty == GameUtils.Difficulty.LEARN) { 
+        if (difficulty == Match.Difficulty.LEARN) { 
             System.out.println(team1 + " - Bigs: " + team1.getBigs() + ", Smalls: " + team1.getSmalls());
             System.out.println(team2 + " - Bigs: " + team2.getBigs() + ", Smalls: " + team2.getSmalls());
-        } else if (difficulty == GameUtils.Difficulty.NORMAL) {
+        } else if (difficulty == Match.Difficulty.NORMAL) {
             System.out.println(team1 + " - Bigs: " + team1.getBigs());
             System.out.println(team2 + " - Bigs: " + team2.getBigs());
         }
@@ -135,10 +122,10 @@ public class Game implements Cloneable {
     }
 
     private void awardGameVictory() {
-        Team dealerTeam = players.get(dealerIndex).getTeam();
+        Team dealerTeam = getTrumpTeam();
         Team otherTeam = (dealerTeam == team1) ? team2 : team1;
-        int dealerTeamPoints = GameUtils.calculateGamePoints(dealerTeam, zvanjeWin);
-        int otherTeamPoints = GameUtils.calculateGamePoints(otherTeam, zvanjeWin);
+        int dealerTeamPoints = calculateGamePoints(dealerTeam, zvanjeWin);
+        int otherTeamPoints = calculateGamePoints(otherTeam, zvanjeWin);
 
         if (dealerTeamPoints >= winTreshold) {
             handleDealerTeamVictory(dealerTeam, otherTeam, dealerTeamPoints, otherTeamPoints);
@@ -241,6 +228,21 @@ public class Game implements Cloneable {
                 .sum();
     }
 
+    // Method to calculate game points for a given team
+    public static int calculateGamePoints(Team team, ZvanjeResult zvanjeWin) {
+        int zvanjePoints = (zvanjeWin != null && zvanjeWin.getWinningTeam() == team) ? zvanjeWin.getTotalPoints() : 0;
+        return team.getSmalls() + zvanjePoints;
+    }
+
+    // Calculate the threshold for winning the game 
+    public static int calculateWinThreshold(ZvanjeResult zvanjeWin) {
+        int basePoints = 162; // Base points for a "clean game"
+        int zvanjePoints = (zvanjeWin != null) ? zvanjeWin.getTotalPoints() : 0;
+        int totalPoints = basePoints + zvanjePoints;
+        // Threshold to pass is half the total points plus 1
+        return (totalPoints / 2) + 1;
+    }    
+
     // Method to update values for all cards in the deck and players' hands
     public void updateCardValues(Card.Suit trumpSuit) {
         // Update values for all cards in the deck
@@ -269,12 +271,16 @@ public class Game implements Cloneable {
                 TrumpChoice humanChoice = handleHumanPlayerChoice((HumanPlayer) currentPlayer, i);
                 if (humanChoice == null) return null;
                 if (humanChoice != TrumpChoice.SKIP) {
+                    trumpTeam = players.get(i).getTeam();
                     finalChoice = humanChoice;
                     break;
                 }
             } else {
                 finalChoice = handleComputerPlayerChoice(currentPlayer, i);
-                if (finalChoice != null) break; // Break if a choice (other than skip) is made
+                if (finalChoice != null) {
+                    trumpTeam = players.get(i).getTeam();
+                    break; // Break if a choice (other than skip) is made
+                }
             }
     
             currentIndex = (currentIndex + 1) % players.size();
@@ -383,7 +389,7 @@ public class Game implements Cloneable {
         this.currentRound = currentRound;
     }
 
-    public void setDifficulty(GameUtils.Difficulty difficulty) {
+    public void setDifficulty(Match.Difficulty difficulty) {
         this.difficulty = difficulty;
     }
 
@@ -443,6 +449,10 @@ public class Game implements Cloneable {
         return currentRound;
     }
 
+    public Team getTrumpTeam() {
+        return trumpTeam;
+    }
+
     public String teamPassed() {
         return teamPassed ? "YES" : "NO";
     }
@@ -451,7 +461,7 @@ public class Game implements Cloneable {
         return players.get(dealerIndex).getTeam();
     }
 
-    public GameUtils.Difficulty getDifficulty() {
+    public Match.Difficulty getDifficulty() {
         return difficulty;
     }
 
@@ -493,6 +503,7 @@ public class Game implements Cloneable {
         clonedGame.trumpSuit = this.trumpSuit; // Enums are immutable, so this is directly referenced
         clonedGame.teamPassed = this.teamPassed;
         clonedGame.midRound = this.midRound;
+        clonedGame.trumpTeam = this.trumpTeam;
 
         return clonedGame;
     }

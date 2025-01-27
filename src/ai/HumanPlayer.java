@@ -47,7 +47,7 @@ public class HumanPlayer extends Player implements Cloneable {
 
     // Choose a card index to play
     @Override
-    public int chooseCardToPlay(List<Integer> playableIndexes) {
+    public int chooseCardToPlay(List<Integer> playableIndexes, List<Card> onFloor, Card.Suit trump) {
         if (playableIndexes == null || playableIndexes.isEmpty()) {
             System.out.println("No playable cards available.");
             return -1; // No playable cards
@@ -62,16 +62,6 @@ public class HumanPlayer extends Player implements Cloneable {
         int chosenCardIndex = cardIndexChoice; // Use the chosen card index
         cardIndexChoice = -1; // Reset for the next round
         return chosenCardIndex; // Return the chosen index to the game
-    }
-
-    // Get selected cards from index to go check Zvanje
-    @Override
-    public List<Card> callZvanje(List<Integer> selectedIndices) {
-        List<Card> selectedCards = new ArrayList<>();
-        for(int index : selectedIndices) {
-            selectedCards.add(hand.getCard(index));
-        }
-        return selectedCards;
     }
     
     // Choose trump suit

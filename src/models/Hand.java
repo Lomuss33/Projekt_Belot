@@ -12,8 +12,8 @@
 package models;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import services.CardUtils;
 
 public class Hand implements Cloneable {
 
@@ -72,7 +72,14 @@ public class Hand implements Cloneable {
 
         // New method to sort the internal cards
     public void sortCards() {
-        CardUtils.sortBySuitAndRank(cards);
+        sortBySuitAndRank(cards);
+    }
+
+        // Sort a list of cards by suit and rank
+    private static void sortBySuitAndRank(List<Card> cards) {
+        cards.sort(Comparator
+                .comparing(Card::getSuit) // Sort by suit (primary)
+                .thenComparing(card -> card.getRank().ordinal())); // Sort by rank (secondary)
     }
 
     // Check if the hand is empty / used for testing

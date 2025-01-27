@@ -12,7 +12,6 @@ package ai;
 
 import java.util.*;
 import models.*;
-import services.GameUtils.Difficulty;
 
 public class AiPlayerLEARN extends Player {
 
@@ -23,7 +22,7 @@ public class AiPlayerLEARN extends Player {
 
     // Randomly choose a card to play
     @Override
-    public int chooseCardToPlay(List<Integer> playableIndexes) {
+    public int chooseCardToPlay(List<Integer> playableIndexes, List<Card> onFloor, Card.Suit trump) {
         if (playableIndexes.isEmpty()) {
             throw new IllegalArgumentException("No playable cards available!");
         }
@@ -54,13 +53,5 @@ public class AiPlayerLEARN extends Player {
                 .toArray(Player.TrumpChoice[]::new);
             return nonSkipChoices[random.nextInt(nonSkipChoices.length)];
         }
-    }
-    
-
-    // Return an empty list for Zvanje (no detection logic)
-    @Override
-    public List<Card> callZvanje(List<Integer> selectedIndices) {
-        System.out.println(name + " does not know how to detect Zvanje.");
-        return new ArrayList<>(); // Always returns an empty list
     }
 }

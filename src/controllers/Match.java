@@ -7,14 +7,22 @@
 
 package controllers;
 
+import ai.AiPlayerLEARN;
+import ai.AiPlayerNORMAL;
+import ai.AiPlayerPRO;
 import ai.HumanPlayer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 import models.*;
-import services.*;
 
+// Match
 public class Match implements Cloneable { // Implement Cloneable{
+
+    // Enum for the difficulty levels of the AI players
+    public enum Difficulty {
+        LEARN, NORMAL, PRO,
+    }
 
     public enum MatchPhase {
         START,
@@ -25,43 +33,44 @@ public class Match implements Cloneable { // Implement Cloneable{
         END_OF_MATCH
     }
 
-    public static final int WINNING_SCORE = 101; // The score required to win the match
-    private MatchPhase currentPhase;
-    public final Stack<Match> snapshots = new Stack<>();
-    public Game game;
-    public int gameCounter;
-    public GameUtils.Difficulty difficulty;    
+    // Variables for the Match class
+    public static final int WINNING_SCORE = 101; // Score required to win the match
+    private MatchPhase currentPhase; // Tracks the current phase of the match
+    public final Stack<Match> snapshots = new Stack<>(); // Stack for storing match states (e.g., for undo)
+    public Game game; // Reference to the current game
+    public int gameCounter; // Tracks the number of games played so far
+    public Difficulty difficulty; // Difficulty level of the game
+    public Team team1, team2; // The two competing teams
+    public List<Player> players; // List of all players in the match
+    public HumanPlayer me; // Player instance for the human player
+    public Team winner; // Tracks the winner of the match
+    public int dealerIndex; // Tracks the index of the player dealing cards
 
-    public Team team1, team2;
-    public List<Player> players;
-    public HumanPlayer me;
-    public Team winner;
-    public int dealerIndex;
+    // Boolean variables for match lifecycle
+    public boolean startGame; // Indicates if the game has started
+    public boolean endGame; // Indicates if the game has ended
+    public boolean startRound; // Indicates if a round has started
+    public boolean endMatch; // Indicates if the match has ended
 
-    public boolean startGame;
-    public boolean endGame;
-    public boolean startRound;
-    public boolean endMatch;
-
-    public GameUtils.Difficulty customDifficulty = GameUtils.Difficulty.LEARN; 
+    // Customization options (e.g., names and attributes)
+    public Difficulty customDifficulty = Difficulty.LEARN; // Default difficulty level
     public String customTeam1Name = "Team 1";
     public String customPlayerName = "You";
-    public String customTeamMate = "Teammate"; 
-    public String customEnemy1 = "Rival_1"; 
-    public String customEnemy2 = "Rival_2"; 
+    public String customTeamMate = "Teammate";
+    public String customEnemy1 = "Rival_1";
+    public String customEnemy2 = "Rival_2";
     public String customTeam2Name = "Team 2";
 
-    // Match constructor
     public Match() {
-        this.currentPhase = MatchPhase.START;
-        this.gameCounter = 0;
-        this.dealerIndex = 3;  // Default HumanPlayer starts the game
-        this.startGame = false;
-        this.endGame = false;
-        this.startRound = false; 
-        this.endMatch = false;
+        this.currentPhase = MatchPhase.START; // Initial phase is START
+        this.gameCounter = 0; // Game counter starts from 0
+        this.dealerIndex = 3; // The human player starts as the dealer by default
+        this.startGame = false; // Game has not started
+        this.endGame = false; // Game has not ended
+        this.startRound = false; // Round has not started
+        this.endMatch = false; // Match has not ended
     }
-    // Match constructor
+// Match
 
     // Play method to advance the game through different phases of the match
     // Play
@@ -280,9 +289,9 @@ public class Match implements Cloneable { // Implement Cloneable{
     public void setDifficulty(String difficultyName) {
         if (difficultyName != null) {
             switch (difficultyName.toUpperCase()) {
-            case "LEARN" -> this.difficulty = GameUtils.Difficulty.LEARN;
-            case "NORMAL" -> this.difficulty = GameUtils.Difficulty.NORMAL;
-            case "PRO" -> this.difficulty = GameUtils.Difficulty.PRO;
+            case "LEARN" -> this.difficulty = Difficulty.LEARN;
+            case "NORMAL" -> this.difficulty = Difficulty.NORMAL;
+            case "PRO" -> this.difficulty = Difficulty.PRO;
             default -> {
                 System.out.println("Invalid difficulty. Please choose String LEARN, NORMAL, or PRO.");
                 return;
@@ -355,12 +364,12 @@ public class Match implements Cloneable { // Implement Cloneable{
             System.out.println("Invalid choice! Please select a number between 0 and 4.");
             return;
         }
-        if (difficulty == GameUtils.Difficulty.NORMAL) {
+        if (difficulty == Difficulty.NORMAL) {
             snapshots.clear();
             System.out.println("Snapshots cleared for new Game due to NORMAL difficulty.");
         }
         // Save the current state before proceeding
-        if (difficulty != GameUtils.Difficulty.PRO) {
+        if (difficulty != Difficulty.PRO) {
             saveSnapshot();
         }
 
@@ -389,7 +398,7 @@ public class Match implements Cloneable { // Implement Cloneable{
             return; // Exit the method without advancing the game
         }
         // Save the current state before proceeding
-        if (difficulty != GameUtils.Difficulty.PRO) {
+        if (difficulty != Difficulty.PRO) {
             saveSnapshot();
         }
         // Proceed with card play if phase is valid
@@ -436,11 +445,11 @@ public class Match implements Cloneable { // Implement Cloneable{
 
     // goBack
     public void goBack() {
-        if (difficulty == GameUtils.Difficulty.PRO) {
+        if (difficulty == Difficulty.PRO) {
             System.err.println("Reverting to a previous snapshot is not allowed on PRO difficulty!");
             return;
         }
-        if (currentPhase == MatchPhase.START || currentPhase == MatchPhase.END_OF_MATCH) {
+        if (currentPhase == MatchPhase.START || currentPhase == MatchPhase.END_OF_MATCH || currentPhase == MatchPhase.CHOOSING_TRUMP) {
             System.err.println("Cannot revert to previous snapshot at the start or end of the match!");
             return;
         }
@@ -471,7 +480,7 @@ public class Match implements Cloneable { // Implement Cloneable{
     // goBack
 
     // Settings
-    public void initializeGameSettings(GameUtils.Difficulty difficulty, String team1Name, String team2Name,  
+    public void initializeGameSettings(Difficulty difficulty, String team1Name, String team2Name,  
                         String playerName, String teamMate, String enemyMate1, String enemyMate2) {
 
         if (difficulty == null) {
@@ -482,12 +491,41 @@ public class Match implements Cloneable { // Implement Cloneable{
             this.team2 = new Team(customTeam2Name);
         }
         if (players == null) {
-            this.players = GameUtils.initializePlayers(difficulty, team1, team2, 
+            this.players = initializePlayers(difficulty, team1, team2, 
                             customPlayerName, customTeamMate, customEnemy1, customEnemy2);
             this.me = (HumanPlayer) players.get(0); // Player 0 is the human
         }
     }
     // Settings
+
+        // Initialize players and assign them to the given teams
+    public static List<Player> initializePlayers(Difficulty difficulty, Team team1, Team team2, 
+                String playerName, String teamMate, String enemyMate1, String enemyMate2) {
+        List<Player> players = new ArrayList<>();
+
+        // Assign human player to Team 1
+        players.add(new HumanPlayer(playerName, team1));
+
+        // Create AI players based on difficulty
+        switch (difficulty) {
+            case LEARN:
+                players.add(new AiPlayerLEARN(enemyMate1, team2)); // Bot 1 in Team 2
+                players.add(new AiPlayerLEARN(teamMate, team1)); // Bot 2 in Team 1
+                players.add(new AiPlayerLEARN(enemyMate2, team2)); // Bot 3 in Team 2
+                break;
+            case NORMAL:
+                players.add(new AiPlayerNORMAL(enemyMate1, team2));
+                players.add(new AiPlayerNORMAL(teamMate, team1));
+                players.add(new AiPlayerNORMAL(enemyMate2, team2));
+                break;
+            case PRO:
+                players.add(new AiPlayerPRO(enemyMate1, team2));
+                players.add(new AiPlayerPRO(teamMate, team1));
+                players.add(new AiPlayerPRO(enemyMate2, team2));
+                break;
+        }
+        return players;
+    }
 
     private void printEndGame(Team winner) {
         System.out.println("End of game!");
@@ -534,7 +572,7 @@ public class Match implements Cloneable { // Implement Cloneable{
         return gameCounter;
     }
 
-    public GameUtils.Difficulty getDifficulty() {
+    public Difficulty getDifficulty() {
         return difficulty;
     }
 

@@ -51,9 +51,9 @@ public class TurtlePlay {
                 turtle.text("📗", Font.COURIER, 2000, Font.Align.CENTER);
                 turtleOtherPlayers(turtle, match.players);
                 turtleHand(turtle, match.me);
-                if (match.difficulty == GameUtils.Difficulty.NORMAL) {
+                if (match.difficulty == Match.Difficulty.NORMAL) {
                     turtleBigScore(turtle, match.players);
-                } else if (match.difficulty == GameUtils.Difficulty.LEARN) {
+                } else if (match.difficulty == Match.Difficulty.LEARN) {
                     turtleBigScore(turtle, match.players);
                     turtleSmallScore(turtle, match.players);
                     turtleGameZvanje(turtle, match.getCurrentGame());
@@ -76,11 +76,11 @@ public class TurtlePlay {
         }
     }
 
-    public void settings(GameUtils.Difficulty difficulty, String team1Name, String team2Name, 
+    public void settings(Match.Difficulty difficulty, String team1Name, String team2Name, 
                      String playerName, String teamMate, String enemyMate1, String enemyMate2) {
         // Set up the teams
         match.initializeGameSettings(
-            difficulty != null ? difficulty : GameUtils.Difficulty.LEARN, 
+            difficulty != null ? difficulty : Match.Difficulty.LEARN, 
             team1Name != null ? team1Name : "Team 1",
             team2Name != null ? team2Name : "Team 2",
             playerName != null ? playerName : "You",

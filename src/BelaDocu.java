@@ -188,27 +188,6 @@ und weist den anfänglichen MatchPhase den Wert START zu.
 Außerdem werden alle boolesche Phase-Flags 
 (`startGame`, `endGame`, `startRound` und `endMatch`) auf false gesetzt. 
 
-## 2. **Einstellungen**:
-- Eigenen Namen einstellen:
-```java
-match.setMyName(String playerName);
-```	
-
-- Namen der Spieler einstellen:
-```java
-match.setPlayerNames(String teamMate, String enemyMate1, String enemyMate2);
-```
-
-- Namen der Teams einstellen:
-```java
-match.setTeamNames(String myTeamName, String enemyTeamName);
-```
-
-- Spielregeln (Difficulty) einstellen:
-```java
-match.setDifficulty(String learn | normal | pro);
-```
-
 Difficulty | Bedeutung
 -------|----------
 `LEARN` | Ermöglicht es, das Spiel zu lernen, wo es keine Begrenzung der Ruckgängig-Funktion gibt und die (Learn-)Bots ohne Betrachtung des Spieles die Wahl treffen, und zwar auf Züfallig.
@@ -243,77 +222,16 @@ wechselt das Spiel durch die verschiedenen Phasen:
 Ablauf | Phase | Bedeutung | Aktion in der Phase
 ------|------|-----------|---------
 1 | **START** | Übernimmt die Einstellungen und bereitet das Spiel vor. | `match.startGame()`
-2 | **CHOOSING_TRUMP** | Die Spieler wählen die Trumpfkarte. | `match.pickTrump(int x)`
-3 |**SHOW_ZVANJE** | Der Zvanje wird angezeigt und dessen Punkte ausgewertet. | `match.startRound()`
-4 |**PLAYING_ROUNDS** | Die Runden werden gespielt, wobei jeder Spieler Karten ausspielen kann. | `match.pickCard(int x)`
-5 |**END_OF_GAME** | Am Ende jeder Runde werden die Punkte vergeben und geprüft, ob ein Team das Spiel gewonnen hat. | `match.endGame()`
+2 | **CHOOSING_TRUMP** | Die Spieler wählen die Trumpffarbe (Adut). | `match.pickTrump(int x)`
+3 |**SHOW_ZVANJE** | Der Zvanje wird angezeigt und dessen Punkte ausgewertet. | `match.startRound()` und `match.goBack()`
+4 |**PLAYING_ROUNDS** | Die Runden werden gespielt, wobei jeder Spieler Karten ausspielen kann. | `match.pickCard(int x)` & `match.goBack()`
+5 |**END_OF_GAME** | Am Ende jeder Runde werden die Punkte vergeben und geprüft, ob ein Team das Spiel gewonnen hat. | `match.endGame()` & `match.goBack()`
 6 |**END_OF_MATCH** | Das gesamte Match wird beendet, und die endgültigen Ergebnisse werden angezeigt. | `match.endMatch()`
 
 ```java
 ${Play}
 ```
 
-### Phasendurchlauf
-
-
-**1. START:**  -> **match.startGame()**
-
-The `runStartPhase` method:
-
-1. Checks settings and prints the start message.
-2. Exits if `startGame` is false, prompting the user to start.
-3. Initializes a new game if it doesn't already exist.
-4. Sets the initial state for both teams.
-5. Advances to the `CHOOSING_TRUMP` phase and resets `startGame`.
-
-**2. CHOOSING_TRUMP:** -> **match.pickTrump(int x)**
-
-The `runChoosingTrumpPhase` method:
-
-1. Prints the current phase.
-2. If `game.trumpSelection()` fails (meaning trump suit wasn't chosen), it prompts the user to choose a suit (or skip).
-3. If trump selection was successful, it proceeds to `SHOW_ZVANJE` phase and finds the `zvanje`.
-4. Returns `true` to signal successful phase completion.
-
-**3. SHOW_ZVANJE:** -> **match.startRound()**
-
-The `runShowZvanjePhase` method:
-
-1. Prints the Anruf (Zvanje) Result.
-2. Checks if `startRound` is true; if not, it waits for the zvanje to be accepted and returns `false`.
-3. If `startRound` is true, it resets `startRound` to `false`.
-4. Transitions to the `PLAYING_ROUNDS` phase and returns `true`.
-
-**4. PLAYING_ROUNDS:** -> **match.pickCard(int x)**
-
-The `runPlayingRoundsPhase` method:
-
-1. Prints that the game is in the `PLAYING_ROUNDS` phase.
-2. Calls `game.playRounds()`. If this returns `false`, it means rounds are still being played, and the user is prompted to play a card.  The method then returns `false`.
-3. If `game.playRounds()` returns `true` (meaning all rounds are finished), it prints "End of game", transitions to the `END_OF_GAME` phase, and returns `true`.
-
-**5.  END_OF_GAME:** -> **match.endGame()**
-
-The `runEndOfGamePhase` method handles the end of a game within a match:
-
-1. It prints the current phase ("END_OF_GAME").
-2. It checks if `endGame` is true; if not, it waits for the game to end and returns `false`.
-3. If `endGame` is true, it resets `endGame` to `false`.
-4. It determines the winner using `matchWinner()`.
-5. It prints the end-game results using `printEndGame(winner)`.
-6. If there's a winner, the phase changes to `END_OF_MATCH`.
-7. Otherwise (no overall match winner yet), the game resets for the next round via `resetForNextGame()`, the game counter increments, and the phase returns to `START`.
-
-**6.  END_OF_MATCH:** -> **match.endMatch()**
-
-The `runEndOfMatchPhase` method handles the conclusion of an entire match:
-
-1. It prints the match end results using `printMatchEnd(winner)`.
-2. It checks if `endMatch` is true; if false, it waits for confirmation to end the match and returns `false`.
-3. If `endMatch` is true, it resets `endMatch` to false.
-4. It resets the match state using `resetMatch()`.
-5. It sets the current phase back to `START`, preparing for a new match.
-6. Finally, it returns `true`.
 
 ## Snapshot-Verwaltung und Spielzustand im Java-Code
 

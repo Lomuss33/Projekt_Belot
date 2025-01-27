@@ -11,18 +11,30 @@ public class AiPlayerNORMAL extends Player {
 
     // Randomly choose a card to play from playable cards
     @Override
-    public int chooseCardToPlay(List<Integer> playableIndexes) {
+    public int chooseCardToPlay(List<Integer> playableIndexes, List<Card> onFloor, Card.Suit trump) {
         if (playableIndexes.isEmpty()) {
             throw new IllegalArgumentException("No playable cards available!");
         }
-        Random random = new Random();
-        return playableIndexes.get(random.nextInt(playableIndexes.size()));
-    }
 
-    // Choose Zvanje cards
-    @Override
-    public List<Card> callZvanje(List<Integer> selectedIndices) {
-        return new ArrayList<>(); // Keep this basic for easy AI
+        // Group playable cards
+        List<Card> playableCards = new ArrayList<>();
+        for (int index : playableIndexes) {
+            playableCards.add(hand.getCard(index));
+        }
+
+        // Find the weakest card that can win
+        Card bestCard = playableCards.stream()
+            .min(Comparator.comparingInt(Card::getValue)) // Choose the weakest winning card
+            .orElse(null);
+
+        // If no winning card exists, play the lowest card
+        if (bestCard == null) {
+            return playableIndexes.stream()
+                .min(Comparator.comparingInt(index -> hand.getCard(index).getValue()))
+                .orElse(playableIndexes.get(0));
+        }
+
+        return playableIndexes.get(hand.getCards().indexOf(bestCard));
     }
 
     // Choose the trump suit based on the most valuable cards in hand
@@ -68,13 +80,13 @@ public class AiPlayerNORMAL extends Player {
         return Player.TrumpChoice.valueOf(strongestSuit.name());
     }
 
-    // Group cards by suit
-    private Map<Card.Suit, List<Card>> groupBySuit(List<Card> cards) {
-        Map<Card.Suit, List<Card>> groupedBySuit = new HashMap<>();
+    // Group cards by rank
+    private Map<Card.Rank, List<Card>> groupByRank(List<Card> cards) {
+        Map<Card.Rank, List<Card>> groupedByRank = new HashMap<>();
         for (Card card : cards) {
-            groupedBySuit.computeIfAbsent(card.getSuit(), k -> new ArrayList<>()).add(card);
+            groupedByRank.computeIfAbsent(card.getRank(), k -> new ArrayList<>()).add(card);
         }
-        return groupedBySuit;
+        return groupedByRank;
     }
 }
 

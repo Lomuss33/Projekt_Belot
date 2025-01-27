@@ -12,7 +12,6 @@
 package ai;
 
 import java.util.*;
-import services.GameUtils.Difficulty;
 import models.*;
 
 public class AiPlayerPRO extends Player {
@@ -23,38 +22,29 @@ public class AiPlayerPRO extends Player {
 
     // Choose the best card to play based on strategy
     @Override
-    public int chooseCardToPlay(List<Integer> playableIndexes) {
+    public int chooseCardToPlay(List<Integer> playableIndexes, List<Card> onFloor, Card.Suit trump) {
         if (playableIndexes.isEmpty()) {
             throw new IllegalArgumentException("No playable cards available!");
         }
-
-        // Group playable cards
-        List<Card> playableCards = new ArrayList<>();
+        // Initialize variables for the best choice
+        int bestIndex = playableIndexes.get(0);
+        int bestStrength = Integer.MIN_VALUE;
+    
+        // Determine the leading suit on the floor (if any cards have been played)
+        Card.Suit leadSuit = onFloor.isEmpty() ? null : onFloor.get(0).getSuit();
+    
+        // Loop through all playable cards
         for (int index : playableIndexes) {
-            playableCards.add(hand.getCard(index));
+            Card card = hand.getCard(index); // Get the card corresponding to the index
+            int strength = card.getStrength(trump, leadSuit); // Calculate the card strength
+    
+            // Select the card with the highest strength
+            if (strength > bestStrength) {
+                bestStrength = strength;
+                bestIndex = index;
+            }
         }
-
-        // Find the weakest card that can win
-        Card bestCard = playableCards.stream()
-            .filter(card -> canWin(card)) // Filter cards that can win
-            .min(Comparator.comparingInt(Card::getValue)) // Choose the weakest winning card
-            .orElse(null);
-
-        // If no winning card exists, play the lowest card
-        if (bestCard == null) {
-            return playableIndexes.stream()
-                .min(Comparator.comparingInt(index -> hand.getCard(index).getValue()))
-                .orElse(playableIndexes.get(0));
-        }
-
-        return playableIndexes.get(hand.getCards().indexOf(bestCard));
-    }
-
-    // Determine if the card can win the current round
-    private boolean canWin(Card card) {
-        // Implement logic to compare the card against the strongest card on the floor
-        // Use trumpSuit, leadSuit, and other contextual variables
-        return true; // Placeholder for actual logic
+        return bestIndex; // Return the index of the best card to play
     }
 
     // Choose the trump suit based on the best scoring mechanism
@@ -125,51 +115,4 @@ public class AiPlayerPRO extends Player {
     }
     // chooseTrumpOrSkip
 
-    // Call Zvanje by detecting high-value combinations
-    @Override
-    public List<Card> callZvanje(List<Integer> selectedIndices) {
-        Map<Card.Rank, List<Card>> groupedByRank = groupByRank(hand.getCards());
-        Map<Card.Suit, List<Card>> groupedBySuit = groupBySuit(hand.getCards());
-
-        List<Card> zvanjeCards = new ArrayList<>();
-        detectFourOfAKind(groupedByRank, zvanjeCards);
-        detectSequences(groupedBySuit, zvanjeCards);
-
-        return zvanjeCards;
-    }
-
-    // Group cards by rank
-    private Map<Card.Rank, List<Card>> groupByRank(List<Card> cards) {
-        Map<Card.Rank, List<Card>> groupedByRank = new HashMap<>();
-        for (Card card : cards) {
-            groupedByRank.computeIfAbsent(card.getRank(), k -> new ArrayList<>()).add(card);
-        }
-        return groupedByRank;
-    }
-
-    // Group cards by suit
-    private Map<Card.Suit, List<Card>> groupBySuit(List<Card> cards) {
-        Map<Card.Suit, List<Card>> groupedBySuit = new HashMap<>();
-        for (Card card : cards) {
-            groupedBySuit.computeIfAbsent(card.getSuit(), k -> new ArrayList<>()).add(card);
-        }
-        return groupedBySuit;
-    }
-
-    // Detect four-of-a-kind combinations
-    private void detectFourOfAKind(Map<Card.Rank, List<Card>> groupedByRank, List<Card> zvanjeCards) {
-        for (List<Card> cards : groupedByRank.values()) {
-            if (cards.size() == 4) {
-                zvanjeCards.addAll(cards);
-            }
-        }
-    }
-
-    // Detect sequences
-    private void detectSequences(Map<Card.Suit, List<Card>> groupedBySuit, List<Card> zvanjeCards) {
-        for (List<Card> cards : groupedBySuit.values()) {
-            cards.sort(Comparator.comparing(card -> card.getRank().ordinal()));
-            // Implement sequence detection logic here
-        }
-    }
 }
