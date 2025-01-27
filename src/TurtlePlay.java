@@ -1,3 +1,8 @@
+import java.util.List;
+
+import controllers.Match;
+import models.Player;
+
 public class TurtlePlay {
 // turtle tree
     public Turtle turtle;
@@ -24,8 +29,7 @@ public class TurtlePlay {
                 // Initialize with default basic settings
                 if(!matchStarted) {
                     System.out.println("Settings were not changed: Using default settings...");
-                    this.settings(match.difficulty, match.customTeam1Name, match.customTeam2Name, 
-                            match.customPlayerName, match.customTeamMate, match.customEnemy1, match.customEnemy2);
+                    match.play();
                     matchStarted = true;
                 }
                 turtle.moveTo(0,400);
@@ -36,7 +40,7 @@ public class TurtlePlay {
                 System.err.println("CHOOSING_TRUMP view");
                 turtle.moveTo(0,400);
                 turtle.text("📗", Font.COURIER, 2000, Font.Align.CENTER);
-                turtleOtherPlayers(turtle, match.players);
+                turtlePlayers(turtle, match.players);
                 turtleHand(turtle, match.me);
                 turtleTrumpChoices(turtle, match.getCurrentGame());
             }
@@ -45,11 +49,12 @@ public class TurtlePlay {
                 turtle.moveTo(0,400);
                 turtle.text("📙", Font.COURIER, 2000, Font.Align.CENTER);
                 turtleZvanjeResult(turtle, match.getCurrentGame());
+                turtleSnap(turtle, match);
             }
             case PLAYING_ROUNDS -> {
                 turtle.moveTo(0,400);
                 turtle.text("📗", Font.COURIER, 2000, Font.Align.CENTER);
-                turtleOtherPlayers(turtle, match.players);
+                turtlePlayers(turtle, match.players);
                 turtleHand(turtle, match.me);
                 if (match.difficulty == Match.Difficulty.NORMAL) {
                     turtleBigScore(turtle, match.players);
@@ -61,12 +66,15 @@ public class TurtlePlay {
                 turtleGameInfo(turtle, match.getCurrentGame());
                 turtleOnFloor(turtle, match.getCurrentRound());
                 turtleStartingPlayer(turtle, match.getCurrentRound());
+                turtleSnap(turtle, match);
+                turtleWonDecks(turtle, match);
             }
             case END_OF_GAME -> {
                 turtle.moveTo(0,400);
                 turtle.text("📙", Font.COURIER, 2000, Font.Align.CENTER);
                 System.out.println("Game over!");
                 drawEndGame(turtle, match);
+                turtleSnap(turtle, match);
             }
             case END_OF_MATCH -> {
                 System.out.println("Match ended!");
@@ -218,7 +226,7 @@ public class TurtlePlay {
         turtle.backward(20);
         turtle.text("setTeamNames(String: myTeam, rivalTeam)", Font.COURIER, 15, Font.Align.LEFT);
         turtle.backward(20);
-        turtle.text("🔹Difficulty: " + match.customDifficulty.toString(), Font.COURIER, 15, Font.Align.LEFT);
+        turtle.text("🔹Difficulty: " + match.difficulty.toString(), Font.COURIER, 15, Font.Align.LEFT);
         turtle.backward(20);
         turtle.text("🔹My Team name: " + match.customTeam1Name, Font.COURIER, 15, Font.Align.LEFT);
         turtle.backward(20);
@@ -259,7 +267,7 @@ public void drawEndGame(Turtle turtle, controllers.Match match) {
     turtle.moveTo(300, 100);
     turtle.text("Game #" + (match.getGameCounter() + 1) + " ended!", Font.COURIER, 20, Font.Align.CENTER);
     turtle.penUp().backward(40);
-    turtle.text("Trump team" + match.getCurrentGame().getTrumpCallTeam() + "passed? " + match.getCurrentGame().teamPassed(), Font.COURIER, 18, Font.Align.CENTER);
+    turtle.text("Trump team" + match.getCurrentGame().getTrumpCallTeam() + " passed? " + match.getCurrentGame().teamPassed(), Font.COURIER, 18, Font.Align.CENTER);
     turtle.backward(50);
     turtle.text("Points earned:", Font.COURIER, 20, Font.Align.CENTER);
     turtle.backward(30);
@@ -278,7 +286,7 @@ public void drawGameStart(Turtle turtle, controllers.Match match) {
     turtle.penUp().backward(80);
     turtle.text("🃏", Font.COURIER, 60, Font.Align.CENTER);
     turtle.backward(120);
-    turtle.text("Difficulty: " + match.customDifficulty.toString(), Font.COURIER, 15, Font.Align.CENTER);
+    turtle.text("Difficulty: " + match.difficulty.toString(), Font.COURIER, 15, Font.Align.CENTER);
     turtle.backward(60);
     turtle.text("Start this game with startGame()", Font.COURIER, 20, Font.Align.CENTER);
     turtlePlayerInfo(turtle, match);
@@ -341,11 +349,16 @@ public void turtleStartScreen(Turtle turtle) {
 
 }
 
-public void turtleOtherPlayers(Turtle turtle, List<Player> players) {
+public void turtlePlayers(Turtle turtle, List<Player> players) {
     // Display the name of the player
-    for (int i = 1; i < players.size(); i++) {
+    for (int i = 0; i < players.size(); i++) {
         Player player = players.get(i);
         switch (i) {
+            case 0 -> {
+                turtle.moveTo(turtle.width / 2, turtle.height - 130); // Bottom
+                turtle.color(0, 0, 255);
+                turtle.text(player.getName(), Font.COURIER, 20, Font.Align.CENTER);
+            }
             case 1 -> {
                 turtle.moveTo(turtle.width - 20, turtle.height / 2); // Right
                 turtle.right(90);
@@ -390,13 +403,12 @@ public void turtleStartingPlayer(Turtle turtle, controllers.Round round) {
 
 public void turtleGameInfo(Turtle turtle, controllers.Game game) {
     // Display the trump suit for the round
-    turtle.moveTo(600, 15);
-    turtle.text("Trump: " + game.getTrumpSuit().getSymbol(), Font.COURIER, 15, Font.Align.RIGHT);
-    turtle.backward(15);
+    turtle.moveTo(590, 15);
+    turtle.text("Difficulty: " + game.getDifficulty().toString(), Font.COURIER, 15, Font.Align.RIGHT);
     turtle.backward(15);
     turtle.text("Dealer: " + game.getDealer(), Font.COURIER, 15, Font.Align.RIGHT);
     turtle.backward(15);
-    turtle.text("Difficulty: " + game.getDifficulty().toString(), Font.COURIER, 15, Font.Align.RIGHT);
+    turtle.text("Trump: " + game.getTrumpSuit().getSymbol(), Font.COURIER, 15, Font.Align.RIGHT);
 }
 
 public void turtleTrumpChoices(Turtle turtle, controllers.Game game) {
@@ -461,9 +473,7 @@ public void turtleOnFloor(Turtle turtle, controllers.Round round) {
 
 void turtleHand(Turtle turtle, models.Player player) {
     int handSize = player.getHand().getSize(); 
-    System.out.println("player.getPlayableIndices(): " + player.getPlayableIndices());
     // Calculate the total width of the entire hand
-    // Starting from "middle of the first card",
     int totalHandWidth = (handSize - 1) * (10 * 5 + 10);  // Total gaps & card widths AFTER the first card.
     // Adjust the starting position to ensure the hand is centered 
     int startingWidth = (turtle.width / 2) - (totalHandWidth / 2); // Center of hand starts here
@@ -523,7 +533,7 @@ public void turtleBigScore(Turtle turtle, List<models.Player> players) {
     turtle.moveTo(10, 20);
     for (int i = 0; i < teamCount; i++) {
         models.Team team = players.get(i).getTeam();
-        turtle.text(team.getName() + " bigs: " + team.getBigs(), Font.COURIER, 10, Font.Align.LEFT);
+        turtle.text(team.getName() + " Bigs: " + team.getBigs(), Font.COURIER, 10, Font.Align.LEFT);
         turtle.backward(10);
     }
 }
@@ -534,7 +544,7 @@ public void turtleSmallScore(Turtle turtle, List<models.Player> players) {
     turtle.moveTo(10, 40);
     for (int i = 0; i < teamCount; i++) {
         models.Team team = players.get(i).getTeam();
-        turtle.text(team.getName() + " smalls: " + team.getSmalls(), Font.COURIER, 10, Font.Align.LEFT);
+        turtle.text(team.getName() + " Smalls: " + team.getSmalls(), Font.COURIER, 10, Font.Align.LEFT);
         turtle.backward(10);
     }
 }
@@ -545,5 +555,31 @@ public void turtleGameZvanje(Turtle turtle, controllers.Game game) {
         turtle.text("Zvanje: " + game.getZvanjePoints() + "pts " + game.getZvanjeWinner(), Font.COURIER, 10, Font.Align.LEFT);
     } else {
         turtle.text("Zvanje: None", Font.COURIER, 10, Font.Align.LEFT);
+    }
+}
+
+public void turtleSnap(Turtle turtle, controllers.Match match) {
+    if(match.isSnapEmpty()) {
+        return;
+    }
+    turtle.moveTo(35, 370);
+    turtle.text("↩️", Font.COURIER, 25, Font.Align.CENTER);
+    turtle.backward(15);
+    turtle.text("goBack()", Font.COURIER, 10, Font.Align.CENTER);
+}
+
+private void turtleWonDecks(Turtle turtle, controllers.Match match) {
+    // Draw the deck of cards won by both teams
+    for (models.Team team : List.of(match.team1, match.team2)) {
+        if (team.getName().equals(match.team1.getName())) {
+            turtle.moveTo(500, 275); // my team
+        } else if (team.getName().equals(match.team2.getName())) {
+            turtle.moveTo(50, 120); // their team
+        }
+        if (team.getSmalls() != 0) {
+            turtle.left(90);
+            turtle.text("🃏", Font.COURIER, 50, Font.Align.CENTER);
+            turtle.right(90);
+        }
     }
 }

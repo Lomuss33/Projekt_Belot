@@ -6,14 +6,21 @@ Clerk.clear();
 Clerk.markdown(
     Text.fillOut(
 """
+# codeDocu.java : Funktionsversprechen
 
-# BELA TURTLE PLAY
+# Bela Turtle View
 > Falls das Turtle-Objekt nicht sichtbar ist, bitte die file erneut starten.
 ---
 """));
 
 Turtle turtle = new Turtle(600, 400);
 TurtlePlay x = new TurtlePlay(turtle);
+x.setDifficulty("pro");
+x.play();
+x.startGame();
+x.pickTrump(0);
+x.startRound();
+// x.pickCard(0);
 
 Clerk.markdown(
     Text.fillOut(
@@ -176,7 +183,7 @@ Ablauf | Phase | Bedeutung | Aktion in der Phase
 
 ![nach ausfuhrung von endGame()](./DocuImgs/img5END_OF_GAME.png)
 
-7. **Match beenden `x.endMatch()` zum END_OF_MATCH**
+7. **Match beenden `x.endMatch()` zum END_OF_MATCH (bis 100 Punkte) **
 
 ![nach ausfuhrung von endMatch()](./DocuImgs/img6END_OF_MATCH.png)
 
@@ -200,7 +207,8 @@ ${goBack}
 
 - **`pickCard()`**
 
-Diese Methode verarbeitet den Zug eines Spielers (die Auswahl einer Karte). Bevor der Zug verarbeitet wird, prüft sie die Schwierigkeitseinstellung. Wenn sie nicht "PRO" ist, ruft sie `saveSnapshot()` auf, um den Spielzustand *vor* dem Ausspielen der Karte zu speichern. Dann wird die gewählte Karte verarbeitet und die `play()`-Methode bringt das Spiel in die nächste Phase.
+Diese Methode verarbeitet den Zug eines Spielers (die Auswahl einer Karte). 
+Bevor der Zug verarbeitet wird, prüft sie die Schwierigkeitseinstellung. Wenn sie nicht "PRO" ist, ruft sie `saveSnapshot()` auf, um den Spielzustand *vor* dem Ausspielen der Karte zu speichern. Dann wird die gewählte Karte verarbeitet und die `play()`-Methode bringt das Spiel in die nächste Phase.
 ```java
 ${pickCard}
 ```
@@ -315,13 +323,22 @@ private Team matchWinner() {
 ---
 ## Scenario 4 – [ AI Mitspieler ]
 
-Der KI-Spieler werden in einem Kartenspiel basierend auf einem gewählten Schwierigkeitsgrad erstellt werden. Die Methode `GameUtils.initializePlayers` nimmt einen `Difficulty`-Enum (LEARN, NORMAL, PRO) als Eingabe und instanziiert die entsprechende KI-Spieler-Klasse für jeden Schwierigkeitsgrad.
+Der KI-Spieler werden in einem Kartenspiel basierend auf einem gewählten Schwierigkeitsgrad erstellt werden. 
+Die Methode `GameUtils.initializePlayers` nimmt einen `Difficulty`-Enum (LEARN, NORMAL, PRO) als Eingabe 
+und instanziiert die entsprechende KI-Spieler-Klasse für jeden Schwierigkeitsgrad.
 
-* **Erstellung:** Die `initializePlayers`-Methode erstellt eine Liste von `Player`-Objekten. Ein Spieler ist immer ein `HumanPlayer`. Die übrigen sind KI-Spieler, die basierend auf der angegebenen `Difficulty` instanziiert werden.
+* **Erstellung:** Die `initializePlayers`-Methode erstellt eine Liste von `Player`-Objekten. Ein Spieler ist immer ein `HumanPlayer`. 
+Die übrigen sind KI-Spieler, die basierend auf der angegebenen `Difficulty` instanziiert werden.
 
-* **KI-Spieler-Typen:** Es existieren drei KI-Spieler-Typen: `AiPlayerLEARN`, `AiPlayerNORMAL` und `AiPlayerPRO`. Jeder ist eine Unterklasse der abstrakten `Player`-Klasse. Der Code zeigt nur ihre Instanziierung; die interne Logik, die ihre Spielstrategien bestimmt, ist in den bereitgestellten Codeausschnitten nicht enthalten.
+* **KI-Spieler-Typen:** Es existieren drei KI-Spieler-Typen: `AiPlayerLEARN`, `AiPlayerNORMAL` und `AiPlayerPRO`. 
+Jeder ist eine Unterklasse der abstrakten `Player`-Klasse. Der Code zeigt nur ihre Instanziierung; die interne Logik, 
+die ihre Spielstrategien bestimmt, ist in den bereitgestellten Codeausschnitten nicht enthalten.
 
-* **Unterschiede:** Der Hauptunterschied zwischen den KI-Spielern liegt in ihren Entscheidungsprozessen innerhalb der Methoden `chooseCardToPlay`, `chooseTrumpOrSkip` und `callZvanje`. Diese Methoden sind in der `Player`-Klasse abstrakt, und ihre Implementierungen in jeder KI-Spieler-Klasse definieren ihre Spielstrategien. Von höheren Schwierigkeitsgraden (`NORMAL` und `PRO`) wird erwartet, dass sie ausgeklügeltere Algorithmen verwenden, die zu besserem Spielverhalten führen.
+* **Unterschiede:** Der Hauptunterschied zwischen den KI-Spielern liegt in ihren Entscheidungsprozessen innerhalb 
+der Methoden `chooseCardToPlay`, `chooseTrumpOrSkip`. Diese Methoden sind in der `Player`-Klasse abstrakt, 
+und ihre Implementierungen in jeder KI-Spieler-Klasse definieren ihre Spielstrategien. Von höheren Schwierigkeitsgraden 
+(`NORMAL` und `PRO`) wird erwartet, dass sie ausgeklügeltere Algorithmen verwenden, die zu besserem Spielverhalten führen, 
+während LEARN rein zufällig spielt um es den Spieler die Möglichkeit zu geben auf alles vorbereitet zu sein.
 
 ```java
 ${findPlayableCardIndexes}
@@ -356,6 +373,11 @@ Die Schwierigkeitsmodi "LEARN", "NORMAL" und "PRO" unterscheiden sich in mehrere
 * **LEARN:** Der KI-Bot spielt rein zufällig (random).
 * **NORMAL:** Der KI-Bot berücksichtigt seine Handkarten und die bereits ausgespielten Karten.
 * **PRO:** Der KI-Bot verwendet eine ausgefeilte Spielstrategie.
+
+>Hier die chooseTrumpOrSkip(int turnForChoosingTrump) Methode des AI-Players PRO:
+Die Methode lässt den AI-Spieler basierend auf seiner Hand entweder eine Trumpffarbe wählen oder passen. 
+Sie priorisiert dabei Kombinationen aus JACK und NINE mit ausreichender Unterstützung, 
+wählt ansonsten die Farbe mit der höchsten Punktzahl oder überspringt den Trumpf, wenn keine valide Kombination vorhanden ist.
 
 ```java
 ${chooseTrumpOrSkip}

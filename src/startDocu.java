@@ -2,6 +2,7 @@ Clerk.clear();
 Clerk.markdown(
     Text.fillOut(
 """
+# startDocu.java : Spielbeschreibung & JShell-Boot
 
 Belote
 ===============	
@@ -128,7 +129,7 @@ Sie steuert den Spielablauf durch einen Zustandsautomaten, der verschiedene Phas
 (Start, Trumpfauswahl, Zvanje, Rundenspiel, Spielende, Matchende) definiert.  
 Jede Phase wird durch Methoden der `Match`-Klasse abgearbeitet, die wiederum auf die Funktionalität der `Game`-Klasse 
 (für Spiellogik) und der `Round`-Klasse (für einzelnen Runden) zugreifen.  
-Der Spieler interagiert über JShell, indem er Methoden wie `pickTrump()` oder `pickCard()` aufruft;  
+Der Spieler interagiert über JShell, indem er Methoden wie `pickTrump()` oder `startRound()` aufruft;  
 das Spiel wartet auf Benutzereingaben und hält an, wenn diese fehlen.  
 Nach dem Abschluss einer Runde oder eines Spiels wird der Spielzustand entsprechend aktualisiert 
 und die nächste Phase initiiert,  wobei sich der Zyklus aus Phasen und Runden wiederholt, 
@@ -153,13 +154,21 @@ Die Ausführung der Datei run.jsh (mit /open) importiert notwendige Bibliotheken
 2. Konsolenkodierung auf UTF-8 Codepage einstellen.
  > chcp 65001
 3. Das Projekt kompilieren und die .class-Dateien in das out-Verzeichnis speichern.
-  > javac -d out models/*.java controllers/*.java services/*.java ai/*.java
+  > javac -d out models/*.java controllers/*.java ai/*.java
 4. JShell mit aktiviertem Preview-Modus und dem out-Verzeichnis als Klassenpfad starten
   > jshell --class-path out --enable-preview
 5. Die Datei run.jsh öffnen, um das Spiel laden und lvp zu aktivieren unter http://localhost:50001.
   > /open run.jsh
 
-Die wesentlichen Kommandos sind:
+6. Über die Konsole mit nuer Match Instanz oder durch die TurtlePlay Instanz die auch eine Turtle braucht das Spiel starten.
+  > Match match = new Match();  
+  > match.play();
+  >
+  > Turtle turtle = new Turtle(600, 400);  
+  > TurtlePlay x = new TurtlePlay(turtle);  
+  > x.play();  
+
+Die Spiel Kommandos sind:
 
 Befehl | Bedeutung
 -------|----------
@@ -172,112 +181,9 @@ Befehl | Bedeutung
 `endMatch()` | Beendet das gesamte Match und zeigt die Endergebnisse an.
 `goBack()` | Geht zu einem vorherigen Spielzustand zurück (Undo-Funktion).
 
-Spielstart
-===============	
+# Die Code Dokumentation
 
-## 1. **Match-Erstellung**: 
-
-```java
-Match match = new Match();
-```
-
-Der Konstruktor der Klasse Match (`models.Match.java`) initialisiert eine neue Instanz mit Standardwerten. 
-Er setzt den `gameCounter` auf 0, legt den `dealerIndex` auf 3 fest 
-(was bedeutet, dass der HumanPlayer das Spiel beginnt), 
-und weist den anfänglichen MatchPhase den Wert START zu. 
-Außerdem werden alle boolesche Phase-Flags 
-(`startGame`, `endGame`, `startRound` und `endMatch`) auf false gesetzt. 
-
-Difficulty | Bedeutung
--------|----------
-`LEARN` | Ermöglicht es, das Spiel zu lernen, wo es keine Begrenzung der Ruckgängig-Funktion gibt und die (Learn-)Bots ohne Betrachtung des Spieles die Wahl treffen, und zwar auf Züfallig.
-`NORMAL` | Wählt Karten zufällig aus spielbaren Optionen und hat eine einfache Logik für die Trumpfwahl, die lediglich die Gesamtstärke der Farben berücksichtigt.
-`PRO` | Nutzt eine strategische Analyse, um die beste Karte basierend auf Gewinnchancen auszuwählen, und wählt die Trumpffarbe gezielt, basierend auf komplexeren Kriterien wie der Kombination von Karten und weiteren strategischen Überlegungen.
-
-```java
-${CheckSettings}
-```
-
-## 3. **Spielbeginn**: 
-
-```java
-match.play();
-```
-
-Der Spielbeginn wird durch den Aufruf der `play()`-Funktion initiiert, 
-nachdem die Spielkonfiguration abgeschlossen ist. 
-Diese Funktion bringt das Spiel in die START-Phase. 
-Sollte die Konfiguration unvollständig sein, 
-werden standardmäßige (Default-)Werte für die nicht konfigurierten Parameter verwendet, 
-um sicherzustellen, dass das Spiel starten kann und für einen schnellen Start.
-
-```java
-${Match}
-```
-
-## 4. **Phasenwechsel und Interaktionen**: 
-- Wenn `play()` aufgerufen wird, was nach am Start jeder Aktion des Spielers erfolgt,
-wechselt das Spiel durch die verschiedenen Phasen:
-
-Ablauf | Phase | Bedeutung | Aktion in der Phase
-------|------|-----------|---------
-1 | **START** | Übernimmt die Einstellungen und bereitet das Spiel vor. | `match.startGame()`
-2 | **CHOOSING_TRUMP** | Die Spieler wählen die Trumpffarbe (Adut). | `match.pickTrump(int x)`
-3 |**SHOW_ZVANJE** | Der Zvanje wird angezeigt und dessen Punkte ausgewertet. | `match.startRound()` und `match.goBack()`
-4 |**PLAYING_ROUNDS** | Die Runden werden gespielt, wobei jeder Spieler Karten ausspielen kann. | `match.pickCard(int x)` & `match.goBack()`
-5 |**END_OF_GAME** | Am Ende jeder Runde werden die Punkte vergeben und geprüft, ob ein Team das Spiel gewonnen hat. | `match.endGame()` & `match.goBack()`
-6 |**END_OF_MATCH** | Das gesamte Match wird beendet, und die endgültigen Ergebnisse werden angezeigt. | `match.endMatch()`
-
-```java
-${Play}
-```
-
-
-## Snapshot-Verwaltung und Spielzustand im Java-Code
-
-Der Java-Code implementiert ein System zur Speicherung und Wiederherstellung von Spielzuständen (Snapshots), 
-um dem Spieler das Zurücksetzen von Spielzügen zu ermöglichen.  Dies wird hauptsächlich über die Methoden `saveSnapshot()`, `revertToPreviousSnapshot()`, und die Verwendung der `clone()`-Methode realisiert.
-
-**1. `saveSnapshot()`:**
-
-Diese Methode erstellt eine Kopie des aktuellen Spielzustands.  Sie verwendet die `clone()`-Methode, um ein 
-tiefes Klonen des `Match`-Objekts zu gewährleisten.  Dies bedeutet, dass nicht nur Referenzen kopiert werden, 
-sondern auch alle enthaltenen Objekte (wie Teams, Spieler, und Spielrunden) dupliziert werden.  
-Der so erstellte Snapshot wird auf einem Stapel (`snapshots`) gespeichert.  
-Snapshots werden nur für die Schwierigkeitsgrade `LEARN` (Spiel übergreifend) und `NORMAL`(Spiel begrenzt) erstellt; im `PRO`-Modus ist diese Funktion deaktiviert.
-
-**2. `clone()`-Methode:**
-
-Die `clone()`-Methode ist essentiell für die Snapshot-Funktionalität. Sie implementiert ein tiefes Klonen 
-des `Match`-Objekts und aller seiner Komponenten.  Dies verhindert, dass Änderungen an einem Snapshot den 
-ursprünglichen Spielzustand beeinflussen, oder umgekehrt. Die Implementierung umfasst das rekursive Klonen 
-von `Team`-, `Player`- und `Game`-Objekten um Konsistenz zu gewährleisten.  `CloneNotSupportedException` wird 
-abgefangen, um das Programm stabil zu halten.
-
-**3. `match.goBack()`:**
-
-Diese Methode ermöglicht es, zu einem zuvor gespeicherten Snapshot zurückzukehren.  
-Sie entfernt den letzten Snapshot vom Stapel (`snapshots`) und setzt den aktuellen Spielzustand auf 
-den Inhalt des Snapshots `restoreSnapshot(Match previousState)`.  Ähnlich wie bei `saveSnapshot()` wird ein tiefes Klonen verwendet. 
-Falls kein Snapshot vorhanden ist, oder die ist unverfügbar da 
-die Schwierigkeit `PRO` ist or da im Normalmodus bis zum Anfang von letzten Spiel ist, 
-wird eine entsprechende Meldung ausgegeben. 
-
-**4.  `resetMatch()`:**
-
-Diese Methode dient zum vollständigen Zurücksetzen des Spiels.  Im Gegensatz zu `goBack()`, 
-welches nur den Spielzustand auf einen vorherigen Punkt zurücksetzt, löscht `resetMatch()` den gesamten Spielzustand,
-einschließlich der gespeicherten Snapshots, und bereitet das Spiel für einen komplett neuen Match vor.
-
-
->Dieses System ermöglicht es dem Spieler, Fehler zu korrigieren oder alternative Spielzüge auszuprobieren, 
-ohne das Spiel neu starten zu müssen, jedoch mit Einschränkungen bezüglich der Schwierigkeit 
-und der Phase des Spiels.
-
-
-# Die TurtleView und Funktions
-
-## Bitte die File BelaView.java öffnen und die TurtleView.java
+## Bitte die File BelaView.java öffnen
 
 """, Map.of("Match", Text.cutOut("./controllers/Match.java", "// Match constructor"),
 "CheckSettings", Text.cutOut("./controllers/Match.java", "// Settings"), 

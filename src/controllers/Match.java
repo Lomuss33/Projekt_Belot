@@ -39,7 +39,6 @@ public class Match implements Cloneable { // Implement Cloneable{
     public final Stack<Match> snapshots = new Stack<>(); // Stack for storing match states (e.g., for undo)
     public Game game; // Reference to the current game
     public int gameCounter; // Tracks the number of games played so far
-    public Difficulty difficulty; // Difficulty level of the game
     public Team team1, team2; // The two competing teams
     public List<Player> players; // List of all players in the match
     public HumanPlayer me; // Player instance for the human player
@@ -53,7 +52,7 @@ public class Match implements Cloneable { // Implement Cloneable{
     public boolean endMatch; // Indicates if the match has ended
 
     // Customization options (e.g., names and attributes)
-    public Difficulty customDifficulty = Difficulty.LEARN; // Default difficulty level
+    public Difficulty difficulty = Difficulty.LEARN; // Default difficulty level
     public String customTeam1Name = "Team 1";
     public String customPlayerName = "You";
     public String customTeamMate = "Teammate";
@@ -128,7 +127,7 @@ public class Match implements Cloneable { // Implement Cloneable{
     }
 
     private boolean runStartPhase() {
-        initializeGameSettings(customDifficulty, customTeam1Name, customTeam2Name, 
+        initializeGameSettings(difficulty, customTeam1Name, customTeam2Name, 
                        customPlayerName, customTeamMate, customEnemy1, customEnemy2);
         printStart();
         if(!startGame) { // Ensure startGame boolean must be true before advancing
@@ -171,7 +170,7 @@ public class Match implements Cloneable { // Implement Cloneable{
     private boolean runShowZvanjePhase() {
         System.out.println("Match phase: SHOW_ZVANJE");
         if (!startRound) { // Ensure startRound boolean must be true before advancing
-            System.out.println("Waiting for Zvanje acceptance. Use startRound(true) to proceed.");
+            System.out.println("Waiting for Zvanje acceptance. Use startRound() to proceed.");
             return false;
         }
         // Reset boolean immediately after it's used
@@ -201,7 +200,7 @@ public class Match implements Cloneable { // Implement Cloneable{
         // Reset boolean immediately after it's used
         endGame = false;
         // Check if the match is over
-        winner = matchWinner();
+        winner = matchWinner(); 
         printEndGame(winner);
         if (winner != null) {
             currentPhase = MatchPhase.END_OF_MATCH;
@@ -297,9 +296,8 @@ public class Match implements Cloneable { // Implement Cloneable{
             default -> {
                 System.out.println("Invalid difficulty. Please choose String LEARN, NORMAL, or PRO.");
                 return;
+                }
             }
-            }
-            System.out.println("Difficulty set to: " + this.difficulty);
         }
         System.out.println("Difficulty set: " + difficulty);
     }
@@ -484,11 +482,7 @@ public class Match implements Cloneable { // Implement Cloneable{
     // Settings
     public void initializeGameSettings(Difficulty difficulty, String team1Name, String team2Name,  
                         String playerName, String teamMate, String enemyMate1, String enemyMate2) {
-
-        if (difficulty == null) {
-            this.difficulty = customDifficulty;
-            System.err.println("Difficulty not set. Using default difficulty: " + customDifficulty);
-        }
+        System.err.println("Difficulty set: " + difficulty);
         if (team1 == null || team2 == null) {
             this.team1 = new Team(customTeam1Name);
             this.team2 = new Team(customTeam2Name);
@@ -577,6 +571,10 @@ public class Match implements Cloneable { // Implement Cloneable{
 
     public Difficulty getDifficulty() {
         return difficulty;
+    }
+
+    public boolean isSnapEmpty() {
+        return snapshots.isEmpty();
     }
 
     // Clone the Match object to save snapshots

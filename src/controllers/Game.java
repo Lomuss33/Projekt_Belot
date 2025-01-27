@@ -32,12 +32,12 @@ public class Game implements Cloneable {
     public Round currentRound;
 
     public Game(List<Player> players, Team team1, Team team2, int dealerIndex, Match.Difficulty difficulty) {
-        this.difficulty = difficulty;
         this.players = players;
         this.team1 = team1;
         this.team2 = team2;
         this.deck = new Deck();
-        this.dealerIndex = dealerIndex;    
+        this.dealerIndex = dealerIndex;  
+        this.difficulty = difficulty;  
         this.roundStarterIndex = (dealerIndex + 1) % 4; // Player next to the dealer starts    
         this.roundCount = 0;
         this.midRound = false;
@@ -270,7 +270,7 @@ public class Game implements Cloneable {
             if (currentPlayer instanceof HumanPlayer) {
                 TrumpChoice humanChoice = handleHumanPlayerChoice((HumanPlayer) currentPlayer, i);
                 if (humanChoice == null) return null;
-                if (humanChoice != TrumpChoice.SKIP) {
+                if (humanChoice  != TrumpChoice.SKIP) {
                     trumpTeam = players.get(i).getTeam();
                     finalChoice = humanChoice;
                     break;

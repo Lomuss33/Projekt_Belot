@@ -16,26 +16,63 @@ public class AiPlayerNORMAL extends Player {
             throw new IllegalArgumentException("No playable cards available!");
         }
 
-        // Group playable cards
+        // Step 1: Prepare playable cards
         List<Card> playableCards = new ArrayList<>();
         for (int index : playableIndexes) {
             playableCards.add(hand.getCard(index));
         }
 
-        // Find the weakest card that can win
-        Card bestCard = playableCards.stream()
-            .min(Comparator.comparingInt(Card::getValue)) // Choose the weakest winning card
-            .orElse(null);
+        // Step 2: Decide logic to select a card
+        // (1) Prioritize cards that can potentially win the round
+        Optional<Card> possibleWinner = playableCards.stream()
+            .filter(card -> cardCanWin(card, onFloor, trump)) // Add logic for "cardCanWin()"
+            .min(Comparator.comparingInt(Card::getValue));    // Choose the weakest winning strategy (if available)
 
-        // If no winning card exists, play the lowest card
-        if (bestCard == null) {
-            return playableIndexes.stream()
-                .min(Comparator.comparingInt(index -> hand.getCard(index).getValue()))
-                .orElse(playableIndexes.get(0));
+        if (possibleWinner.isPresent()) {
+            Card winningCard = possibleWinner.get();
+            return playableIndexes.stream() // Map back to playableIndexes
+                    .filter(index -> hand.getCard(index).equals(winningCard))
+                    .findFirst()
+                    .orElse(playableIndexes.get(0)); // Fallback to the first playable index
         }
 
-        return playableIndexes.get(hand.getCards().indexOf(bestCard));
+        // (2) No winning card, fall back to a different strategy
+        // Option 1: Pick the weakest card
+        int weakestCardIndex = playableIndexes.stream()
+            .min(Comparator.comparingInt(index -> hand.getCard(index).getValue()))
+            .orElse(playableIndexes.get(0));
+
+        // **Option 2**: (Make it fun) Randomly select any card if all are weak
+        if (playableIndexes.size() > 1) {
+            Random random = new Random();
+            int randomChoice = playableIndexes.get(random.nextInt(playableIndexes.size()));
+            return randomChoice; // Return a random playable card index
+        }
+
+        // Return fallback weakest card in case no randomness applies
+        return weakestCardIndex;
     }
+
+    /**
+     * Helper method to determine if a card can win.
+     * Adjust this logic based on your game's rules.
+     */
+    private boolean cardCanWin(Card card, List<Card> onFloor, Card.Suit trumpSuit) {
+        if (onFloor.isEmpty()) {
+            // No cards on the floor, the card can win by default
+            return true;
+        }
+
+        // Find the strongest card currently on the floor
+        Card strongestCardOnFloor = onFloor.stream()
+            .max(Comparator.comparingInt(c -> c.getStrength(trumpSuit, onFloor.get(0).getSuit())))
+            .orElse(null);
+
+        // Check if the provided card is stronger
+        return card.getStrength(trumpSuit, onFloor.get(0).getSuit()) > 
+            strongestCardOnFloor.getStrength(trumpSuit, onFloor.get(0).getSuit());
+    }
+
 
     // Choose the trump suit based on the most valuable cards in hand
     @Override

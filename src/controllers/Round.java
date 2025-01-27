@@ -54,7 +54,6 @@ public class Round implements Cloneable {
             int cardBeingPlay = throwCard(currentPlayer);
             if (cardBeingPlay == -1) { // HumanPlayer has not made a choice yet
                 printOnFloorCards(startingPlayerIndex);
-                System.err.println("Playable Indexes: " + currentPlayer.getPlayableIndices());
                 currentPlayer.displayHand(); // Print the hand of the player
                 return -1;
             }
