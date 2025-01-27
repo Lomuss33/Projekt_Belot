@@ -60,7 +60,7 @@ public class Game implements Cloneable {
         System.out.println();
     }
 
-    public boolean trumpSelection() {
+    protected boolean trumpSelection() { 
         trumpSuit = chooseTrumpSuit(dealerIndex);
         if (trumpSuit != null) {
             System.out.println("Trump suit chosen: " + trumpSuit);
@@ -74,7 +74,7 @@ public class Game implements Cloneable {
         }
     }
     
-    public void findZvanje() {
+    protected void findZvanje() {
         // Sort all hands, deal last 2 cards and update card values
         updateCardValues(trumpSuit);
         deck.dealAllHands(players, 2);
@@ -105,7 +105,7 @@ public class Game implements Cloneable {
         return true; // End of all rounds 
     }
 
-    private void displayScores() {
+    public void displayScores() {
         if (difficulty == Match.Difficulty.LEARN) { 
             System.out.println(team1 + " - Bigs: " + team1.getBigs() + ", Smalls: " + team1.getSmalls());
             System.out.println(team2 + " - Bigs: " + team2.getBigs() + ", Smalls: " + team2.getSmalls());
@@ -229,13 +229,13 @@ public class Game implements Cloneable {
     }
 
     // Method to calculate game points for a given team
-    public static int calculateGamePoints(Team team, ZvanjeResult zvanjeWin) {
+    private static int calculateGamePoints(Team team, ZvanjeResult zvanjeWin) {
         int zvanjePoints = (zvanjeWin != null && zvanjeWin.getWinningTeam() == team) ? zvanjeWin.getTotalPoints() : 0;
         return team.getSmalls() + zvanjePoints;
     }
 
     // Calculate the threshold for winning the game 
-    public static int calculateWinThreshold(ZvanjeResult zvanjeWin) {
+    private static int calculateWinThreshold(ZvanjeResult zvanjeWin) {
         int basePoints = 162; // Base points for a "clean game"
         int zvanjePoints = (zvanjeWin != null) ? zvanjeWin.getTotalPoints() : 0;
         int totalPoints = basePoints + zvanjePoints;
@@ -244,7 +244,7 @@ public class Game implements Cloneable {
     }    
 
     // Method to update values for all cards in the deck and players' hands
-    public void updateCardValues(Card.Suit trumpSuit) {
+    private void updateCardValues(Card.Suit trumpSuit) {
         // Update values for all cards in the deck
         for (Card card : deck.getCards()) {
             card.calculateValue(trumpSuit);

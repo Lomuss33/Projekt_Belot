@@ -45,7 +45,7 @@ public class Round implements Cloneable {
     }
 
     // Return winner index of round, if HumanPlayer hast played returns -1
-    public int playTurns(int i) {
+    protected int playTurns(int i) {
         for (int turn = 0; turn < players.size(); turn++) { // Resume from the current turn
             Player currentPlayer = players.get((startingPlayerIndex + turn) % 4);
             // Skip the player if he has already made a decision
@@ -147,7 +147,7 @@ public class Round implements Cloneable {
     }
 
     // findPlayableCardIndexes
-    public static List<Integer> findPlayableCardIndexes(List<Card> handCards, List<Card> onFloorCards, Card.Suit trumpSuit) {
+    private static List<Integer> findPlayableCardIndexes(List<Card> handCards, List<Card> onFloorCards, Card.Suit trumpSuit) {
         List<Integer> playableIndexes = new ArrayList<>();
         // If no cards are played yet, the player is starting and can play any card
         if (onFloorCards.isEmpty()) {
@@ -182,14 +182,14 @@ public class Round implements Cloneable {
     }
     // findPlayableCardIndexes
 
-    public static Card findStrongestCard(List<Card> cards, Card.Suit trumpSuit, Card.Suit leadSuit) {
+    private static Card findStrongestCard(List<Card> cards, Card.Suit trumpSuit, Card.Suit leadSuit) {
         return cards.stream()
                     .max(Comparator.comparingInt(c -> c.getStrength(trumpSuit, leadSuit)))
                     .orElseThrow(() -> new IllegalArgumentException("Card list is empty"));
     }
 
     // Get a list of all card indices in a hand / Used in RoundUtils.findPlayableCardIndexes
-    public static List<Integer> getAllCardIndices(int handSize) {
+    private static List<Integer> getAllCardIndices(int handSize) {
         return IntStream.range(0, handSize)
                         .boxed()
                         .collect(Collectors.toList());

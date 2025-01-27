@@ -80,6 +80,7 @@ public class AiPlayerPRO extends Player {
         return Player.TrumpChoice.valueOf(bestSuit.name());
     }
 
+    // Evaluate the hand to find the best trump suit
     private Card.Suit evaluateHandForTrump(Map<Card.Suit, Integer> suitScores) {
         boolean hasJackAndNineCombo = false;
         Card.Suit bestSuit = null;

@@ -212,56 +212,105 @@ ${pickCard}
 
 #### **1. Akkumulation von "Smalls":**
 
-**Wann:**  
-"Smalls"-Punkte werden während des gesamten Spiels gesammelt. Jedes Mal, wenn ein Team eine Runde gewinnt, erhöht sich dessen "Smalls"-Punktestand. Der genaue Mechanismus, wie viele Punkte pro gewonnener Runde hinzugefügt werden, ist in der `Round`-Klasse implementiert, die nicht im Detail verfügbar ist.
+"Smalls"-Punkte werden nur während der Phase PLAYING_ROUNDS gesammelt. 
+Jedes Mal, wenn ein Team eine Runde gewinnt, 
+erhöht sich dessen "Smalls"-Punktestand um den Wert der Karten die sie gewonnen haben.
+Die Verwaltung der "Smalls"-Punkte erfolgt über die `Team`-Klasse mithilfe von Methoden wie `addWonCardsAsPoints()`. 
+Diese Methode erhöht die Punktzahl des Teams basierend auf den Kartenwerten. 
 
-**Wie:**  
-Die Verwaltung der "Smalls"-Punkte erfolgt über die `Team`-Klasse mithilfe von Methoden wie `addSmalls()`. Diese Methode erhöht die Punktzahl des Teams basierend auf den Kartenwerten. Die Details dieser Methode liegen in der Implementierung, auf die nicht vollständig zugegriffen werden kann.
-
+```java
+    public void addWonCardsAsPoints(List<Card> addedCards) {
+        wonCards.addAll(addedCards);
+        for (Card card : addedCards) {
+            smalls += card.getValue(); // Add card values to smalls
+        }
+    }
+```
 ---
 
 #### **2. Berechnung der Zvanje-Punkte:**
+ 
+Zvanje-Punkte werden *einmal* berechnet, nachdem die Trumpffarbe ausgewählt wurde 
+und die Spielere alle ihre Karten haben, 
+aber bevor die Runden beginnen. Diese Berechnung erfolgt, 
+um zusätzliche Punkte basierend auf speziellen Kartenkombinationen zu vergeben.
 
-**Wann:**  
-Zvanje-Punkte werden *einmal* berechnet, nachdem die Trumpffarbe ausgewählt wurde, aber bevor die Runden beginnen. Diese Berechnung erfolgt, um zusätzliche Punkte basierend auf speziellen Kartenkombinationen zu vergeben.
+Die `ZvanjeService`-Klasse spielt hier eine zentrale Rolle. 
+Mit `ZvanjeService.detectPlayerZvanje()` werden die Karten jedes Spielers überprüft, 
+um gültige Zvanje-Kombinationen (z. B. Sequenzen, spezielle Kartenpaare) zu identifizieren. 
+Die Punkte werden dann entsprechend den Regeln zugewiesen.
 
-**Wie:**  
-Die `ZvanjeService`-Klasse spielt hier eine zentrale Rolle. Mit `ZvanjeService.detectPlayerZvanje()` werden die Karten jedes Spielers überprüft, um gültige Zvanje-Kombinationen (z. B. Sequenzen, spezielle Kartenpaare) zu identifizieren. Die Punkte werden dann entsprechend den Regeln zugewiesen.
+```java
+${detectPlayerZvanje}
+``` 
 
 ---
 
 #### **3. Berechnung der Gesamt-Punkte:**
 
-**Wann:**  
-Die Gesamt-Punkte eines Teams werden am Ende jeder Runde und zusätzlich am Ende des Spiels berechnet. Diese ermöglichen es, den aktuellen Siegesstand oder den endgültigen Gewinner zu ermitteln.
+Die Gesamt-Punkte eines Teams werden am Ende jeder Runde und zusätzlich am Ende des Spiels berechnet. 
+Diese ermöglichen es, den aktuellen Siegesstand oder den endgültigen Gewinner zu ermitteln.
 
-**Wie:**  
-Mithilfe von `GameUtils.calculateGamePoints()` werden die Gesamtergebnisse eines Teams berechnet. Dabei werden die "Smalls"-Punkte aus der `Team`-Klasse und die zuvor bestimmten Zvanje-Punkte kombiniert. Somit ergibt sich die Gesamtpunktzahl eines Teams.
+Mithilfe von `Game.alculateGamePoints()` werden die Gesamtergebnisse eines Teams berechnet. 
+Dabei werden die "Smalls"-Punkte aus der `Team`-Klasse und die zuvor bestimmten Zvanje-Punkte kombiniert. 
+Somit ergibt sich die Gesamtpunktzahl eines Teams. Jeder Team hat auch die Variable "int awardedBigs" 
+für eine temporäre Speicherung von im Game gewonnen Punkten, die zu "Biggs" addiert werden.
 
----
+Die Gewinnbedingung einer Game wird ermittelt, indem geprüft wird, 
+ob ein Team die Gesamtpunktzahl erreicht hat, die den `winThreshold` überschreitet. 
+Dieser Schwellenwert wird mit der Methode `calculateWinThreshold()` berechnet und entspricht mindestens 50 % plus 1 Punkt.
 
-#### **4. Gewinnbedingung:**
+```java
+private void awardGameVictory() {
+    Team dealerTeam = getTrumpTeam();
+    Team otherTeam = (dealerTeam == team1) ? team2 : team1;
+    int dealerTeamPoints = calculateGamePoints(dealerTeam, zvanjeWin);
+    int otherTeamPoints = calculateGamePoints(otherTeam, zvanjeWin);
 
-**Wann:**  
-Das Überprüfen der Gewinnbedingung erfolgt am Ende jeder Runde (mit `GameUtils.findGameWinner()`) und nach Beendigung des gesamten Spiels.
+    if (dealerTeamPoints >= winTreshold) {
+        handleDealerTeamVictory(dealerTeam, otherTeam, dealerTeamPoints, otherTeamPoints);
+    } else {
+        handleOtherTeamVictory(dealerTeam, otherTeam, dealerTeamPoints, otherTeamPoints);
+    }
+}
 
-**Wie:**  
-Die Gewinnbedingung wird ermittelt, indem geprüft wird, ob ein Team die Gesamtpunktzahl erreicht hat, die den `winThreshold` überschreitet. Dieser Schwellenwert wird mit der Methode `GameUtils.calculateWinThreshold()` berechnet und entspricht mindestens 50 % plus 1 Punkt.
 
----
+// Method to calculate game points for a given team
+private static int calculateGamePoints(Team team, ZvanjeResult zvanjeWin) {
+    int zvanjePoints = (zvanjeWin != null && zvanjeWin.getWinningTeam() == team) ? zvanjeWin.getTotalPoints() : 0;
+    return team.getSmalls() + zvanjePoints;
+}
+``` 
+
+
+#### **4. Match Gewinner suche:**
+
+Die Methode matchWinner prüft, ob eines der Teams die WINNING_SCORE erreicht hat und ermittelt den Sieger. 
+Wenn beide Teams die Gewinnbedingung erfüllen, gewinnt das Team mit der höheren Punktzahl. 
+Hat nur eines der Teams die WINNING_SCORE überschritten, wird dieses Team als Sieger zurückgegeben. 
+Falls kein Team die erforderliche Punktzahl erreicht hat, gibt die Methode null zurück, was signalisiert, 
+dass das Match noch nicht entschieden ist. Die Methode sorgt so für eine klare Entscheidungslogik, auch bei knappen Spielständen.
+
+```java
+private Team matchWinner() {
+    // The match is over if either team reaches or exceeds the winning score
+    if (team1.getBigs() >= WINNING_SCORE && team2.getBigs() >= WINNING_SCORE) {
+        return team1.getBigs() > team2.getBigs() ? team1 : team2;
+    } else if (team1.getBigs() >= WINNING_SCORE) {
+        return team1;
+    } else if (team2.getBigs() >= WINNING_SCORE) {
+        return team2;
+    }
+    return null;
+}
+```
 
 #### **Zusammenfassung:**
 1. "Smalls"-Punkte werden schrittweise während der Runden gesammelt.  
 2. Zvanje-Punkte werden einmalig nach Auswahl der Trumpffarbe berechnet.  
-3. Die Gesamt-Punkte kombinieren die "Smalls" und Zvanje-Punkte, um den Spiel- und Matchstand zu ermitteln.  
-4. Ein Team gewinnt, wenn seine Gesamt-Punkte den errechneten `winThreshold` überschreiten (entspricht meist 50 % + 1 Punkt).
-
-Ohne detaillierten Zugriff auf den Code der Klassen `Team` und `Round` bleibt die genaue Implementierung teils offen.
-
-
-```java
-${detectPlayerZvanje}
-``` 
+3. Die Gesamt-Punkte "Bigs" kombinieren die "Smalls" und Zvanje-Punkte, um den Game- und Matchstand zu ermitteln.  
+4. Ein Team gewinnt den Game, wenn seine Gesamt-Punkte den errechneten `winThreshold` überschreiten (entspricht meist 50 % + 1 Punkt).
+5. Nach erreichen der `WINNING_SCORE` wird der Match-Gewinner ermittelt.
 
 ---
 ## Scenario 4 – [ AI Mitspieler ]

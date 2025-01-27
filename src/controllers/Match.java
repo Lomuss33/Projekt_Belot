@@ -128,11 +128,11 @@ public class Match implements Cloneable { // Implement Cloneable{
     }
 
     private boolean runStartPhase() {
-        initializeGameSettings(difficulty, customTeam1Name, customTeam2Name, 
+        initializeGameSettings(customDifficulty, customTeam1Name, customTeam2Name, 
                        customPlayerName, customTeamMate, customEnemy1, customEnemy2);
         printStart();
         if(!startGame) { // Ensure startGame boolean must be true before advancing
-            System.out.println("Waiting for game to start. Use startGame(true) to proceed.");
+            System.out.println("Waiting for game to start. Use startGame() to proceed.");
             return false; // Exit the method without advancing the game
         }
         if(game == null) {
@@ -260,9 +260,11 @@ public class Match implements Cloneable { // Implement Cloneable{
         rotateDealer(); // Rotate dealer index among 4 players
     }
 
-    public Team matchWinner() {
+    private Team matchWinner() {
         // The match is over if either team reaches or exceeds the winning score
-        if (team1.getBigs() >= WINNING_SCORE) {
+        if (team1.getBigs() >= WINNING_SCORE && team2.getBigs() >= WINNING_SCORE) {
+            return team1.getBigs() > team2.getBigs() ? team1 : team2;
+        } else if (team1.getBigs() >= WINNING_SCORE) {
             return team1;
         } else if (team2.getBigs() >= WINNING_SCORE) {
             return team2;
@@ -485,6 +487,7 @@ public class Match implements Cloneable { // Implement Cloneable{
 
         if (difficulty == null) {
             this.difficulty = customDifficulty;
+            System.err.println("Difficulty not set. Using default difficulty: " + customDifficulty);
         }
         if (team1 == null || team2 == null) {
             this.team1 = new Team(customTeam1Name);
