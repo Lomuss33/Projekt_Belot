@@ -1,31 +1,41 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// TURTLE PLAY
-/// 
 Clerk.clear();
 
 Clerk.markdown(
     Text.fillOut(
 """
-# codeDocu.java : Funktionsversprechen
-
-# Bela Turtle View
-> Falls das Turtle-Objekt nicht sichtbar ist, bitte die file erneut starten.
+### Name: Lovro Music | Matrikelnummer: 5517961
+# Funktionsversprechen : codeDocu.java 
+> **Falls die Turtle-View weiß oder nicht sichtbar ist, bitte die file erneut öffnen.**
 ---
 """));
 
 Turtle turtle = new Turtle(600, 400);
 TurtlePlay x = new TurtlePlay(turtle);
-x.setDifficulty("pro");
-x.play();
-x.startGame();
-x.pickTrump(0);
-x.startRound();
+
+// x.setDifficulty("normal");
+// x.setMyName("Spieler");
+// x.setOtherNames("Mitspieler", "Gegner_1", "Gegner_2");
+// x.setTeamNames("Wir", "Ihr");
+// x.play();
+// x.startGame();
+// x.pickTrump(0);
+// x.startRound();
 // x.pickCard(0);
+
+// x.endGame();
+// x.endMatch();
+// x.goBack();
 
 Clerk.markdown(
     Text.fillOut(
 """
-### Nutzen sie dieses Fenster und die ` x ` Instanz. um ein eigenes Spiel im Jshell zu spielen.
+```java
+Turtle turtle = new Turtle(600, 400);
+TurtlePlay x = new TurtlePlay(turtle);
+```
+- **Nutzen sie dieses Fenster und die ` x ` Instanz** um ein eigenes Spiel im Jshell zu spielen und hier es zu sehen.
+
+- **/open belaDocu.java** für die Spielbeschreibung
 
 ---
 ---
@@ -50,10 +60,9 @@ initialisieren Sie zuerst eine `Turtle`-Instanz mit den gewünschten Abmessungen
 Anschließend übergeben Sie diese an ein `TurtlePlay`-Objekt der die Match-Instanz erstellt und Logik steuert:
 
 ```java
-Turtle turtle = new Turtle(600, 400); // Erstellt ein Turtle-Fenster mit 600x400 Pixeln
-TurtlePlay x = new TurtlePlay(turtle); // Verknüpft die Turtle mit TurtlePlay
+Turtle turtle = new Turtle(600, 400); // Ein Turtle-Fenster mit 600x400 Pixeln ist Pflicht für eine anprechende Darstellung
+TurtlePlay x = new TurtlePlay(turtle); // Verknüpft die Turtle mit der TurtlePlay also mit dem Match
 ```
-
 
 ### **Match Klasse Übersicht**
 Der `Match`-Konstruktor und die zugehörigen Variablen steuern den gesamten Zustand und Ablauf eines Matches.
@@ -108,7 +117,8 @@ ${Match}
 ---
 
 ### Die Methode `play()`
-`play()` steuert den Ablauf des Spiels durch die verschiedenen Phasen. Sie nutzt eine rekursive Zustandsmaschine für einen flüssigen Spielfluss und berücksichtigt Unterbrechungen.
+`play()` steuert den Ablauf des Spiels durch die verschiedenen Phasen. 
+Sie nutzt eine rekursive Zustandsmaschine für einen flüssigen Spielfluss und berücksichtigt Unterbrechungen.
 
 #### Funktionsweise:
 1. **Phasen-Handling**: Je nach aktueller Phase (`MatchPhase`) wird die spezifische Logik ausgeführt (`runPhase()`).
@@ -134,7 +144,8 @@ Nach Abschluss einer Phase wird zur nächsten Phase gewechselt und `play()` erne
 4. **Flags zur Steuerung**: Spieleraktionen (z. B. `pickCard()`) setzen bestimmte Flags. Beim nächsten Durchlauf merkt dies `play()` und erkennt, dass die Voraussetzung für den Phasenabschluss erfüllt wurde.
 
 #### Unterbrechung & Fortsetzung:
-Während `play()` pausiert (z. B. bis ein Spieler eine Karte spielt), werden Statusvariablen wie der aktuelle Spieler oder die Trumpffarbe **persistiert**. Mit gesetzten Flags kann `play()` an derselben Stelle wieder fortgesetzt werden.
+Während `play()` pausiert (z. B. bis ein Spieler eine Karte spielt), werden Statusvariablen wie der aktuelle Spieler oder die Trumpffarbe **persistiert**. 
+Mit gesetzten Flags kann `play()` an derselben Stelle wieder fortgesetzt werden.
 
 #### Thread-Mechanismus:
 - **Unterbrechbarkeit**: `play()` kann pausieren, ohne den Thread zu stoppen.
@@ -160,30 +171,62 @@ Ablauf | Phase | Bedeutung | Aktion in der Phase
 
 1. **Match starten `x.play()` zum START** 
 
-![nach ausfuhrung von play()](./DocuImgs/img1START.png)
+Am Anfang befinden wir uns vor den Phasenzyklus. Die Einstellugen können hier noch geändert werden.
+
+Infos: Methoden und Variable der Settings - Namen, Schwierigkeitsgrad und Teams
+
+![nach ausfuhrung von play()](./DocuImgs/img0PLAY.png)
 
 2. **Game 1 starten `x.startGame()` zum CHOOSING_TRUMP** 
 
-![nach ausfuhrung von startGame()](./DocuImgs/img2CHOOSING_TRUMP.png)
+Hier sehen wir die Ausgabe nach dem Start des Matches. Die Spieler und Teams sind initialisiert, und das Spiel beginnt.
+
+Infos: Game Nummer, Teams und ihre Spieler und Große Punkte (Bigs) und der Schwierigkeitsgrad
+
+![nach ausfuhrung von startGame()](./DocuImgs/img1START.png)
 
 3. **Trumpf wählen `x.pickTrump(0)` zum SHOW_ZVANJE**  <br>
 0 = Skip, 1 = Herz (♥), 2 = Karo (♦), 3 = Kreuz(♣), 4 = Pik (♠)
+
+Hier befinden wir uns bei der Auswahl der Trumpffarbe.
+Da wir als erstes dran sind, können wir die Trumpffarbe wählen oder passen.
+
+Infos: Trumpf-Optionen, Namen der Spieler und eigene Karten
 
 ![nach ausfuhrung von pickTrump(0)](./DocuImgs/img2CHOOSING_TRUMP.png)
 
 4. **Runde starten `x.startRound()` zum PLAYING_ROUNDS**
 
+Hier starten die Runden mit der View der wichtigen Informationen.
+
+Info: Trumpffarbe, Trumpf-Team, Zvanje (Ansagen) Punkte und die Karten mit der die Zvanje gewonnen wurden.
+
 ![nach ausfuhrung von startRound()](./DocuImgs/img3SHOW_ZVANJE.png)
 
 5. **Karte ausspielen `x.pickCard(3)` zum END_OF_GAME** (0 = erste Karte, 1 = zweite Karte, ...)
+
+Hier befindet sich der spieler mitten im Spiel, und er muss eine Karte ausspielen, 2 sind spielbar und 1 nicht.
+
+Info: wir sehen unsere Karten, KartenEmoji die uns zeigen ob wir oder der gegnerischer Team Runden gewonnen hat, 
+es gibt auch ein Feld wo die geworfene Karten sind, ein Stern zeigt an wer die Runde angefangen hat,
+falls erlaubt sehen wir die goBack() Option
+ und oben links sehen wir die Punkte, oben rechts die restlichen Infos.
 
 ![nach ausfuhrung von pickCard(0)](./DocuImgs/img4PLAYING_ROUNDS.png)
 
 6. **Spiel beenden `x.endGame()` zum END_OF_GAME**
 
+Hier sehen wir die Ausgabe nach dem Ende des Spiels. Die Punkte werden vergeben, und das Ergebnis wird angezeigt.
+
+Info: Game Nummer, ob der Trumpf-Team durchgekommen ist, die Punkte und die Namen der Teams und das Zvanje
+
 ![nach ausfuhrung von endGame()](./DocuImgs/img5END_OF_GAME.png)
 
-7. **Match beenden `x.endMatch()` zum END_OF_MATCH (bis 100 Punkte) **
+7. **Match beenden `x.endMatch()` zum END_OF_MATCH (bis 100 Punkte)**
+
+Hier sehen wir die Ausgabe nach dem Ende des Matches. Die endgültigen Ergebnisse werden angezeigt.
+
+Info: Gewinner Team des Matches und die finalen Punkte der Teams
 
 ![nach ausfuhrung von endMatch()](./DocuImgs/img6END_OF_MATCH.png)
 
@@ -193,14 +236,19 @@ Ablauf | Phase | Bedeutung | Aktion in der Phase
 
 - **`saveSnapshot()`**
 
-Diese Methode speichert den aktuellen Spielzustand, indem sie eine tiefe Kopie des `Match`-Objekts erstellt und diese auf einen Stack (`snapshots`) legt.  Die tiefe Kopie ist entscheidend, um sicherzustellen, dass Änderungen an der kopierten Spielsituation die Originalversion nicht beeinflussen. Diese tiefe Kopie wird nur durchgeführt, wenn der Schwierigkeitsgrad des Spiels nicht auf "PRO" eingestellt ist.
+Diese Methode speichert den aktuellen Spielzustand, indem sie eine tiefe Kopie des `Match`-Objekts erstellt und diese auf einen Stack (`snapshots`) legt.  
+Die tiefe Kopie ist entscheidend, um sicherzustellen, dass Änderungen an der kopierten Spielsituation die Originalversion nicht beeinflussen. 
+Diese tiefe Kopie wird nur durchgeführt, wenn der Schwierigkeitsgrad des Spiels nicht auf "PRO" eingestellt ist.
 ```java
 ${saveSnapshot}
 ```
 
 - **`goBack()`**
 
-Diese Methode ermöglicht es einem Spieler, seinen letzten Zug rückgängig zu machen. Sie prüft zuerst, ob das Rückgängigmachen erlaubt ist (Schwierigkeit ist nicht "PRO" und das Spiel befindet sich nicht am Anfang oder Ende). Wenn erlaubt und ein vorheriger Zustand existiert (`snapshots` ist nicht leer), ruft sie den letzten Spielzustand vom `snapshots`-Stack ab. Der abgerufene Zustand wird dann wiederhergestellt, wodurch das Spiel effektiv auf den Punkt vor dem letzten Zug zurückgesetzt wird.  Anschließend wird `play()` aufgerufen, um fortzufahren.
+Diese Methode ermöglicht es einem Spieler, seinen letzten Zug rückgängig zu machen. Sie prüft zuerst, ob das Rückgängigmachen erlaubt ist 
+(Schwierigkeit ist nicht "PRO" und das Spiel befindet sich nicht am Anfang oder Ende). Wenn erlaubt und ein vorheriger Zustand existiert 
+(`snapshots` ist nicht leer), ruft sie den letzten Spielzustand vom `snapshots`-Stack ab. Der abgerufene Zustand wird dann wiederhergestellt, 
+wodurch das Spiel effektiv auf den Punkt vor dem letzten Zug zurückgesetzt wird.  Anschließend wird `play()` aufgerufen, um fortzufahren.
 ```java
 ${goBack}
 ``` 
@@ -208,7 +256,8 @@ ${goBack}
 - **`pickCard()`**
 
 Diese Methode verarbeitet den Zug eines Spielers (die Auswahl einer Karte). 
-Bevor der Zug verarbeitet wird, prüft sie die Schwierigkeitseinstellung. Wenn sie nicht "PRO" ist, ruft sie `saveSnapshot()` auf, um den Spielzustand *vor* dem Ausspielen der Karte zu speichern. Dann wird die gewählte Karte verarbeitet und die `play()`-Methode bringt das Spiel in die nächste Phase.
+Bevor der Zug verarbeitet wird, prüft sie die Schwierigkeitseinstellung. Wenn sie nicht "PRO" ist, ruft sie `saveSnapshot()` auf, 
+um den Spielzustand *vor* dem Ausspielen der Karte zu speichern. Dann wird die gewählte Karte verarbeitet und die `play()`-Methode bringt das Spiel in die nächste Phase.
 ```java
 ${pickCard}
 ```

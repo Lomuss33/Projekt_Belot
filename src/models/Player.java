@@ -47,15 +47,6 @@ public abstract class Player implements Cloneable {
         this.waiting = false;
     }
 
-    @Override
-    public Player clone() throws CloneNotSupportedException{ 
-            Player cloned = (Player) super.clone(); // Shallow copy first
-            cloned.hand = (this.hand != null) ? this.hand.clone() : null; // Deep copy of the hand if not null
-            cloned.team = this.team; // Deep copy of the team if not null
-            cloned.playableIndices = (playableIndices != null) ? new ArrayList<>(this.playableIndices) : null; // Deep copy of the playable indices	
-            return cloned;
-    }
-
     // Abstract method to choose trump
     public abstract TrumpChoice chooseTrumpOrSkip(int turnForChoosingTrump);
     
@@ -90,6 +81,10 @@ public abstract class Player implements Cloneable {
         return waiting;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public void setWaiting(boolean decisionMade) {
         this.waiting = decisionMade;
     }
@@ -104,16 +99,25 @@ public abstract class Player implements Cloneable {
 
     // Display the hand of the player
     public void displayHand() {
-        System.out.println();
         System.out.println(name + "'s Hand:");
         List<Card> cards = hand.getCards();
         for (int i = 0; i < cards.size(); i++) {
             System.out.println(i + " : " + cards.get(i));
         }
+        System.out.println();
     }
 
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public Player clone() throws CloneNotSupportedException{ 
+            Player cloned = (Player) super.clone(); // Shallow copy first
+            cloned.hand = (this.hand != null) ? this.hand.clone() : null; // Deep copy of the hand if not null
+            cloned.team = this.team; // Deep copy of the team if not null
+            cloned.playableIndices = (playableIndices != null) ? new ArrayList<>(this.playableIndices) : null; // Deep copy of the playable indices	
+            return cloned;
     }
 }

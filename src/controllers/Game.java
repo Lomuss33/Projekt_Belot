@@ -16,20 +16,21 @@ import models.Player.TrumpChoice;
 
 public class Game implements Cloneable {
 
-    public Match.Difficulty difficulty;
-    public Team team1, team2;
-    public List<Player> players;
-    public ZvanjeResult zvanjeWin;
-    public int winTreshold;
-    public Deck deck;
-    public Card.Suit trumpSuit;
-    public int dealerIndex;
-    public int roundStarterIndex;
-    public int roundCount;
-    public boolean teamPassed;
-    public Team trumpTeam;
-    public boolean midRound;
-    public Round currentRound;
+    private Match.Difficulty difficulty;
+    private Team team1, team2;
+    private List<Player> players;
+    private List<ZvanjeResult> zvanjeResults;
+    private ZvanjeResult zvanjeWin;
+    private int winTreshold;
+    private Deck deck;
+    private Card.Suit trumpSuit;
+    private int dealerIndex;
+    private int roundStarterIndex;
+    private int roundCount;
+    private boolean teamPassed;
+    private Team trumpTeam;
+    private boolean midRound;
+    private Round currentRound;
 
     public Game(List<Player> players, Team team1, Team team2, int dealerIndex, Match.Difficulty difficulty) {
         this.players = players;
@@ -55,15 +56,16 @@ public class Game implements Cloneable {
         }
         // Deal 6 cards to players to choose trump suit
         deck.dealAllHands(players, 6);
-
-        System.out.println(players.get(dealerIndex).getName() + " is the dealer.");
-        System.out.println();
     }
 
     protected boolean trumpSelection() { 
         trumpSuit = chooseTrumpSuit(dealerIndex);
         if (trumpSuit != null) {
-            System.out.println("Trump suit chosen: " + trumpSuit);
+            System.out.println();
+            System.out.println("Trump suit chosen: " + trumpSuit + " " + trumpSuit.getSymbol());
+            System.out.println("Trump team: " + trumpTeam.getName());
+            System.out.println("---------------------");
+            System.out.println();
             // Reset decisionMade for all players
             for (Player player : players) {
                 player.setWaiting(false);
@@ -87,12 +89,14 @@ public class Game implements Cloneable {
     public boolean playRounds() {
         for (int i = roundCount; i < 8; i++) { // Resume from saved round count
             System.out.println("Round " + (i + 1));
+            System.out.println("---------------------");
             displayScores();
             // Start a new round and get the winner's index
+            System.out.println();
             System.out.println("Round starts: " + players.get(roundStarterIndex).getName());
             if (!midRound) currentRound = new Round(players, roundStarterIndex, trumpSuit, difficulty); // Start a new round
             int winnerIndex = currentRound.playTurns(i); // Start the round and find its winner 
-            if(winnerIndex == -1) {
+            if(winnerIndex == -1) { 
                 midRound = true; 
                 return false; // If the round is not over, HumanPlayer is playing
             }
@@ -126,7 +130,8 @@ public class Game implements Cloneable {
         Team otherTeam = (dealerTeam == team1) ? team2 : team1;
         int dealerTeamPoints = calculateGamePoints(dealerTeam, zvanjeWin);
         int otherTeamPoints = calculateGamePoints(otherTeam, zvanjeWin);
-
+        System.err.println("---------------------");
+        System.err.println("Game over, all rounds played!");
         if (dealerTeamPoints >= winTreshold) {
             handleDealerTeamVictory(dealerTeam, otherTeam, dealerTeamPoints, otherTeamPoints);
         } else {
@@ -141,8 +146,8 @@ public class Game implements Cloneable {
         otherTeam.setAwardedBigs(otherTeamPoints);
         otherTeam.addBigs(otherTeamPoints);
         System.out.println();
-        System.out.println("Dealer's team PASSED!: " + dealerTeamPoints);
-        System.out.println("Other team: " + otherTeamPoints);
+        System.out.println("Dealer's team " + dealerTeam.getName() + " PASSED!: " + dealerTeamPoints);
+        System.out.println("Other team " + dealerTeam.getName() + " points: " + otherTeamPoints);
     }
 
     private void handleOtherTeamVictory(Team dealerTeam, Team otherTeam, int dealerTeamPoints, int otherTeamPoints) {
@@ -150,76 +155,80 @@ public class Game implements Cloneable {
         otherTeam.setAwardedBigs(otherTeamPoints + dealerTeamPoints);
         otherTeam.addBigs(otherTeamPoints + dealerTeamPoints);
         System.out.println();
-        System.out.println("Dealer's team did NOT PASS! Dealer's team: " + dealerTeam.getBigs());
+        System.out.println("Dealer's team " + dealerTeam.getName() + " did NOT PASS! Points: " + dealerTeam.getBigs());
         System.out.println("Other team GETS ALL: " + otherTeam.getBigs());
     }
 
     private ZvanjeResult reportZvanje(Card.Suit trumpSuit, int dealerIndex) {
-        List<ZvanjeResult> zvanjeResults = detectAllZvanje(trumpSuit, dealerIndex);
-        printZvanjeResults(zvanjeResults);
+        System.out.println("Match phase: SHOW_ZVANJE");
+        zvanjeResults = detectAllZvanje(trumpSuit, dealerIndex);
+        players.get(0).displayHand(); // print the hand of the human player
 
         ZvanjeResult winningZvanjeResult = ZvanjeService.biggestZvanje(zvanjeResults);
         if (winningZvanjeResult == null) {
             System.out.println("No Zvanje detected for any player.");
             return null;
+        } else {
+            updateWinningZvanjeResult(winningZvanjeResult);
+            printZvanjeResults();
         }
-
-        updateWinningZvanjeResult(winningZvanjeResult, zvanjeResults);
-        printWinningZvanjeResult(winningZvanjeResult, zvanjeResults);
-
         return winningZvanjeResult;
     }
 
     private List<ZvanjeResult> detectAllZvanje(Card.Suit trumpSuit, int dealerIndex) {
-        List<ZvanjeResult> zvanjeResults = new ArrayList<>();
+        zvanjeResults = new ArrayList<>();
         int numPlayers = players.size();
         for (int i = 0; i < numPlayers; i++) {
             int currentIndex = (dealerIndex + i + 1) % numPlayers;
             Player player = players.get(currentIndex);
             ZvanjeResult result = ZvanjeService.detectPlayerZvanje(player, trumpSuit);
             zvanjeResults.add(result);
-            player.displayHand();
+            
         }
         return zvanjeResults;
     }
 
-    private void printZvanjeResults(List<ZvanjeResult> zvanjeResults) {
-        System.out.println();
-        for (ZvanjeResult result : zvanjeResults) {
-            System.out.println(result.getPlayer().getName() + "'s ZvanjeTypes: " + result.getZvanjeTypes());
-        }
-        System.out.println();
-    }
+    private void printZvanjeResults() {
+        System.out.println("Zvanje Results:");
+        ZvanjeResult biggestZvanje = ZvanjeService.biggestZvanje(zvanjeResults);
+        if (biggestZvanje != null) {
+            int totalPoints = biggestZvanje.getTotalPoints();
+            Team winningTeam = biggestZvanje.getZvanjeTeam();
+            System.out.println("Player with the highest Zvanje: " + biggestZvanje.getPlayer().getName() + " from " + winningTeam.getName()); 
+            System.out.println("Players of " + winningTeam.getName() +  " won Zvanje: " + totalPoints + " points."); 
+            System.out.println();
+            for (Player player : players) {
+                int inxPlayer = players.indexOf(player); 
+                if (player.getTeam() == winningTeam) {
+                    System.out.println(player.getName() + "'s ZvanjeTypes: " + zvanjeResults.get(inxPlayer).getZvanjeTypes());
+                    System.out.println(player.getName() + " cards revealed: " + zvanjeResults.get(inxPlayer).getCardsOfZvanje()); 
+                    System.out.println();
+                }
+            }
 
-    private void updateWinningZvanjeResult(ZvanjeResult winningZvanjeResult, List<ZvanjeResult> zvanjeResults) {
-        Player winningPlayer = winningZvanjeResult.getPlayer();
-        Team winningTeam = winningPlayer.getTeam();
-        int totalPoints = calculateTotalZvanjePoints(winningTeam, zvanjeResults);
-        winningZvanjeResult.setPoints(totalPoints);
-    }
-
-    private void printWinningZvanjeResult(ZvanjeResult winningZvanjeResult, List<ZvanjeResult> zvanjeResults) {
-        Player winningPlayer = winningZvanjeResult.getPlayer();
-        Team winningTeam = winningPlayer.getTeam();
-        int totalPoints = winningZvanjeResult.getTotalPoints();
-
-        if (winningZvanjeResult.getBiggestZvanje() != null) {
-            System.out.println("Player with the highest Zvanje: " + winningPlayer.getName());
-            System.out.println("Winning Team: " + winningTeam.getName());
-            System.out.println("Total Zvanje Points: " + totalPoints);
-            System.out.println("Zvanje types of the winning team:");
-            zvanjeResults.stream()
-                .filter(result -> result.getPlayer().getTeam() == winningTeam)
-                .flatMap(result -> result.getZvanjeTypes().stream())
-                .forEach(System.out::println);
+            if (zvanjeResults.get(0).getTotalPoints() == 0) {
+                System.out.println("You have no Zvanje.");
+            } else if (players.get(0).getTeam() == winningTeam) {
+                System.out.println("Your Team won the Zvanje!");
+            } else {
+            System.out.println(players.get(0).getName() + " ZvanjeTypes:");
+                System.out.println(zvanjeResults.get(0).getZvanjeTypes());
+            }
         } else {
             System.out.println("No Zvanje detected for any player.");
         }
         System.out.println();
     }
 
+    private void updateWinningZvanjeResult(ZvanjeResult winningZvanjeResult) {
+        Player winningPlayer = winningZvanjeResult.getPlayer();
+        Team winningTeam = winningPlayer.getTeam();
+        int totalPoints = calculateTotalZvanjePoints(winningTeam);
+        winningZvanjeResult.setPoints(totalPoints);
+    }
+
     // Method to calculate total Zvanje points for a given team
-    private int calculateTotalZvanjePoints(Team team, List<ZvanjeResult> zvanjeResults) {
+    private int calculateTotalZvanjePoints(Team team) {
         // Filter ZvanjeResults for the given team and sum up the points
         return zvanjeResults.stream()
                 .filter(result -> result.getPlayer().getTeam() == team)
@@ -230,7 +239,7 @@ public class Game implements Cloneable {
 
     // Method to calculate game points for a given team
     private static int calculateGamePoints(Team team, ZvanjeResult zvanjeWin) {
-        int zvanjePoints = (zvanjeWin != null && zvanjeWin.getWinningTeam() == team) ? zvanjeWin.getTotalPoints() : 0;
+        int zvanjePoints = (zvanjeWin != null && zvanjeWin.getZvanjeTeam() == team) ? zvanjeWin.getTotalPoints() : 0;
         return team.getSmalls() + zvanjePoints;
     }
 
@@ -258,7 +267,7 @@ public class Game implements Cloneable {
     }
 
     // Method to choose the trump suit
-    private Card.Suit chooseTrumpSuit(int dealerIndex) {
+    private Card.Suit chooseTrumpSuit(int dealerIndex) { 
         int currentIndex = (dealerIndex + 1) % players.size();
         TrumpChoice finalChoice = null;
     
@@ -292,7 +301,7 @@ public class Game implements Cloneable {
     
     // Method to handle human player's choice of trump suit
     private TrumpChoice handleHumanPlayerChoice(HumanPlayer player, int round) {
-        TrumpChoice humanChoice = player.getTrumpChoice();
+        TrumpChoice humanChoice = player.getTrumpChoice(); 
         
         if (humanChoice == null) return null;
         
@@ -409,6 +418,14 @@ public class Game implements Cloneable {
         return players.get(index);
     }
 
+    public ZvanjeResult getZvanjeWin() {
+        return zvanjeWin;
+    }
+
+    public List<ZvanjeResult> getZvanjeResults() {
+        return zvanjeResults;
+    }
+
     public Player getZvanjeWinner() {
         return zvanjeWin.getPlayer();
     }
@@ -455,10 +472,6 @@ public class Game implements Cloneable {
 
     public String teamPassed() {
         return teamPassed ? "YES" : "NO";
-    }
-
-    public Team getTrumpCallTeam() {
-        return players.get(dealerIndex).getTeam();
     }
 
     public Match.Difficulty getDifficulty() {

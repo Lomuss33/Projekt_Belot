@@ -53,20 +53,20 @@ public class Round implements Cloneable {
             // Calculate playable card indexes and let the player choose one
             int cardBeingPlay = throwCard(currentPlayer);
             if (cardBeingPlay == -1) { // HumanPlayer has not made a choice yet
-                printOnFloorCards(startingPlayerIndex);
                 currentPlayer.displayHand(); // Print the hand of the player
+                printOnFloorCards(startingPlayerIndex);
+                System.err.println("Playable cards: " + currentPlayer.getPlayableIndices());
                 return -1;
             }
         }
         printOnFloorCards(startingPlayerIndex);
-        System.out.println();
-        // Determine the round winner
+        // Determine the round winner 
         Player winner = returnWinner(startingPlayerIndex);
         startingPlayerIndex = players.indexOf(winner);
         // Award 10 points if this is the 7th round
         if (i == 7) {
             winner.getTeam().addSmalls(10);
-            System.out.println("Bonus 10 points awarded to " + winner.getTeam().getName() + " for winning the 7th round!");
+            System.out.println("Bonus 10 points to " + winner.getTeam().getName() + " for winning the last round!");
         }
         System.out.println();
         // Add the won cards and their points to the winning player's team
@@ -137,8 +137,7 @@ public class Round implements Cloneable {
         int winningPlayerIndex = (startingPlayerIndex + onFloorCards.indexOf(strongestCard)) % 4;
         Player winningPlayer = players.get(winningPlayerIndex);
 
-        System.out.println();
-        System.out.println("WIN CARD: " + strongestCard.toString());
+        System.out.println("Top Card: " + strongestCard.toString());
         System.out.println("Round winner: " + winningPlayer.getName());
         System.out.println("Points won: " + onFloorCards.stream().mapToInt(Card::getValue).sum());
 
@@ -204,7 +203,7 @@ public class Round implements Cloneable {
             Player player = players.get(playerIndex);
     
             // Print the card and the corresponding player's name
-            System.out.println(card + " : " + player.getName());
+            System.out.println(player.getName() + " : " + card);
         }
         System.out.println();
     }

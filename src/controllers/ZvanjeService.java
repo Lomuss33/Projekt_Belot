@@ -57,7 +57,7 @@ public class ZvanjeService {
             return player;
         }
 
-        public Team getWinningTeam() {
+        public Team getZvanjeTeam() {
             return player.getTeam();
         }
 

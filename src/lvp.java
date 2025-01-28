@@ -228,8 +228,5 @@ interface Clerk {
 /open views/Turtle/Turtle.java
 /open views/Markdown/Marked.java
 /open views/Markdown/MarkdownIt.java
-/open views/TicTacToe/TicTacToe.java
-/open views/Dot/Dot.java
-/open views/Input/Slider.java
 
 // LiveView view = Clerk.view();

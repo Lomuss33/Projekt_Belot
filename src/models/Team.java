@@ -83,7 +83,6 @@ public class Team implements Cloneable {
 
     // Update the bigs score
     public void addBigs(int points) {
-        System.out.println("Adding " + points + " points to " + name + " big score");
         this.bigs += points;
     }
 
@@ -96,7 +95,6 @@ public class Team implements Cloneable {
     }
 
     public void addSmalls(int points) {
-        System.out.println("Adding " + points + " points to " + name + " small score");
         this.smalls += points;
     }
 

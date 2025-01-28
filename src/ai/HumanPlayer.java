@@ -17,17 +17,15 @@ package ai;
 import java.util.*;
 import models.*;
 
-public class HumanPlayer extends Player implements Cloneable {
+public class HumanPlayer extends Player {
 
-    public  TrumpChoice trumpChoice; // Variable to store the trump suit choice
-    public int cardIndexChoice; // Variable to store the card choice
-    public boolean choiceMade;
+    private  TrumpChoice trumpChoice; // Variable to store the trump suit choice
+    private int cardIndexChoice; // Variable to store the card choice
 
     public HumanPlayer(String name, Team team) {
         super(name, team);
         this.trumpChoice = null; // No choice made yet
         this.cardIndexChoice = -1; // No choice made yet
-        this.choiceMade = false;
         }
 
     @Override
@@ -37,7 +35,6 @@ public class HumanPlayer extends Player implements Cloneable {
     }
 
     public TrumpChoice getTrumpChoice() {
-        System.err.println("GETTING TRUMP CHOICE");
         return trumpChoice;
     }
 

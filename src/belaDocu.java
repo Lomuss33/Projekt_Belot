@@ -2,20 +2,20 @@ Clerk.clear();
 Clerk.markdown(
     Text.fillOut(
 """
-# startDocu.java : Spielbeschreibung & JShell-Boot
+### Name: Lovro Music | Matrikelnummer: 5517961
+# belaDocu.java : kurze Spielbeschreibung
+### `/open codeDocu.java` - Funktionsversprechen
 
-Belote
-===============	
+# Belote
 
-Ein Spiel, das nie langweilig wird. Egal ob in der Kneipe oder im Garten, 
-mit Freunden oder Familie – die strategische Tiefe, die Anpassbarkeit der Regeln 
-und der soziale Aspekt sorgen für stundenlangen Spielspaß. 
 
-Täglich neue Herausforderungen, 
-immer wieder andere Strategien, das perfekte Spiel bleibt unerreichbar, 
-und doch ist der Spaß mit denselben Menschen garantiert. Geheimnisse, Tricks, schnelles Denken, präzises Rechnen – all das steckt
-in diesem kleinen Kartenspiel mit 32 Karten. Man braucht nur eine ebene Fläche, 
-ein Getränk und schon vergeht die Zeit wie im Flug.
+Ein Spiel, das nie langweilig wird. Ob in der Kneipe, im Garten, 
+mit Freunden oder Familie – die strategische Tiefe, 
+anpassbaren Regeln und der soziale Aspekt sorgen für stundenlangen Spielspaß. 
+
+Mit nur 32 Karten und einer ebenen Fläche vergeht die Zeit schnell. 
+Geheimnisse, Tricks, schnelles Denken und präzises Rechnen machen das Spiel aus. 
+Besonders spannend: stundenlange Diskussionen über Regeln und Strategien, die immer wieder neue Perspektiven eröffnen. 
 
 Genauer gesagt "la Belote“, ist ein französisches Kartenspiel, 
 das in meinem kroatischen Dorf "Brišnik" in Bosnien und Herzegowina
@@ -43,8 +43,8 @@ Quelle: [Wikipedia](https://en.wikipedia.org/wiki/Belote)
 
 ---
 
-Implementierte Version
-===============	
+# Implementierte Version
+
 
 ## Die Brišnik Bela
 >Eine Belot-Variante, die seit der napoleonischen Zeit in Dalmatien an der Adriaküste
@@ -114,76 +114,6 @@ Falls beide Teams 1.001 Punkte in derselben Spiel erreichen, gewinnt das Team mi
 - Solange kein Team **1.001 Punkte** erreicht, werden neue Spiele angefagen.
 - Als nächster Geber wird der Spieler rechts vom vorherigen Geber bestimmt.
 - Der Geber mischt und teilt die Karten erneut aus, und das Spiel beginnt von vorne.
-
----
----
-
-
-
-Belot: Eine reine Java-Implementierung mit JShell-Steuerung
-===============	
-
-### Übersicht
->Die `Match`-Klasse in Java bildet das Gerüst für die Bela-Spielsimulation.  
-Sie steuert den Spielablauf durch einen Zustandsautomaten, der verschiedene Phasen 
-(Start, Trumpfauswahl, Zvanje, Rundenspiel, Spielende, Matchende) definiert.  
-Jede Phase wird durch Methoden der `Match`-Klasse abgearbeitet, die wiederum auf die Funktionalität der `Game`-Klasse 
-(für Spiellogik) und der `Round`-Klasse (für einzelnen Runden) zugreifen.  
-Der Spieler interagiert über JShell, indem er Methoden wie `pickTrump()` oder `startRound()` aufruft;  
-das Spiel wartet auf Benutzereingaben und hält an, wenn diese fehlen.  
-Nach dem Abschluss einer Runde oder eines Spiels wird der Spielzustand entsprechend aktualisiert 
-und die nächste Phase initiiert,  wobei sich der Zyklus aus Phasen und Runden wiederholt, 
-bis ein Team die benötigten Punkte erreicht und das Match gewinnt.  Der Mechanismus der Snapshots ermöglicht es, 
-den Spielverlauf zu speichern und bei Bedarf auf vorherige Zustände zurückzusetzen.
- 
-
-
-## Steuerung
-
->Die Interaktion mit dem Bela-Spiel erfolgt über die JShell in der Command Prompt (kein PowerShell). 
-Der Benutzer steuert die Match-Instanz mittels einfacher Befehle. 
-Wichtig ist dabei die korrekte Konsolenkodierung: chcp 65001 stellt UTF-8 sicher.
-Die Ausführung der Datei run.jsh (mit /open) importiert notwendige Bibliotheken und konfiguriert die Konsolenausgabe für UTF-8 
-(System.setOut(...)), um korrekte Sonderzeichen anzuzeigen für die Konsole-Ansicht.
-
-
-### Tutorial
-
-1. Neues Command Prompt-Fenster öffnen in Projektverzeichnis.
- > `cd src` navigiert zum Quellcode-Verzeichnis.
-2. Konsolenkodierung auf UTF-8 Codepage einstellen.
- > chcp 65001
-3. Das Projekt kompilieren und die .class-Dateien in das out-Verzeichnis speichern.
-  > javac -d out models/*.java controllers/*.java ai/*.java
-4. JShell mit aktiviertem Preview-Modus und dem out-Verzeichnis als Klassenpfad starten
-  > jshell --class-path out --enable-preview
-5. Die Datei run.jsh öffnen, um das Spiel laden und lvp zu aktivieren unter http://localhost:50001.
-  > /open run.jsh
-
-6. Über die Konsole mit nuer Match Instanz oder durch die TurtlePlay Instanz die auch eine Turtle braucht das Spiel starten.
-  > Match match = new Match();  
-  > match.play();
-  >
-  > Turtle turtle = new Turtle(600, 400);  
-  > TurtlePlay x = new TurtlePlay(turtle);  
-  > x.play();  
-
-Die Spiel Kommandos sind:
-
-Befehl | Bedeutung
--------|----------
-`play()` | Fortsetzung des Spiels durch Wechsel zwischen den Phasen.
-`startGame()` | Beginnt das Spiel und initiert die erste Runde.
-`pickTrump(int x)` | Wählt die Trumpfkarte, wobei `x` die 선택te Option darstellt.
-`startRound()` | Beginn der Runde, nachdem die Trumpfkarte gewählt wurde.
-`pickCard(int x)` | Spielt eine Karte aus der Hand, wobei `x` die Position der Karte angibt.
-`endGame()` | Beendet die aktuelle Runde und bereitet die Punktevergabe vor.
-`endMatch()` | Beendet das gesamte Match und zeigt die Endergebnisse an.
-`goBack()` | Geht zu einem vorherigen Spielzustand zurück (Undo-Funktion).
-
-# Die Code Dokumentation
-
-## Bitte die File BelaView.java öffnen
 
 """, Map.of("Match", Text.cutOut("./controllers/Match.java", "// Match constructor"),
 "CheckSettings", Text.cutOut("./controllers/Match.java", "// Settings"), 

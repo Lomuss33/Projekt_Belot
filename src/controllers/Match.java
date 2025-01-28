@@ -34,22 +34,24 @@ public class Match implements Cloneable { // Implement Cloneable{
     }
 
     // Variables for the Match class
-    public static final int WINNING_SCORE = 101; // Score required to win the match
     private MatchPhase currentPhase; // Tracks the current phase of the match
-    public final Stack<Match> snapshots = new Stack<>(); // Stack for storing match states (e.g., for undo)
-    public Game game; // Reference to the current game
-    public int gameCounter; // Tracks the number of games played so far
-    public Team team1, team2; // The two competing teams
-    public List<Player> players; // List of all players in the match
-    public HumanPlayer me; // Player instance for the human player
-    public Team winner; // Tracks the winner of the match
-    public int dealerIndex; // Tracks the index of the player dealing cards
+    private final Stack<Match> snapshots = new Stack<>(); // Stack for storing match states (e.g., for undo)
+    private Game game; // Reference to the current game
+    private int gameCounter; // Tracks the number of games played so far
+    private Team team1, team2; // The two competing teams
+    private List<Player> players; // List of all players in the match
+    private HumanPlayer me; // Player instance for the human player
+    private Team winner; // Tracks the winner of the match
+    private int dealerIndex; // Tracks the index of the player dealing cards
 
     // Boolean variables for match lifecycle
-    public boolean startGame; // Indicates if the game has started
-    public boolean endGame; // Indicates if the game has ended
-    public boolean startRound; // Indicates if a round has started
-    public boolean endMatch; // Indicates if the match has ended
+    private boolean startGame; // Indicates if the game has started
+    private boolean endGame; // Indicates if the game has ended
+    private boolean startRound; // Indicates if a round has started
+    private boolean endMatch; // Indicates if the match has ended
+
+    // Score required to win the match
+    public static final int WINNING_SCORE = 1001;
 
     // Customization options (e.g., names and attributes)
     public Difficulty difficulty = Difficulty.LEARN; // Default difficulty level
@@ -62,12 +64,13 @@ public class Match implements Cloneable { // Implement Cloneable{
 
     public Match() {
         this.currentPhase = MatchPhase.START; // Initial phase is START
-        this.gameCounter = 0; // Game counter starts from 0
+        this.gameCounter = 1; // Game counter starts from 1
         this.dealerIndex = 3; // The human player starts as the dealer by default
         this.startGame = false; // Game has not started
         this.endGame = false; // Game has not ended
         this.startRound = false; // Round has not started
         this.endMatch = false; // Match has not ended
+        printMatchSettings();
     }
 // Match
 
@@ -124,14 +127,17 @@ public class Match implements Cloneable { // Implement Cloneable{
         System.out.println("Team 2: " + team2.getName());
         System.out.println("Players: " + players);
         System.out.println("Dealer index: " + dealerIndex);
+        System.out.println("Waiting for game to start.");
+        System.out.println();
+        System.out.println("-> Match.startGame()");
     }
 
     private boolean runStartPhase() {
         initializeGameSettings(difficulty, customTeam1Name, customTeam2Name, 
                        customPlayerName, customTeamMate, customEnemy1, customEnemy2);
-        printStart();
         if(!startGame) { // Ensure startGame boolean must be true before advancing
-            System.out.println("Waiting for game to start. Use startGame() to proceed.");
+            printStart();
+
             return false; // Exit the method without advancing the game
         }
         if(game == null) {
@@ -149,28 +155,30 @@ public class Match implements Cloneable { // Implement Cloneable{
 
     private boolean runChoosingTrumpPhase() {
         System.out.println("Match phase: CHOOSING_TRUMP");
+        System.out.println();
+        System.out.println(players.get(dealerIndex).getName() + " is dealer."); 
         if (!game.trumpSelection()) {
             System.out.println("""
                 Choose Your Trump Suit Option:
-                0. Skip Trump Selection
-                1. Spades
-                2. Hearts
-                3. Diamonds
-                4. Clubs
-                -> Match.pickTrump(int choice)
+                0. Skip
+                1. Spades \u2660
+                2. Hearts \u2665
+                3. Diamonds \u2666
+                4. Clubs \u2663
+                
                 Please make your choice (0-4): 
-                """);
+                -> Match.pickTrump(int choice)""");
             return false; // Exit the method without advancing the game
         }
         currentPhase = MatchPhase.SHOW_ZVANJE;
-        game.findZvanje();
         return true;
     }
 
     private boolean runShowZvanjePhase() {
-        System.out.println("Match phase: SHOW_ZVANJE");
         if (!startRound) { // Ensure startRound boolean must be true before advancing
-            System.out.println("Waiting for Zvanje acceptance. Use startRound() to proceed.");
+            game.findZvanje();
+            System.out.println("Waiting for Zvanje confirmation.");
+            System.out.println("-> Match.startRound()");
             return false;
         }
         // Reset boolean immediately after it's used
@@ -181,8 +189,10 @@ public class Match implements Cloneable { // Implement Cloneable{
 
     private boolean runPlayingRoundsPhase() {
         System.out.println("Match phase: PLAYING_ROUNDS");
+        System.out.println();
         if (!game.playRounds()) { // false = still playing rounds
-            System.out.println("Use pickCard(int choice) to play a card.");
+            System.out.println("Your turn to play a card!");
+            System.out.println("-> Match.pickCard(int choice)");
             return false;
         }
         System.out.println("End of game");
@@ -192,16 +202,14 @@ public class Match implements Cloneable { // Implement Cloneable{
     }
 
     private boolean runEndOfGamePhase() {
-        System.out.println("Match phase: END_OF_GAME");
+        winner = matchWinner(); 
         if (!endGame) { // Ensure endGame boolean must be true before advancing
-            System.out.println("Waiting for game end. Use endGame() to proceed.");
+            printEndGame(winner);
             return false;
         }
         // Reset boolean immediately after it's used
         endGame = false;
-        // Check if the match is over
-        winner = matchWinner(); 
-        printEndGame(winner);
+        // Check if the match is over 
         if (winner != null) {
             currentPhase = MatchPhase.END_OF_MATCH;
         } else {
@@ -252,6 +260,7 @@ public class Match implements Cloneable { // Implement Cloneable{
     }
 
     private void resetForNextGame() {
+        System.out.println("Resetting for the next game...");
         team1.setSmalls(0);
         team2.setSmalls(0);
         team1.resetWonCards();
@@ -272,8 +281,7 @@ public class Match implements Cloneable { // Implement Cloneable{
     }
 
     private void rotateDealer() {
-        System.out.println("dealer rotated from " + dealerIndex); 
-        System.out.println("dealer rotated to " + (dealerIndex + 1) % 4);
+        System.out.println("Dealer rotated from " + dealerIndex + " to " + (dealerIndex + 1) % 4);
         this.dealerIndex = (dealerIndex + 1) % 4; // Rotate dealer index among 4 players
     }
     
@@ -321,8 +329,7 @@ public class Match implements Cloneable { // Implement Cloneable{
             Other player names set: 
             Team mate: %s
             Rival 1: %s
-            Rival 2: %s
-            """.formatted(customTeamMate, customEnemy1, customEnemy2));
+            Rival 2: %s""".formatted(customTeamMate, customEnemy1, customEnemy2));
     }
 
     public void setTeamNames(String team1Name, String team2Name) {
@@ -432,29 +439,27 @@ public class Match implements Cloneable { // Implement Cloneable{
     public void saveSnapshot() {
         try {
             Match snapshot = this.clone(); // Clone the match object
-            System.err.println("snapshot: " + snapshot);
-            System.out.println("Not Saved. Current snapshot count: " + snapshots.size());
             snapshots.push(snapshot);
             System.out.println("Snapshot saved. Current snapshot count: " + snapshots.size());
-            System.err.println("snapshots: " + snapshots);
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("Snapshot saving failed", e);
         }
+        System.out.println();
     }
     // saveSnapshot
 
     // goBack
     public void goBack() {
         if (difficulty == Difficulty.PRO) {
-            System.err.println("Reverting to a previous snapshot is not allowed on PRO difficulty!");
+            System.out.println("Reverting to a previous snapshot is not allowed on PRO difficulty!");
             return;
         }
         if (currentPhase == MatchPhase.START || currentPhase == MatchPhase.END_OF_MATCH || currentPhase == MatchPhase.CHOOSING_TRUMP) {
-            System.err.println("Cannot revert to previous snapshot at the start or end of the match!");
+            System.out.println("Cannot revert to previous snapshot at the start or end of the match!");
             return;
         }
         if (snapshots.isEmpty()) {
-            System.err.println("No previous snapshot to revert to!");
+            System.out.println("No previous snapshot to revert to!");
             return;
         }
         restoreSnapshot(snapshots.pop());
@@ -482,7 +487,6 @@ public class Match implements Cloneable { // Implement Cloneable{
     // Settings
     public void initializeGameSettings(Difficulty difficulty, String team1Name, String team2Name,  
                         String playerName, String teamMate, String enemyMate1, String enemyMate2) {
-        System.err.println("Difficulty set: " + difficulty);
         if (team1 == null || team2 == null) {
             this.team1 = new Team(customTeam1Name);
             this.team2 = new Team(customTeam2Name);
@@ -524,9 +528,22 @@ public class Match implements Cloneable { // Implement Cloneable{
         return players;
     }
 
+    private void printMatchSettings() {
+        System.err.println("Match initiated!");
+        System.out.println("Set the game settings before starting the match:");
+        System.out.println("Match.setDifficulty(String difficultyName)");
+        System.out.println("Match.setTeamNames(String team1Name, String team2Name)");
+        System.out.println("Match.setMyName(String playerName)");
+        System.out.println("Match.setOtherNames(String teamMate, String enemyMate1, String enemyMate2)");
+        System.out.println();
+        System.out.println("-> Match.play()");
+    }
+
     private void printEndGame(Team winner) {
+        System.out.println("Match phase: END_OF_GAME");
+        System.out.println();
         System.out.println("End of game!");
-        System.out.println("Trump team passed? " + game.teamPassed());
+        System.out.println("Team 1: " + team1.getName() + " - " + team1.getBigs());
         System.out.println("Team 2: " + team2.getName() + " - " + team2.getBigs());
         System.out.println("Game counter: " + gameCounter);
         if(winner != null) {
@@ -534,7 +551,9 @@ public class Match implements Cloneable { // Implement Cloneable{
         }else {
             System.out.println("No winner yet... another game?");
         }
-        System.out.println("Use endGame() to proceed.");
+        System.err.println();
+        System.out.println("Waiting for game end!");
+        System.err.println("-> Match.endGame()");
     }
 
     public String getWinnerPrint() {
@@ -554,7 +573,7 @@ public class Match implements Cloneable { // Implement Cloneable{
     }
 
     public Round getCurrentRound() {
-        return game.currentRound;
+        return game.getCurrentRound();
     }
 
     public Game getCurrentGame() {
@@ -573,8 +592,20 @@ public class Match implements Cloneable { // Implement Cloneable{
         return difficulty;
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     public boolean isSnapEmpty() {
         return snapshots.isEmpty();
+    }
+
+    public Team getTeam1() {
+        return team1;
+    }
+
+    public Team getTeam2() {
+        return team2;
     }
 
     // Clone the Match object to save snapshots
@@ -606,16 +637,15 @@ public class Match implements Cloneable { // Implement Cloneable{
         clonedMatch.currentPhase = this.currentPhase;
         clonedMatch.difficulty = this.difficulty;
 
-        System.out.println("Clone match snapshot count: " + snapshots.size());
         return clonedMatch;
     }
 
     private void makeRoundClone(Match clonedMatch) throws CloneNotSupportedException { 
         // Deep clone currentRound
-        clonedMatch.game.currentRound = (game.currentRound != null) ? game.getCurrentRound().clone() : null; 
-        if (clonedMatch.game.currentRound != null) {
-            clonedMatch.game.currentRound.setPlayers(clonedMatch.players); // Update the players reference 
-            clonedMatch.game.currentRound.setDifficulty(difficulty);
+        clonedMatch.game.setCurrentRound((game.getCurrentRound() != null) ? game.getCurrentRound().clone() : null); 
+        if (clonedMatch.game.getCurrentRound() != null) {
+            clonedMatch.game.getCurrentRound().setPlayers(clonedMatch.players); // Update the players reference 
+            clonedMatch.game.getCurrentRound().setDifficulty(difficulty);
         }
     }
 
@@ -624,16 +654,16 @@ public class Match implements Cloneable { // Implement Cloneable{
         if (game != null) {
             clonedMatch.game = game.clone(); // Game will propagate the players and Round correctly
             clonedMatch.game.setDifficulty(difficulty);
-            clonedMatch.game.players = clonedMatch.players;
+            clonedMatch.game.setPlayers(clonedMatch.players);
             clonedMatch.game.setTeam1(clonedMatch.team1);
             clonedMatch.game.setTeam2(clonedMatch.team2);
             // clonedMatch.game.setPlayers(clonedMatch.players); // Use the shared cloned players in Game
-            if (clonedMatch.game.currentRound != null) {
-                clonedMatch.game.currentRound.setPlayers(clonedMatch.players); // Use the shared cloned players in Round 
+            if (clonedMatch.game.getCurrentRound() != null) {
+                clonedMatch.game.getCurrentRound().setPlayers(clonedMatch.players); // Use the shared cloned players in Round 
             }
                 // Update the player reference in the cloned game zvanjeWin
-            if (clonedMatch.game.zvanjeWin != null && clonedMatch.game.zvanjeWin.getTotalPoints() != 0) {
-                clonedMatch.game.zvanjeWin.setPlayer(clonedMatch.game.players.get(players.indexOf(game.zvanjeWin.getPlayer())));
+            if (clonedMatch.game.getZvanjeWin() != null && clonedMatch.game.getZvanjeWin().getTotalPoints() != 0) {
+                clonedMatch.game.getZvanjeWin().setPlayer(clonedMatch.game.getPlayers().get(players.indexOf(game.getZvanjeWinner())));
             }
         }
     }
