@@ -123,4 +123,5 @@ Each phase is handled by methods of the `Match` class, which in turn rely on fun
 Players interact via **JShell** by calling methods like `pickTrump()` or `startRound()`. The game pauses and waits for user input whenever provided commands are incomplete. After a round or game is completed, the game state is updated, and the next phase is initiated. This cycle continues until one team reaches the required points to win the match.
 
 The implementation also includes a **snapshot mechanism** to allow saving the state of the game and rolling back to previous states if necessary.
+
 ---
