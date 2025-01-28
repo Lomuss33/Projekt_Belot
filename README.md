@@ -1,163 +1,126 @@
-# Card Game Project: Belot
+### Name: Lovro Music | Matrikelnummer: 5517961
 
-A Java-based implementation of the classic Belot card game. This project features AI players with varying difficulty levels, undo functionality, Zvanje scoring, and more, all designed for a fun and strategic gameplay experience.
-
----
-
-## Table of Contents
-- [Features](#features)
-- [How to Play](#how-to-play)
-- [Installation](#installation)
-- [Game Overview](#game-overview)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
+# Belot: A Pure Java Implementation with JShell Control
 
 ---
 
-## Features
-- **AI Players**: Choose from Easy, Normal, or Hard AI opponents.
-- **Zvanje Scoring**: Detect and score advanced combinations automatically.
-- **Undo Feature**: Revert your moves to fix mistakes or replay strategies.
-- **Dynamic Trump Selection**: Players dynamically choose the trump suit at the beginning of the game.
-- **Team-Based Gameplay**: Play in teams and compete to score 1001 points to win the match.
-- **Customizable Difficulty**: Set game difficulty levels for personalized challenges.
-- **Real-Time Score Tracking**: Monitor team scores throughout the game.
-- **Comprehensive Game Logs**: Review past rounds and moves for strategy improvement.
+## Setup
 
----
+The interaction with the Belot game is done through **JShell** in the Command Prompt (ensure to use Command Prompt, NOT PowerShell). The following steps provide detailed instructions for setting up and running the game.
 
-## How to Play
-1. Start the game by running the `Main` class.
-2. The game will initialize with:
-   - 1 Human Player.
-   - 3 AI Players (based on the selected difficulty).
-   - A shuffled deck of cards.
-3. **Game Phases**:
-   - **Card Dealing**: Players are dealt 6 cards in 3 rounds.
-   - **Trump Selection**: Players choose a trump suit or skip.
-   - **Gameplay**: Play cards in rounds, attempting to win tricks.
-   - **Scoring**: Earn points through tricks and Zvanje combinations.
-4. Play continues for 8 rounds or until a team scores 1001 points.
-5. The team with the highest score wins the match!
+## How to Run
 
-### Additional Commands
-- **Drop Mid-Game**: Use `/open run.js` to terminate the current game.
-- **Trump Selection**: Use `pickTrump(0-5)` to select the trump suit (0 to skip unless last, 1-4 for suit options).
-- **Card Selection**: Use `pickCard(0-8)` to play a card from your hand, depending on the number of cards.
+### Step-by-Step Instructions:
 
-### Example to Start a New Game
-```java
-import models.*;
-import controllers.*;
-import services.*;
-import ai.*;
-
-Match y = new Match(Game.Difficulty.EASY);
-y.play();
-```
-
----
-
-## Installation
-
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/your-username/your-repo-name.git
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd your-repo-name
-   ```
-3. Open the project in your favorite Java IDE (e.g., IntelliJ IDEA, Eclipse, VSCode).
-4. Compile the project:
-   ```bash
-   javac -d out models/*.java controllers/*.java services/*.java ai/*.java
-   ```
-5. Run the `Main` class:
-   ```bash
-   jshell --class-path out
+1. **Open Command Prompt in the Project Directory**  
+   Navigate to the source code directory:  
+   ```shell
+   cd src
    ```
 
-Command line: C:\WINDOWS\system32\cmd.exe '/K' 'chcp 65001'
-- chcp 65001 // must for Console Suit output with UTF-8
----
-
-## Game Overview
-### Core Classes
-- **Game**: Manages the overall game flow.
-- **RoundManager**: Handles logic for individual rounds.
-- **GameInitializer**: Sets up players, teams, and initial game state.
-- **ZvanjeService**: Detects and scores Zvanje combinations.
-- **CardService**: Manages card-related utilities like playable cards and trump values.
-
-### AI Levels
-- **Easy AI**: Basic random card selection.
-- **Normal AI**: Moderate logic for card and trump choices.
-- **Hard AI**: Advanced strategy for competitive gameplay.
-
----
-
-## Project Structure
-```plaintext
-├── src
-│   ├── controllers
-│   │   ├── Game.java
-│   │   ├── Main.java
-│   │   ├── Match.java
-│   │   ├── RoundManager.java
-│   ├── models
-│   │   ├── Card.java
-│   │   ├── Deck.java
-│   │   ├── Hand.java
-│   │   ├── Player.java
-│   │   ├── Team.java
-│   ├── services
-│   │   ├── CardService.java
-│   │   ├── GameInitializer.java
-│   │   ├── GameStateManager.java
-│   │   ├── ScoringService.java
-│   │   ├── ZvanjeService.java
-│   ├── ai
-│   │   ├── EasyAI.java
-│   │   ├── NormalAI.java
-│   │   ├── HardAI.java
-
-├── README.md
-├── LICENSE
-```
-
----
-
-## Contributing
-Contributions are welcome! To contribute:
-
-1. Fork this repository.
-2. Create a new branch:
-   ```bash
-   git checkout -b feature-name
+2. **Set Console Encoding to UTF-8**  
+   Ensure the console is using UTF-8 encoding for proper character rendering:  
+   ```shell
+   chcp 65001
    ```
-3. Commit your changes:
-   ```bash
-   git commit -m "Add new feature"
+
+3. **Compile the Project Code**  
+   Compile the Java files into the `out` directory:  
+   ```shell
+   javac -d out models/*.java controllers/*.java ai/*.java
    ```
-4. Push your branch:
-   ```bash
-   git push origin feature-name
+
+4. **Launch JShell with Required Options**  
+   Start **JShell** in preview mode with the `out` directory as the class path:  
+   ```shell
+   jshell --class-path out --enable-preview
    ```
-5. Open a Pull Request on GitHub.
+
+5. **Load the `run.jsh` File**  
+   Open the `run.jsh` file in JShell to load the game and activate **lvp**:  
+   ```shell
+   /open run.jsh
+   ```
+
+6. **Start the Game**  
+   Follow one of the options below:
+
+   - Open the code documentation:
+     ```shell
+     /o codeDocu.java
+     x.play();
+     ```
+   
+   - Create a new `Match` instance:  
+     ```shell
+     Match match = new Match();
+     match.play();
+     ```
+   
+   - Use the `TurtlePlay` instance for graphical simulation (requires a `Turtle`):  
+     ```shell
+     Turtle turtle = new Turtle(600, 400);
+     TurtlePlay x = new TurtlePlay(turtle);
+     x.play();
+     ```
 
 ---
 
-## License
-This project is licensed under the [MIT License](LICENSE).
+## Game Commands
+
+The following table lists the commands available for interacting with the Belot game via JShell:
+
+| **Command**        | **Description**                                                                 |
+|---------------------|---------------------------------------------------------------------------------|
+| `play()`           | Starts the match by transitioning to the first/next phase.                         |
+| `startGame()`      | Begins the game and initiates the first game.                                 |
+| `pickTrump(int x)` | Selects the trump card, where `x` is the chosen option.                        |
+| `startRound()`     | Starts a round after the trump card has been selected.                        |
+| `pickCard(int x)`  | Plays a card from the hand, where `x` is the position of the card.             |
+| `endGame()`        | Ends the current round and proceeds to score calculation.                     |
+| `endMatch()`       | Ends the entire match and displays the final results.                         |
+| `goBack()`         | Rolls back to a previous game state (Undo functionality).                     |
 
 ---
 
-## Acknowledgments
-Special thanks to everyone who contributed to the development of this project and the open-source community for inspiring ideas.
+## Notes
+
+1. Ensure you are using **Command Prompt**, not PowerShell, for proper UTF-8 rendering.
+2. If you experience improper character rendering, verify that UTF-8 is properly configured using  
+   ```shell
+   chcp 65001
+   ```
+3. The `lvp` mode is activated under `http://localhost:50001` once `run.jsh` is opened. This step is essential for enabling proper console output and display.
+
+### In case of server isuse: Free Port 50001 in Windows and reload
+
+1. **Find the process using port 50001**:  
+   ```bash
+   netstat -ano | findstr :50001
+   ```
+   - Note the **PID** from the output.
+
+2. **Kill the process**:  
+   ```bash
+   taskkill /PID [PID_NUMBER] /F
+   ```
+   - Replace `[PID_NUMBER]` with the PID from step 1. Done! 🎉 
 
 ---
+## Summary
 
-Enjoy playing Belot! 😊
+The `Match` class in Java forms the foundation for a Belot (Bela) game simulation. It manages the gameplay using a **state machine** that transitions through several game phases:
 
+1. **Start**
+2. **Trump Selection**
+3. **Zvanje**
+4. **Playing Rounds**
+5. **Game End**
+6. **Match End**
+
+Each phase is handled by methods of the `Match` class, which in turn rely on functionality from the `Game` class (for game logic) and the `Round` class (for individual rounds). 
+
+Players interact via **JShell** by calling methods like `pickTrump()` or `startRound()`. The game pauses and waits for user input whenever provided commands are incomplete. After a round or game is completed, the game state is updated, and the next phase is initiated. This cycle continues until one team reaches the required points to win the match.
+
+The implementation also includes a **snapshot mechanism** to allow saving the state of the game and rolling back to previous states if necessary.
+---
