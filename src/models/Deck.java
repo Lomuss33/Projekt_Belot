@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class Deck {
+public final class Deck implements Cloneable {
 
     private List<Card> cards; // List of cards in the deck
 
@@ -25,6 +25,18 @@ public final class Deck {
     public Deck() {
         initializeDeck(); // Use helper method to initialize cards
         shuffle(); // Randomize the deck
+    }
+
+    // Clone method for the Deck (deep clone)
+    @Override
+    public Deck clone() throws CloneNotSupportedException {
+        Deck clonedDeck = (Deck) super.clone(); // Shallow copy
+        // Deep clone the list of cards
+        clonedDeck.cards = new ArrayList<>();
+        for (Card card : this.cards) { 
+            clonedDeck.cards.add(card.clone()); // Clone each card
+        }
+        return clonedDeck;
     }
 
     // Private helper to initialize all cards in the deck
