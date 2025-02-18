@@ -12,10 +12,10 @@
 // HUMAN PLAYER 
 //
 
-package ai;
+//package ai;
 
-import java.util.*;
-import models.*;
+// import java.util.*;
+// import models.*;
 
 public class HumanPlayer extends Player {
 

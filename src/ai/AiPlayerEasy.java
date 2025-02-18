@@ -8,10 +8,10 @@
 //
 // EASY AI PLAYER
 //
-package ai;
+//package ai;
 
-import java.util.*;
-import models.*;
+// import java.util.*;
+// import models.*;
 
 public class AiPlayerEasy extends Player {
 
